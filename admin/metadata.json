@@ -1,0 +1,6 @@
+{
+  "name": "Black Panther Admin Panel",
+  "description": "A modular, type-safe, and highly responsive admin dashboard for managing Black Panther Batteries services, products, inquiries, and system tasks.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

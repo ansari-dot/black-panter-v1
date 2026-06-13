@@ -1,0 +1,7 @@
+# Environment files with sensitive data
+.env.server.production
+.env.client.production
+.env.admin.production
+
+# Keep example files
+!.env.example
