@@ -1,7 +1,7 @@
 import { ArrowRightIcon } from "lucide-react";
 import React from "react";
 
-export const HeroSection = ({ 
+export const HeroSection = ({
   badge = "Nationwide Industrial Battery Services",
   title = {
     line1: { white: "Reliable Power ", orange: "Starts" },
@@ -23,13 +23,14 @@ export const HeroSection = ({
 
       {/* Main Heading */}
       <div className="flex flex-col items-start gap-6 w-full">
-        <h1 
-          className="text-5xl md:text-6xl font-bold leading-tight"
+        <h1
+          className="text-5xl md:text-6xl font-black leading-tight"
           style={{
             background: 'linear-gradient(135deg, #FFFFFF 0%, #FFE4D6 50%, #F3B38A 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text'
+            backgroundClip: 'text',
+            fontWeight: 900
           }}
         >
           {title.line1.white}{title.line1.orange}
@@ -45,7 +46,7 @@ export const HeroSection = ({
 
       {/* Buttons */}
       <div className="flex flex-wrap items-center gap-4 w-full">
-        <button 
+        <button
           className="hero-button flex items-center gap-2 px-6 py-3 bg-[#F06123] hover:bg-[#FF8803] text-white font-bold rounded-xl transition-all duration-300"
           style={{
             backgroundColor: '#F06123',
@@ -58,7 +59,7 @@ export const HeroSection = ({
           <ArrowRightIcon className="w-5 h-5" />
         </button>
 
-        <button 
+        <button
           className="hero-button px-6 py-3 bg-white hover:bg-gray-100 text-[#383A3C] font-bold rounded-xl transition-all duration-300"
           style={{
             backgroundColor: '#ffffff',

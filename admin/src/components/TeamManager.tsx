@@ -1,13 +1,15 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
-import { useState, FormEvent, useRef } from 'react';
-import { Users, Mail, UserPlus, Trash2, Calendar, Search, UserCheck, Upload } from 'lucide-react';
+﻿import { useState, FormEvent, useRef } from 'react';
+import { UserPlus, Trash2, Search, Upload, ChevronLeft, ChevronRight, X, Pencil } from 'lucide-react';
 import { TTeamMember } from '../types';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
+const resolveImg = (url?: string) => {
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+  if (url.startsWith('/uploads/')) return `${API}${url}`;
+  return `${API}/${url.replace(/^\//, '')}`;
+};
 
 interface TeamManagerProps {
   team: TTeamMember[];
@@ -16,9 +18,26 @@ interface TeamManagerProps {
   onDeleteMember: (id: string) => Promise<void> | void;
 }
 
+const PAGE_SIZE = 15;
+
+const lbl: React.CSSProperties = {
+  display: 'block', fontSize: 10, fontWeight: 600, textTransform: 'uppercase',
+  letterSpacing: '0.05em', color: '#888', marginBottom: 4,
+};
+const inp: React.CSSProperties = {
+  width: '100%', padding: '8px 10px', fontSize: 12, borderRadius: 6,
+  border: '1px solid #e8e8e8', outline: 'none', background: '#fff', color: '#1a1a1a',
+  boxSizing: 'border-box',
+};
+
+const COL_TEMPLATE = '2fr 1.4fr 1fr 100px 140px';
+
 export default function TeamManager({ team, onAddMember, onUpdateStatus, onDeleteMember }: TeamManagerProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [showAddForm, setShowAddForm] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hoveredRow, setHoveredRow] = useState<string | null>(null);
+
   const [name, setName] = useState('');
   const [role, setRole] = useState('');
   const [email, setEmail] = useState('');
@@ -27,17 +46,12 @@ export default function TeamManager({ team, onAddMember, onUpdateStatus, onDelet
   const [imagePreview, setImagePreview] = useState('');
   const [imageFileName, setImageFileName] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
-  const [successMsg, setSuccessMsg] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
   const uploadImage = async (file: File) => {
     const formData = new FormData();
     formData.append('image', file);
-    const response = await fetch(`${API}/api/upload`, {
-      method: 'POST',
-      credentials: 'include',
-      body: formData,
-    });
+    const response = await fetch(`${API}/api/upload`, { method: 'POST', credentials: 'include', body: formData });
     const data = await response.json();
     if (!response.ok) throw new Error(data.message || 'Image upload failed');
     return data.url as string;
@@ -54,9 +68,7 @@ export default function TeamManager({ team, onAddMember, onUpdateStatus, onDelet
       setImageUrl(url);
       setImagePreview(url.startsWith('/uploads/') ? `${API}${url}` : url);
     } catch {
-      setImageUrl('');
-      setImagePreview('');
-      setImageFileName('');
+      setImageUrl(''); setImagePreview(''); setImageFileName('');
       if (fileRef.current) fileRef.current.value = '';
     } finally {
       setUploadingImage(false);
@@ -64,13 +76,8 @@ export default function TeamManager({ team, onAddMember, onUpdateStatus, onDelet
   };
 
   const resetForm = () => {
-    setName('');
-    setRole('');
-    setEmail('');
-    setStatus('Active');
-    setImageUrl('');
-    setImagePreview('');
-    setImageFileName('');
+    setName(''); setRole(''); setEmail(''); setStatus('Active');
+    setImageUrl(''); setImagePreview(''); setImageFileName('');
     if (fileRef.current) fileRef.current.value = '';
   };
 
@@ -80,9 +87,7 @@ export default function TeamManager({ team, onAddMember, onUpdateStatus, onDelet
     if (uploadingImage) return;
     await onAddMember(name.trim(), role.trim(), email.trim(), status, imageUrl || undefined);
     resetForm();
-    setShowAddForm(false);
-    setSuccessMsg('Team member added successfully!');
-    setTimeout(() => setSuccessMsg(''), 3000);
+    setShowModal(false);
   };
 
   const filteredTeam = team.filter((m) =>
@@ -91,143 +96,258 @@ export default function TeamManager({ team, onAddMember, onUpdateStatus, onDelet
     m.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  return (
-    <div id="team-manager-container" className="flex flex-col gap-5">
+  const totalPages = Math.max(1, Math.ceil(filteredTeam.length / PAGE_SIZE));
+  const paginated = filteredTeam.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const goTo = (p: number) => setPage(Math.max(1, Math.min(totalPages, p)));
 
-      {/* Search & action bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-card border border-border p-4 rounded-xl">
-        <div className="relative w-full sm:w-72">
-          <Search className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
+  const openModal = () => { resetForm(); setShowModal(true); };
+  const closeModal = () => { setShowModal(false); resetForm(); };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+      {/* Toolbar */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+        <div style={{ position: 'relative', flex: '1 1 220px', maxWidth: 300 }}>
+          <Search style={{ position: 'absolute', left: 9, top: '50%', transform: 'translateY(-50%)', width: 14, height: 14, color: '#aaa' }} />
           <input
             type="text"
-            placeholder="Search team..."
+            placeholder="Search members…"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-xs rounded-lg border border-border bg-background text-foreground focus:outline-none focus:border-primary"
+            onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
+            style={{ ...inp, paddingLeft: 30 }}
           />
         </div>
-        <button
-          onClick={() => setShowAddForm(!showAddForm)}
-          className="w-full sm:w-auto px-4 py-2 bg-primary text-primary-foreground text-xs font-bold rounded-lg hover:opacity-90 transition-all flex items-center justify-center gap-2 cursor-pointer"
-        >
-          <UserPlus className="w-4 h-4" />
-          <span>{showAddForm ? 'Cancel' : 'Add Member'}</span>
-        </button>
+        <div style={{ marginLeft: 'auto' }}>
+          <button
+            onClick={openModal}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px',
+              background: '#e84b10', color: '#fff', border: 'none', borderRadius: 8,
+              fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap',
+            }}
+          >
+            <UserPlus style={{ width: 14, height: 14 }} />
+            Add Member
+          </button>
+        </div>
       </div>
 
-      {successMsg && (
-        <div className="p-3 bg-success/10 border border-success/20 text-success text-xs rounded-lg font-semibold flex items-center gap-2 animate-fade-in">
-          <UserCheck className="w-4 h-4" />{successMsg}
+      {/* Table */}
+      <div style={{ background: '#fff', border: '1px solid #e8e8e8', borderRadius: 12, overflow: 'hidden' }}>
+        {/* Header */}
+        <div style={{
+          display: 'grid', gridTemplateColumns: COL_TEMPLATE,
+          background: '#fafafa', borderBottom: '1px solid #e8e8e8',
+          padding: '0 16px',
+        }}>
+          {['Member', 'Role', 'Joined', 'Status', 'Actions'].map((col) => (
+            <div key={col} style={{ padding: '10px 0', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#888' }}>
+              {col}
+            </div>
+          ))}
         </div>
-      )}
 
-      {/* Add form */}
-      {showAddForm && (
-        <div className="bg-card border border-border rounded-xl p-5 animate-slide-up">
-          <h3 className="text-sm font-bold text-foreground font-headings mb-4">Add Team Member</h3>
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
-            <div>
-              <label className="block font-semibold uppercase tracking-wider text-muted-foreground mb-1 text-[10px]">Full Name</label>
-              <input required type="text" placeholder="e.g. Sarah Johnson" value={name} onChange={(e) => setName(e.target.value)}
-                className="w-full p-2.5 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:border-primary" />
-            </div>
-            <div>
-              <label className="block font-semibold uppercase tracking-wider text-muted-foreground mb-1 text-[10px]">Role</label>
-              <input required type="text" placeholder="e.g. Battery Engineer" value={role} onChange={(e) => setRole(e.target.value)}
-                className="w-full p-2.5 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:border-primary" />
-            </div>
-            <div>
-              <label className="block font-semibold uppercase tracking-wider text-muted-foreground mb-1 text-[10px]">Email</label>
-              <input required type="email" placeholder="sarah@blackpanther.com" value={email} onChange={(e) => setEmail(e.target.value)}
-                className="w-full p-2.5 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:border-primary" />
-            </div>
-              <div>
-                <label className="block font-semibold uppercase tracking-wider text-muted-foreground mb-1 text-[10px]">Status</label>
-                <select value={status} onChange={(e) => setStatus(e.target.value as 'Active' | 'On Leave')}
-                  className="w-full p-2.5 rounded-lg border border-border bg-background text-foreground focus:outline-none cursor-pointer">
-                  <option value="Active">Active</option>
-                  <option value="On Leave">On Leave</option>
-                </select>
-              </div>
-              <div className="md:col-span-4">
-                <label className="block font-semibold uppercase tracking-wider text-muted-foreground mb-1 text-[10px]">Team Photo</label>
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => fileRef.current?.click()}
-                    className="flex items-center gap-2 px-3 py-2 border border-dashed border-border rounded-lg text-muted-foreground hover:border-primary hover:text-primary cursor-pointer"
-                  >
-                    <Upload className="w-4 h-4" />
-                    <span>Upload Image</span>
-                  </button>
-                  <input ref={fileRef} type="file" accept=".jpg,.jpeg,.png,.webp" className="hidden" onChange={handleImageChange} />
-                  {imagePreview ? <img src={imagePreview} alt="Team preview" className="w-10 h-10 rounded-full object-cover border border-border" /> : null}
-                  {imageFileName ? <span className="text-muted-foreground truncate max-w-[180px]">{imageFileName}</span> : null}
-                  {uploadingImage ? <span className="text-primary">Uploading...</span> : null}
-                </div>
-              </div>
-            <div className="md:col-span-4 flex justify-end gap-2.5 pt-2 border-t border-border">
-              <button type="button" onClick={() => { setShowAddForm(false); resetForm(); }} className="px-4 py-2 rounded-lg hover:bg-muted text-muted-foreground font-semibold cursor-pointer">Cancel</button>
-              <button type="submit" className="px-5 py-2 bg-primary text-primary-foreground font-bold rounded-lg hover:opacity-90 cursor-pointer">Add Member</button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {/* Team cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {filteredTeam.map((member) => {
-          const initials = member.name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
-          return (
-            <div key={member.id} className="bg-card border border-border rounded-xl p-5 flex flex-col gap-4 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 relative group">
-              <button
-                onClick={() => { if (confirm(`Remove "${member.name}" from the team?`)) onDeleteMember(member.id); }}
-                className="absolute right-3 top-3 p-1 rounded text-muted-foreground hover:text-danger hover:bg-danger/10 opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
-
-              <div className="flex items-center gap-3">
-                {member.image ? (
-                  <img src={member.image} alt={member.name} className="w-10 h-10 rounded-full object-cover border border-border shrink-0" />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-primary/10 text-primary border border-primary/20 flex items-center justify-center font-semibold text-xs shrink-0">
-                    {initials}
-                  </div>
-                )}
-                <div className="min-w-0 pr-4">
-                  <h4 className="font-semibold text-foreground text-sm truncate">{member.name}</h4>
-                  <p className="text-muted-foreground text-xs truncate mt-0.5">{member.role}</p>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-1.5 border-t border-border pt-3 text-xs text-muted-foreground">
-                <div className="flex items-center gap-1.5 truncate"><Mail className="w-3.5 h-3.5 shrink-0" /><span className="truncate">{member.email}</span></div>
-                <div className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 shrink-0" /><span>Joined {member.joinedDate}</span></div>
-              </div>
-
-              <div className="flex items-center justify-between pt-2 border-t border-border">
-                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Status</span>
-                <button
-                  onClick={() => onUpdateStatus(member.id, member.status === 'Active' ? 'On Leave' : 'Active')}
-                  className={`px-2.5 py-1 rounded-full text-[10px] font-semibold cursor-pointer transition-colors ${
-                    member.status === 'Active' ? 'bg-success/10 text-success border border-success/20' : 'bg-warning/10 text-warning border border-warning/20'
-                  }`}
-                >
-                  {member.status}
-                </button>
-              </div>
-            </div>
-          );
-        })}
-
-        {filteredTeam.length === 0 && (
-          <div className="col-span-full py-12 text-center bg-card border border-dashed border-border rounded-xl flex flex-col items-center gap-2">
-            <Users className="w-8 h-8 text-muted-foreground/60 stroke-[1.5]" />
-            <p className="text-xs text-muted-foreground">No team members found.</p>
+        {paginated.length === 0 ? (
+          <div style={{ padding: '40px 16px', textAlign: 'center', color: '#aaa', fontSize: 13 }}>
+            No team members found.
           </div>
+        ) : (
+          paginated.map((member) => {
+            const initial = member.name.charAt(0).toUpperCase();
+            const imgSrc = member.image ? resolveImg(member.image) : '';
+            const isHovered = hoveredRow === member.id;
+            return (
+              <div
+                key={member.id}
+                onMouseEnter={() => setHoveredRow(member.id)}
+                onMouseLeave={() => setHoveredRow(null)}
+                style={{
+                  display: 'grid', gridTemplateColumns: COL_TEMPLATE,
+                  padding: '0 16px', borderBottom: '1px solid #f0f0f0',
+                  background: isHovered ? '#fafafa' : '#fff', alignItems: 'center',
+                  transition: 'background 0.15s',
+                }}
+              >
+                {/* Member */}
+                <div style={{ padding: '12px 0', display: 'flex', alignItems: 'center', gap: 10 }}>
+                  {imgSrc ? (
+                    <img src={imgSrc} alt={member.name}
+                      style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', border: '1px solid #e8e8e8', flexShrink: 0 }} />
+                  ) : (
+                    <div style={{
+                      width: 36, height: 36, borderRadius: '50%', background: '#fff3ee',
+                      color: '#e84b10', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 14, fontWeight: 700, flexShrink: 0, border: '1px solid #ffe0d3',
+                    }}>{initial}</div>
+                  )}
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>{member.name}</div>
+                    <div style={{ fontSize: 11, color: '#aaa', marginTop: 1 }}>{member.email}</div>
+                  </div>
+                </div>
+
+                {/* Role */}
+                <div style={{ fontSize: 12, color: '#555' }}>{member.role}</div>
+
+                {/* Joined */}
+                <div style={{ fontSize: 12, color: '#aaa' }}>{member.joinedDate}</div>
+
+                {/* Status */}
+                <div>
+                  <button
+                    onClick={() => onUpdateStatus(member.id, member.status === 'Active' ? 'On Leave' : 'Active')}
+                    title="Click to toggle status"
+                    style={{
+                      padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600,
+                      cursor: 'pointer', border: 'none',
+                      background: member.status === 'Active' ? '#dcfce7' : '#fef3c7',
+                      color: member.status === 'Active' ? '#16a34a' : '#d97706',
+                    }}
+                  >
+                    {member.status}
+                  </button>
+                </div>
+
+                {/* Actions */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <button
+                    title="Delete member"
+                    onClick={() => { if (confirm(`Remove "${member.name}" from the team?`)) onDeleteMember(member.id); }}
+                    style={{
+                      background: 'none', border: '1px solid #e8e8e8', borderRadius: 6, cursor: 'pointer',
+                      padding: '5px 7px', display: 'flex', alignItems: 'center',
+                      opacity: isHovered ? 1 : 0, transition: 'opacity 0.15s',
+                    }}
+                  >
+                    <Trash2 style={{ width: 13, height: 13, color: '#dc2626' }} />
+                  </button>
+                </div>
+              </div>
+            );
+          })
         )}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'flex-end' }}>
+          <button
+            onClick={() => goTo(page - 1)}
+            disabled={page === 1}
+            style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid #e8e8e8', background: '#fff', cursor: page === 1 ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: page === 1 ? 0.4 : 1 }}
+          >
+            <ChevronLeft style={{ width: 14, height: 14, color: '#888' }} />
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+            <button
+              key={p}
+              onClick={() => goTo(p)}
+              style={{ width: 30, height: 30, borderRadius: 6, fontSize: 12, fontWeight: 600, border: p === page ? 'none' : '1px solid #e8e8e8', background: p === page ? '#e84b10' : '#fff', color: p === page ? '#fff' : '#1a1a1a', cursor: 'pointer' }}
+            >
+              {p}
+            </button>
+          ))}
+          <button
+            onClick={() => goTo(page + 1)}
+            disabled={page === totalPages}
+            style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid #e8e8e8', background: '#fff', cursor: page === totalPages ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: page === totalPages ? 0.4 : 1 }}
+          >
+            <ChevronRight style={{ width: 14, height: 14, color: '#888' }} />
+          </button>
+        </div>
+      )}
+
+      {/* Add Member Modal */}
+      {showModal && (
+        <div
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}
+          onClick={(e) => { if (e.target === e.currentTarget) closeModal(); }}
+        >
+          <div style={{ background: '#fff', borderRadius: 12, width: '100%', maxWidth: 520, display: 'flex', flexDirection: 'column', maxHeight: '90vh', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
+            {/* Modal header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderBottom: '1px solid #e8e8e8' }}>
+              <span style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>Add Team Member</span>
+              <button onClick={closeModal} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', padding: 4 }}>
+                <X style={{ width: 18, height: 18, color: '#888' }} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
+              <div style={{ padding: '20px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 14 }}>
+                {/* Section label */}
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#e84b10', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Member Info</div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <div>
+                    <label style={lbl}>Full Name</label>
+                    <input required type="text" placeholder="e.g. Sarah Johnson" value={name} onChange={(e) => setName(e.target.value)} style={inp} />
+                  </div>
+                  <div>
+                    <label style={lbl}>Role</label>
+                    <input required type="text" placeholder="e.g. Battery Engineer" value={role} onChange={(e) => setRole(e.target.value)} style={inp} />
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <div>
+                    <label style={lbl}>Email</label>
+                    <input required type="email" placeholder="email@company.com" value={email} onChange={(e) => setEmail(e.target.value)} style={inp} />
+                  </div>
+                  <div>
+                    <label style={lbl}>Status</label>
+                    <select value={status} onChange={(e) => setStatus(e.target.value as 'Active' | 'On Leave')} style={{ ...inp, cursor: 'pointer' }}>
+                      <option value="Active">Active</option>
+                      <option value="On Leave">On Leave</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#e84b10', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 4 }}>Profile Photo</div>
+
+                <div>
+                  <label style={lbl}>Photo (jpg, jpeg, png, webp)</label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <button
+                      type="button"
+                      onClick={() => fileRef.current?.click()}
+                      style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 12px', border: '1px dashed #e8e8e8', borderRadius: 6, background: '#fafafa', color: '#888', fontSize: 12, cursor: 'pointer' }}
+                    >
+                      <Upload style={{ width: 13, height: 13 }} />
+                      {uploadingImage ? 'Uploading…' : 'Upload Image'}
+                    </button>
+                    <input ref={fileRef} type="file" accept=".jpg,.jpeg,.png,.webp" style={{ display: 'none' }} onChange={handleImageChange} />
+                    {imagePreview && (
+                      <img src={imagePreview} alt="Preview" style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', border: '1px solid #e8e8e8' }} />
+                    )}
+                    {imageFileName && (
+                      <span style={{ fontSize: 11, color: '#888', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 160 }}>{imageFileName}</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, padding: '14px 20px', borderTop: '1px solid #e8e8e8' }}>
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid #e8e8e8', background: '#fff', color: '#555', fontSize: 12, cursor: 'pointer' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={uploadingImage}
+                  style={{ padding: '8px 20px', borderRadius: 6, border: 'none', background: '#e84b10', color: '#fff', fontSize: 12, fontWeight: 700, cursor: uploadingImage ? 'not-allowed' : 'pointer', opacity: uploadingImage ? 0.6 : 1 }}
+                >
+                  Save Member
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

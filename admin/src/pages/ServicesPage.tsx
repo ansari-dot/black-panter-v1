@@ -1,31 +1,15 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
-import { TService } from '../types';
-import ServicesManager from '../components/ServicesManager';
+import { TService, TEquipmentItem } from '../types';
+import ServicesManagerNew from '../components/ServicesManagerNew';
 import EquipmentManager from '../components/EquipmentManager';
-import { TEquipmentItem } from '../types';
 
 interface ServicesPageProps {
   services: TService[];
   onAddService: (service: {
-    name: string;
-    slug: string;
-    description: string;
-    category: string;
-    status: 'Active' | 'Inactive';
-    iconName: string;
-    serviceTagline: string;
-    heroDescription: string;
-    imageUrl: string;
-    ctaText: string;
-    secondaryText: string;
-    keyHighlights: string[];
-    technicalProcedures: Array<{ title: string; description: string; icon: string }>;
-    gallery: string[];
-    displayOrder: number;
+    name: string; slug: string; description: string; category: string;
+    status: 'Active' | 'Inactive'; iconName: string; serviceTagline: string;
+    heroDescription: string; imageUrl: string; ctaText: string; secondaryText: string;
+    keyHighlights: string[]; technicalProcedures: Array<{ title: string; description: string; icon: string }>;
+    gallery: string[]; displayOrder: number;
   }) => Promise<void> | void;
   onUpdateService: (id: string, service: any) => Promise<void> | void;
   onUpdateStatus: (id: string, status: 'Active' | 'Inactive') => Promise<void> | void;
@@ -36,24 +20,14 @@ interface ServicesPageProps {
   onDeleteEquipment: (id: string) => Promise<void>;
 }
 
-export default function ServicesPage({
-  services,
-  onAddService,
-  onUpdateService,
-  onUpdateStatus,
-  onDeleteService,
-  equipment,
-  onAddEquipment,
-  onUpdateEquipment,
-  onDeleteEquipment
-}: ServicesPageProps) {
+export default function ServicesPage({ services, onAddService, onUpdateService, onUpdateStatus, onDeleteService, equipment, onAddEquipment, onUpdateEquipment, onDeleteEquipment }: ServicesPageProps) {
   return (
-    <div id="tab-services" className="animate-fade-in flex flex-col gap-5 font-sans">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <div>
-        <h1 className="text-3xl font-headings font-bold text-foreground tracking-tight">Services Matrix</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">Add, modify status, and configure technical workflows.</p>
+        <div style={{ fontSize: 24, fontWeight: 700, color: '#1a1a1a' }}>Services Matrix</div>
+        <div style={{ fontSize: 13, color: '#888888', marginTop: 4 }}>Add, modify status, and configure technical workflows.</div>
       </div>
-      <ServicesManager
+      <ServicesManagerNew
         services={services}
         onAddService={onAddService}
         onUpdateService={onUpdateService}

@@ -1,5 +1,5 @@
-import ProjectsManager from '../components/ProjectsManager';
 import { TProject } from '../types';
+import ProjectsManager from '../components/ProjectsManager';
 
 interface ProjectsPageProps {
   projects: TProject[];
@@ -11,12 +11,10 @@ interface ProjectsPageProps {
 
 export default function ProjectsPage({ projects, onAddProject, onUpdateProject, onUpdateStatus, onDeleteProject }: ProjectsPageProps) {
   return (
-    <div className="flex flex-col gap-5">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-bold text-foreground">Projects</h2>
-          <p className="text-xs text-muted-foreground mt-1">Manage portfolio projects displayed on the homepage.</p>
-        </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+      <div>
+        <div style={{ fontSize: 24, fontWeight: 700, color: '#1a1a1a' }}>Projects Portfolio</div>
+        <div style={{ fontSize: 13, color: '#888888', marginTop: 4 }}>Manage portfolio projects displayed on the website.</div>
       </div>
       <ProjectsManager
         projects={projects}

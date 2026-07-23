@@ -96,7 +96,7 @@ const TechnicalProcedures = ({ service }) => {
   const sectionStyle = {
     background: 'linear-gradient(180deg, #F8F9FA 0%, #FFFFFF 100%)',
     padding: isMobile ? '60px 15px' : '96px 20px 101px 20px',
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+    fontFamily: "'Plus Jakarta Sans', sans-serif",
     position: 'relative',
     overflow: 'hidden'
   };
@@ -282,7 +282,7 @@ const TechnicalProcedures = ({ service }) => {
 
   // Responsive styles
   const mediaQueryStyles = `
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap');
     
     .procedure-card:hover {
       transform: translateY(-8px);

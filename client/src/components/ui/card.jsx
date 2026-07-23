@@ -291,7 +291,7 @@ export default (props) => {
 										src={"https://figma-alpha-api.s3.us-west-2.amazonaws.com/images/ff9f43df-4f51-49b2-8e3c-e1e9487bf723"} 
 										className="w-[7px] h-[7px] rounded-[26px] object-fill"
 									/>
-									<span className="text-white text-[13px]" style={{ fontFamily: 'Poppins, sans-serif' }}>
+									<span className="text-white text-[13px]" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
 										{"Nationwide Industrial Battery Services"}
 									</span>
 								</motion.button>
@@ -308,7 +308,7 @@ export default (props) => {
 											variants={fadeInLeft}
 										>
 											<span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-[58px] font-bold w-full max-w-[617px] leading-tight text-center" style={{ 
-												fontFamily: 'Poppins, sans-serif',
+												fontFamily: 'Plus Jakarta Sans, sans-serif',
 												fontSize: '58px',
 												fontWeight: '700',
 												lineHeight: '1.15',
@@ -328,7 +328,7 @@ export default (props) => {
 											variants={fadeInLeft}
 										>
 											<span className="text-white text-base sm:text-lg md:text-[19px] font-semibold w-full max-w-[650px] text-center" style={{ 
-												fontFamily: 'Inter, sans-serif',
+												fontFamily: 'Plus Jakarta Sans, sans-serif',
 												fontSize: '17px',
 												fontWeight: '600',
 												lineHeight: '1.65',
@@ -352,7 +352,7 @@ export default (props) => {
 											whileHover={{ scale: 1.05, y: -2 }}
 											whileTap={{ scale: 0.95 }}
 										>
-											<span className="text-white text-[15px] font-bold" style={{ fontFamily: 'Poppins, sans-serif' }}>
+											<span className="text-white text-[15px] font-bold" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
 												{"Request a Consultation"}
 											</span>
 											<img
@@ -367,7 +367,7 @@ export default (props) => {
 											whileHover={{ scale: 1.05, y: -2 }}
 											whileTap={{ scale: 0.95 }}
 										>
-											<span className="text-[#383A3C] text-[15px] font-bold" style={{ fontFamily: 'Poppins, sans-serif' }}>
+											<span className="text-[#383A3C] text-[15px] font-bold" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
 												{"Explore Services"}
 											</span>
 										</motion.button>
@@ -458,7 +458,7 @@ export default (props) => {
         mx-auto
       "
       style={{
-        fontFamily: 'Poppins, sans-serif',
+        fontFamily: 'Plus Jakarta Sans, sans-serif',
         fontWeight: '400',
         color: '#666666',
         wordSpacing: '0.05em',
@@ -499,7 +499,7 @@ export default (props) => {
 							<motion.span 
 								className="text-base sm:text-lg lg:text-[19px] mb-[30px] leading-relaxed" 
 								style={{
-									fontFamily: 'Poppins, sans-serif',
+									fontFamily: 'Plus Jakarta Sans, sans-serif',
 									fontWeight: '400',
 									color: '#666666',
 									wordSpacing: '0.05em',
@@ -901,7 +901,7 @@ export default (props) => {
 							variants={fadeInUp}
 						>
 							<div className="flex flex-col items-start">
-								<span className="text-[#383A3C] text-2xl sm:text-3xl lg:text-[33px] font-bold text-center">
+								<span className="text-[#383A3C] text-2xl sm:text-3xl lg:text-[33px] font-black text-center" style={{ fontWeight: 900 }}>
 									{"Meet Our Experts"}
 								</span>
 							</div>
@@ -993,7 +993,7 @@ export default (props) => {
 					</div>
 					<span className="text-gray-600 text-base sm:text-lg lg:text-[19px] text-center" 
 						style={{
-							fontFamily: 'Poppins, sans-serif',
+							fontFamily: 'Plus Jakarta Sans, sans-serif',
 							fontWeight: '400',
 							color: '#666666',
 							wordSpacing: '0.05em',
@@ -1027,7 +1027,7 @@ export default (props) => {
 								>
 									<span className="text-gray-600 text-[17px] mb-5 flex-1" 
 										style={{
-											fontFamily: 'Poppins, sans-serif',
+											fontFamily: 'Plus Jakarta Sans, sans-serif',
 											fontWeight: '400',
 											color: '#666666',
 											wordSpacing: '0.05em',
@@ -1058,7 +1058,7 @@ export default (props) => {
 								>
 									<span className="text-gray-600 text-[17px] mb-5 flex-1" 
 										style={{
-											fontFamily: 'Poppins, sans-serif',
+											fontFamily: 'Plus Jakarta Sans, sans-serif',
 											fontWeight: '400',
 											color: '#666666',
 											wordSpacing: '0.05em',
@@ -1089,7 +1089,7 @@ export default (props) => {
 								>
 									<span className="text-gray-600 text-[17px] mb-5 flex-1" 
 										style={{
-											fontFamily: 'Poppins, sans-serif',
+											fontFamily: 'Plus Jakarta Sans, sans-serif',
 											fontWeight: '400',
 											color: '#666666',
 											wordSpacing: '0.05em',
@@ -1229,7 +1229,7 @@ export default (props) => {
 									variants={fadeInUp}
 								>
 									<span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-[62px] font-bold text-center max-w-[598px] leading-tight" style={{
-										fontFamily: 'Poppins, sans-serif',
+										fontFamily: 'Plus Jakarta Sans, sans-serif',
 										fontWeight: '700',
 										lineHeight: '1.15',
 										letterSpacing: '-0.3px',

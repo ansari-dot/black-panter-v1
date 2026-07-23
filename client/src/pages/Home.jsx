@@ -1,8 +1,9 @@
 import React from "react";
 import { PageLayout } from "../components/PageLayout";
 import { HeroSection } from "../components/HeroSections/HomeHeroSection";
+import { AboutSection } from "../components/AboutSection";
 import ServicesSection from "../components/ServicesSection";
-import IndustrySection from "../components/IndustrySection";
+import HomeProductsSection from "../components/HomeProductsSection";
 import RecentProjects from "../components/RecentProject";
 import Team from '../components/Team'
 import TestimonialsSection from "../components/Testimonials";
@@ -18,17 +19,18 @@ export const Home = () => {
       heroContent={<HeroSection />}
       vectorBackground={backgroundImage}
     >
-      <IndustrySection />
-       <ServicesSection />
-       <RecentProjects />
-       <Team
-         title="Meet Our Experts"
-         subtitle="Certified engineers and technicians dedicated to your power reliability."
-       />
-       <TestimonialsSection />
-       <CTASection />
-       <IndustryServe />
-       <Footer />
+      <AboutSection />
+      <ServicesSection />
+      <HomeProductsSection />
+      <RecentProjects />
+      <Team
+        title="Meet Our Experts"
+        subtitle="Certified engineers and technicians dedicated to your power reliability."
+      />
+      <TestimonialsSection />
+      <CTASection />
+      <IndustryServe />
+      <Footer />
     </PageLayout>
   );
 };

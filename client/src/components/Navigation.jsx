@@ -2,17 +2,20 @@ import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FaFacebookF, FaLinkedinIn, FaInstagram, FaBars, FaTimes } from "react-icons/fa";
 import logo from '../assets/logo.webp';
+import QuoteModal from "./QuoteModal";
 
 const navigationItems = [
   { label: "Home", path: "/" },
   { label: "About", path: "/about" },
   { label: "Services", path: "/services" },
+  { label: "Products", path: "/product" },
   { label: "Contact", path: "/contact" },
 ];
 
 export const Navigation = () => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
 
   return (
     <div className="relative w-full min-h-screen md:min-h-screen lg:min-h-screen xl:min-h-screen 2xl:min-h-screen min-h-[600px] md:min-h-[700px] lg:min-h-[800px] xl:min-h-[900px] 2xl:min-h-[1000px] overflow-hidden">
@@ -118,6 +121,7 @@ export const Navigation = () => {
             </div>
 
             <button
+              onClick={() => setIsQuoteModalOpen(true)}
               className="quote-button w-[140px] md:w-[157px] h-[43px] text-white font-bold text-[14px] md:text-[16px] rounded-[30px] transition-all duration-300"
               style={{
                 backgroundColor: '#D4480A',
@@ -224,6 +228,10 @@ export const Navigation = () => {
               </div>
 
               <button
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  setIsQuoteModalOpen(true);
+                }}
                 className="w-full h-[48px] text-white font-bold text-[16px] rounded-[8px] transition-all duration-300 hover:scale-[1.02]"
                 style={{
                   backgroundColor: '#D4480A'
@@ -241,6 +249,9 @@ export const Navigation = () => {
             </div>
           </div>
         </>
+      )}
+      {isQuoteModalOpen && (
+        <QuoteModal isOpen={isQuoteModalOpen} onClose={() => setIsQuoteModalOpen(false)} sourceButton="Navigation Get a Quote" />
       )}
     </div>
   );

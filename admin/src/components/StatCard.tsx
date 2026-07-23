@@ -1,9 +1,4 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
-import { LucideIcon, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { LucideIcon } from 'lucide-react';
 
 interface StatCardProps {
   idPrefix: string;
@@ -16,45 +11,35 @@ interface StatCardProps {
   onClickInfo?: () => void;
 }
 
-export default function StatCard({
-  idPrefix,
-  title,
-  value,
-  trendText,
-  trendType = 'positive',
-  icon: Icon,
-  onClickInfo,
-}: StatCardProps) {
+export default function StatCard({ idPrefix, title, value, trendText, trendType = 'positive', icon: Icon, onClickInfo }: StatCardProps) {
+  const iconBg = trendType === 'negative' ? '#fee2e2' : trendType === 'neutral' ? '#ffedd5' : '#dcfce7';
+  const iconColor = trendType === 'negative' ? '#ef4444' : trendType === 'neutral' ? '#f97316' : '#22c55e';
+
   return (
     <div
       id={`${idPrefix}-card`}
       onClick={onClickInfo}
-      className="bg-white rounded-2xl p-5 border border-border shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer flex flex-col gap-4"
+      style={{
+        backgroundColor: '#ffffff',
+        border: '1px solid #e2e2e2',
+        borderRadius: 8,
+        padding: 20,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 12,
+        cursor: onClickInfo ? 'pointer' : 'default',
+      }}
     >
-      <div className="flex items-center justify-between">
-        <div className="w-10 h-10 rounded-xl bg-muted border border-border flex items-center justify-center">
-          <Icon className="w-5 h-5 text-muted-foreground" strokeWidth={1.8} />
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 600, color: '#8a8a8a', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{title}</div>
+          <div style={{ fontSize: 28, fontWeight: 700, color: '#1a1a1a', marginTop: 4, lineHeight: 1 }}>{value}</div>
         </div>
-        <span
-          className={`text-[11px] font-medium px-2.5 py-1 rounded-full flex items-center gap-1 ${
-            trendType === 'positive'
-              ? 'bg-success/10 text-success'
-              : trendType === 'negative'
-              ? 'bg-danger/10 text-danger'
-              : 'bg-muted text-muted-foreground'
-          }`}
-        >
-          {trendType === 'positive' && <TrendingUp className="w-3 h-3" />}
-          {trendType === 'negative' && <TrendingDown className="w-3 h-3" />}
-          {trendType === 'neutral' && <Minus className="w-3 h-3" />}
-          {trendText}
-        </span>
+        <div style={{ borderRadius: '50%', padding: 10, backgroundColor: iconBg, color: iconColor, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <Icon size={20} strokeWidth={2.4} />
+        </div>
       </div>
-
-      <div>
-        <div className="text-3xl font-headings font-bold text-foreground leading-none">{value}</div>
-        <div className="text-xs text-muted-foreground mt-1.5 font-medium">{title}</div>
-      </div>
+      <div style={{ fontSize: 12, color: '#8a8a8a' }}>{trendText}</div>
     </div>
   );
 }

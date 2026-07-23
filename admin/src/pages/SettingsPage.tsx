@@ -1,8 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import { TSystemStatus } from '../types';
 import SettingsView from '../components/SettingsView';
 
@@ -11,15 +6,12 @@ interface SettingsPageProps {
   onUpdateStatusValue: (serviceKey: 'apiServer' | 'database' | 'cdn', state: 'Operational' | 'Degraded' | 'Offline') => void;
 }
 
-export default function SettingsPage({
-  systemStatus,
-  onUpdateStatusValue
-}: SettingsPageProps) {
+export default function SettingsPage({ systemStatus, onUpdateStatusValue }: SettingsPageProps) {
   return (
-    <div id="tab-settings" className="animate-fade-in flex flex-col gap-5 font-sans">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24, fontFamily: 'Inter, sans-serif' }}>
       <div>
-        <h1 className="text-3xl font-headings font-bold text-foreground tracking-tight font-headings">Global Configurations</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">Manage company branding profiles, social media connections, maintenance mode configurations, and administrative credentials.</p>
+        <div style={{ fontSize: 28, fontWeight: 700, color: '#1a1a1a', marginBottom: 4 }}>Settings</div>
+        <div style={{ fontSize: 13, color: '#8a8a8a' }}>Configure organization branding, security credentials, social channels, and system services</div>
       </div>
       <SettingsView
         systemStatus={systemStatus}
@@ -28,3 +20,4 @@ export default function SettingsPage({
     </div>
   );
 }
+

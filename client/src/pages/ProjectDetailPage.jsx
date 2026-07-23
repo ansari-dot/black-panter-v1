@@ -4,16 +4,8 @@ import { Link, useParams } from "react-router-dom";
 import { PageLayout } from "../components/PageLayout";
 import { HeroSection } from "../components/HeroSections/ProjectDetailHeroSection";
 import Footer from "../components/Footer";
+import { projectsApi, resolveImageUrl } from "../utils/api";
 import serviceDetailHeroImage from '../assets/herosections/servicedetails.webp';
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-
-const resolveImageUrl = (value = '') => {
-  if (!value) return '';
-  if (value.startsWith('/uploads/')) return `${API}${value}`;
-  if (value.startsWith('uploads/')) return `${API}/${value}`;
-  return value;
-};
 
 export function ProjectDetailPage() {
   const { slug } = useParams();
@@ -23,8 +15,7 @@ export function ProjectDetailPage() {
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const response = await fetch(`${API}/api/projects/slug/${slug}`);
-        const data = await response.json();
+        const data = await projectsApi.getBySlug(slug);
         setProject(data);
       } catch (error) {
         console.error('Failed to fetch project:', error);
@@ -82,7 +73,7 @@ export function ProjectDetailPage() {
     page: {
       backgroundColor: "#ffffff",
       color: "#1a1a1a",
-      fontFamily: "Space Grotesk, Inter, system-ui, sans-serif"
+      fontFamily: "'Plus Jakarta Sans', sans-serif"
     },
     outer: {
       padding: "64px 64px 72px"

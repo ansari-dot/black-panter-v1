@@ -36,12 +36,13 @@ export const HeroSection = ({
       {/* Main Heading */}
       <div className="flex flex-col items-start gap-3 md:gap-6 w-full">
         <h1 
-          className="text-3xl md:text-5xl font-bold leading-tight"
+          className="text-3xl md:text-5xl font-black leading-tight"
           style={{
             background: 'linear-gradient(135deg, #FFFFFF 0%, #FFE4D6 50%, #F3B38A 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text'
+            backgroundClip: 'text',
+            fontWeight: 900
           }}
         >
           {title.line1.white}{title.line1.orange}

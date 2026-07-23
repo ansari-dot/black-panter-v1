@@ -1,8 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import { TInquiry } from '../types';
 import RecentInquiries from '../components/RecentInquiries';
 
@@ -13,17 +8,12 @@ interface InquiriesPageProps {
   onDelete: (id: string) => void;
 }
 
-export default function InquiriesPage({
-  inquiries,
-  onReply,
-  onMarkRead,
-  onDelete
-}: InquiriesPageProps) {
+export default function InquiriesPage({ inquiries, onReply, onMarkRead, onDelete }: InquiriesPageProps) {
   return (
-    <div id="tab-inquiries" className="animate-fade-in flex flex-col gap-5 font-sans">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <div>
-        <h1 className="text-3xl font-headings font-bold text-foreground tracking-tight">Client Inquiries Gateway</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">Audit contact messages, view user requests, and draft formal replies.</p>
+        <h1 style={{ fontSize: 24, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Client Inquiries</h1>
+        <p style={{ fontSize: 13, color: '#888888', marginTop: 4, marginBottom: 0 }}>Audit contact messages, view user requests, and draft formal replies.</p>
       </div>
       <RecentInquiries
         inquiries={inquiries}

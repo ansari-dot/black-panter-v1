@@ -7,4 +7,7 @@ const partnerSchema = new mongoose.Schema({
   displayOrder: { type: Number, default: 0 },
 }, { timestamps: true });
 
+partnerSchema.index({ displayOrder: 1, createdAt: -1 });
+
 export default mongoose.model('Partner', partnerSchema);
+

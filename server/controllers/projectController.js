@@ -1,4 +1,5 @@
 import Project from '../models/Project.js';
+import asyncHandler from '../utils/asyncHandler.js';
 
 const normalizePayload = (payload = {}) => ({
   title: payload.title || '',
@@ -27,71 +28,58 @@ const normalizePayload = (payload = {}) => ({
   displayOrder: Number.isFinite(Number(payload.displayOrder)) ? Number(payload.displayOrder) : 0,
 });
 
-export const getAll = async (req, res, next) => {
-  try {
-    const items = await Project.find().sort({ displayOrder: 1, createdAt: -1 });
-    res.json(items);
-  } catch (error) {
-    next(error);
-  }
-};
+export const getAll = asyncHandler(async (req, res) => {
+  const filter = {};
+  if (req.query.featuredOnHome === 'true') filter.featuredOnHome = true;
+  const items = await Project.find(filter).sort({ displayOrder: 1, createdAt: -1 });
+  res.json(items);
+});
 
-export const getPublic = async (req, res, next) => {
-  try {
-    const items = await Project.find({ status: 'Active' }).sort({ displayOrder: 1, createdAt: -1 });
-    res.json(items);
-  } catch (error) {
-    next(error);
-  }
-};
+export const getPublic = asyncHandler(async (req, res) => {
+  const filter = { status: 'Active' };
+  if (req.query.featuredOnHome === 'true') filter.featuredOnHome = true;
+  const items = await Project.find(filter).sort({ displayOrder: 1, createdAt: -1 });
+  res.json(items);
+});
 
-export const getOne = async (req, res, next) => {
-  try {
-    const item = await Project.findById(req.params.id);
-    if (!item) return res.status(404).json({ message: 'Not found' });
-    res.json(item);
-  } catch (error) {
-    next(error);
-  }
-};
+export const getOne = asyncHandler(async (req, res) => {
+  const item = await Project.findById(req.params.id);
+  if (!item) return res.status(404).json({ message: 'Not found' });
+  res.json(item);
+});
 
-export const getBySlug = async (req, res, next) => {
-  try {
-    const item = await Project.findOne({ slug: req.params.slug });
-    if (!item) return res.status(404).json({ message: 'Not found' });
-    res.json(item);
-  } catch (error) {
-    next(error);
-  }
-};
+export const getBySlug = asyncHandler(async (req, res) => {
+  const item = await Project.findOne({ slug: req.params.slug });
+  if (!item) return res.status(404).json({ message: 'Not found' });
+  res.json(item);
+});
 
-export const create = async (req, res, next) => {
-  try {
-    const payload = normalizePayload(req.body);
-    const item = await Project.create(payload);
-    res.status(201).json(item);
-  } catch (error) {
-    next(error);
-  }
-};
+export const create = asyncHandler(async (req, res) => {
+  const payload = normalizePayload(req.body);
+  const item = await Project.create(payload);
+  res.status(201).json(item);
+});
 
-export const update = async (req, res, next) => {
-  try {
-    const payload = normalizePayload(req.body);
-    const item = await Project.findByIdAndUpdate(req.params.id, payload, { new: true, runValidators: true });
-    if (!item) return res.status(404).json({ message: 'Not found' });
-    res.json(item);
-  } catch (error) {
-    next(error);
-  }
-};
+export const update = asyncHandler(async (req, res) => {
+  const payload = normalizePayload(req.body);
+  const item = await Project.findByIdAndUpdate(req.params.id, payload, { new: true, runValidators: true });
+  if (!item) return res.status(404).json({ message: 'Not found' });
+  res.json(item);
+});
 
-export const remove = async (req, res, next) => {
-  try {
-    const item = await Project.findByIdAndDelete(req.params.id);
-    if (!item) return res.status(404).json({ message: 'Not found' });
-    res.json({ message: 'Deleted' });
-  } catch (error) {
-    next(error);
-  }
-};
+export const remove = asyncHandler(async (req, res) => {
+  const item = await Project.findByIdAndDelete(req.params.id);
+  if (!item) return res.status(404).json({ message: 'Not found' });
+  res.json({ message: 'Deleted' });
+});
+
+export const updateFeatured = asyncHandler(async (req, res) => {
+  const item = await Project.findByIdAndUpdate(
+    req.params.id,
+    { featuredOnHome: req.body.featuredOnHome },
+    { new: true }
+  );
+  if (!item) return res.status(404).json({ message: 'Not found' });
+  res.json(item);
+});
+

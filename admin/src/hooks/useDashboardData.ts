@@ -3,15 +3,23 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import { TInquiry, TService, TProduct, TSystemStatus, TSystemLog, TTeamMember, TTestimonial, TEquipmentItem, TPartnerItem, TProject } from '../types';
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+import { useEffect, useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, AppDispatch } from '../store';
+import { fetchDashboardData, setSystemStatus, addLog } from '../store/dashboardSlice';
+import { 
+  TInquiry, TService, TProduct, TTeamMember, TEquipmentItem, TPartnerItem, 
+  TProject, TWarehouse, TCategory, TQuotation 
+} from '../types';
+import api from '../utils/api';
 
 const normalizeInquiry = (inquiry: any): TInquiry => ({
   id: inquiry.id || inquiry._id,
   name: inquiry.name || 'Untitled Inquiry',
+  company: inquiry.company || '',
   email: inquiry.email || '',
+  phone: inquiry.phone || '',
+  service: inquiry.service || '',
   subject: inquiry.subject || inquiry.service || 'Client inquiry',
   message: inquiry.message || '',
   date: inquiry.date || (inquiry.createdAt
@@ -28,672 +36,432 @@ const normalizeInquiry = (inquiry: any): TInquiry => ({
           : 'New',
   replyText: inquiry.replyText || '',
   replyDate: inquiry.replyDate || '',
-});
-
-
-const normalizeService = (service: any): TService => ({
-  id: service._id || service.id || service.slug,
-  name: service.title || service.name || 'Untitled Service',
-  title: service.title || service.name || 'Untitled Service',
-  slug: service.slug || '',
-  status: service.status === 'Inactive' ? 'Inactive' : 'Active',
-  description: service.description || service.heroDescription || '',
-  category: service.category || '',
-  iconName: service.iconName || service.icon || 'battery',
-  serviceTagline: service.serviceTagline || '',
-  heroDescription: service.heroDescription || '',
-  imageUrl: service.imageUrl || '',
-  detailImageUrl: service.detailImageUrl || '',
-  ctaText: service.ctaText || '',
-  secondaryText: service.secondaryText || '',
-  keyHighlights: Array.isArray(service.keyHighlights) ? service.keyHighlights : [],
-  technicalProcedures: Array.isArray(service.technicalProcedures) ? service.technicalProcedures : [],
-  displayOrder: Number.isFinite(Number(service.displayOrder)) ? Number(service.displayOrder) : 0,
-});
-
-const INITIAL_LOGS: TSystemLog[] = [
-  {
-    id: 'log-1',
-    timestamp: '17:10:45',
-    type: 'success',
-    message: 'Cloudinary CDN assets synchronized.',
-    source: 'CDN Manager'
+  type: inquiry.type === 'quote' ? 'quote' : 'inquiry',
+  quoteDetails: {
+    batteryType: inquiry.quoteDetails?.batteryType || '',
+    quantity: inquiry.quoteDetails?.quantity || '',
+    location: inquiry.quoteDetails?.location || '',
+    address: inquiry.quoteDetails?.address || '',
+    billingAddress: inquiry.quoteDetails?.billingAddress || '',
+    abn: inquiry.quoteDetails?.abn || '',
+    urgency: inquiry.quoteDetails?.urgency || '',
+    sourcePage: inquiry.quoteDetails?.sourcePage || '',
+    sourceButton: inquiry.quoteDetails?.sourceButton || '',
+    submittedAt: inquiry.quoteDetails?.submittedAt || '',
   },
-  {
-    id: 'log-2',
-    timestamp: '16:05:12',
-    type: 'success',
-    message: 'MongoDB Atlas primary node heartbeat successful.',
-    source: 'Database'
+});
+
+const normalizeQuotation = (q: any): TQuotation => ({
+  id: q.id || q._id,
+  _id: q._id,
+  quoteNo: q.quoteNo || '',
+  quoteDate: q.quoteDate || '',
+  expiryDate: q.expiryDate || '',
+  preparedBy: q.preparedBy || '',
+  salesRep: q.salesRep || '',
+  projectName: q.projectName || '',
+  customerRef: q.customerRef || '',
+  poReference: q.poReference || '',
+  client: {
+    companyName: q.client?.companyName || '',
+    contactPerson: q.client?.contactPerson || '',
+    email: q.client?.email || '',
+    phone: q.client?.phone || '',
+    siteAddress: q.client?.siteAddress || '',
+    billingAddress: q.client?.billingAddress || '',
+    abn: q.client?.abn || ''
   },
-  {
-    id: 'log-3',
-    timestamp: '15:15:22',
-    type: 'info',
-    message: 'API server checking container load balances.',
-    source: 'Core API'
-  }
-];
-
-const normalizeProduct = (product: any): TProduct => ({
-  id: product._id || product.id,
-  name: product.name || 'Untitled Product',
-  slug: product.slug || '',
-  category: product.category || '',
-  description: product.description || '',
-  capacity: product.capacity || '',
-  voltage: product.voltage || '',
-  warrantyMonths: Number(product.warrantyMonths) || 0,
-  stockStatus: product.stockStatus === 'Low Stock' || product.stockStatus === 'Out of Stock' ? product.stockStatus : 'In Stock',
-  addedDate: product.createdAt ? new Date(product.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '',
-  image: product.image || '',
-});
-
-const normalizeTeam = (member: any): TTeamMember => ({
-  id: member._id || member.id,
-  name: member.name || 'Untitled Member',
-  role: member.role || '',
-  email: member.email || '',
-  status: member.status === 'On Leave' ? 'On Leave' : 'Active',
-  joinedDate: member.joinedDate || (member.createdAt ? new Date(member.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ''),
-  image: member.image || '',
-  linkedin: member.linkedin || '',
-});
-
-const normalizeTestimonial = (testimonial: any): TTestimonial => ({
-  _id: testimonial._id || testimonial.id,
-  name: testimonial.name || testimonial.clientName || 'Untitled Client',
-  company: testimonial.company || '',
-  rating: Number(testimonial.rating) || 0,
-  message: testimonial.message || testimonial.feedback || '',
-  image: testimonial.image || '',
-  status: testimonial.status === 'Approved' || testimonial.status === 'Rejected' ? testimonial.status : 'Pending',
-  createdAt: testimonial.createdAt || testimonial.date || '',
-});
-
-const normalizeEquipment = (item: any): TEquipmentItem => ({
-  id: item._id || item.id,
-  _id: item._id,
-  title: item.title || '',
-  description: item.description || '',
-  imageUrl: item.imageUrl || '',
-  displayOrder: Number.isFinite(Number(item.displayOrder)) ? Number(item.displayOrder) : 0,
-});
-
-const normalizePartner = (item: any): TPartnerItem => ({
-  id: item._id || item.id,
-  _id: item._id,
-  name: item.name || '',
-  logoUrl: item.logoUrl || '',
-  websiteUrl: item.websiteUrl || '',
-  displayOrder: Number.isFinite(Number(item.displayOrder)) ? Number(item.displayOrder) : 0,
-});
-
-const normalizeProject = (item: any): TProject => ({
-  id: item._id || item.id,
-  title: item.title || '',
-  slug: item.slug || '',
-  subtitle: item.subtitle || '',
-  description: item.description || '',
-  category: item.category || '',
-  status: item.status === 'Inactive' ? 'Inactive' : 'Active',
-  imageUrl: item.imageUrl || '',
-  heroTag: item.heroTag || 'Project Detail',
-  heroTitleLine1White: item.heroTitleLine1White || '',
-  heroTitleLine1Orange: item.heroTitleLine1Orange || '',
-  heroTitleLine2White: item.heroTitleLine2White || '',
-  heroTitleLine2Orange: item.heroTitleLine2Orange || '',
-  gallery: Array.isArray(item.gallery) ? item.gallery : [],
-  highlights: Array.isArray(item.highlights) ? item.highlights : [],
-  metrics: Array.isArray(item.metrics) ? item.metrics : [],
-  process: Array.isArray(item.process) ? item.process : [],
-  clientName: item.clientName || '',
-  location: item.location || '',
-  sector: item.sector || '',
-  completedDate: item.completedDate || '',
-  timeline: item.timeline || '',
-  unitsInstalled: item.unitsInstalled || '',
-  uptime: item.uptime || '',
-  displayOrder: Number.isFinite(Number(item.displayOrder)) ? Number(item.displayOrder) : 0,
+  battery: {
+    batteryType: q.battery?.batteryType || '',
+    manufacturer: q.battery?.manufacturer || '',
+    model: q.battery?.model || '',
+    voltage: q.battery?.voltage || '',
+    capacity: q.battery?.capacity || '',
+    cells: q.battery?.cells || '',
+    banks: q.battery?.banks || '',
+    installYear: q.battery?.installYear || '',
+    location: q.battery?.location || ''
+  },
+  description: q.description || '',
+  serviceCategory: q.serviceCategory || '',
+  scopeOfWork: Array.isArray(q.scopeOfWork) ? q.scopeOfWork : [],
+  materials: Array.isArray(q.materials) ? q.materials : [],
+  labour: Array.isArray(q.labour) ? q.labour : [],
+  equipment: Array.isArray(q.equipment) ? q.equipment : [],
+  additionalCharges: Array.isArray(q.additionalCharges) ? q.additionalCharges : [],
+  terms: Array.isArray(q.terms) ? q.terms : [],
+  notes: Array.isArray(q.notes) ? q.notes : [],
+  internalNotes: q.internalNotes || '',
+  customerNotes: q.customerNotes || '',
+  validityDays: Number(q.validityDays) || 30,
+  requireSignature: q.requireSignature === true,
+  showBankDetails: q.showBankDetails === true,
+  bankName: q.bankName || '',
+  accountName: q.accountName || '',
+  bsb: q.bsb || '',
+  accountNumber: q.accountNumber || '',
+  status: q.status || 'Draft',
+  grandTotal: Number(q.grandTotal) || 0,
+  inquiryId: q.inquiryId || null,
 });
 
 export function useDashboardData() {
-  const [inquiries, setInquiries] = useState<TInquiry[]>([]);
-  const [services, setServices] = useState<TService[]>([]);
-  const [products, setProducts] = useState<TProduct[]>([]);
-  const [logs, setLogs] = useState<TSystemLog[]>([]);
-  const [team, setTeam] = useState<TTeamMember[]>([]);
-  const [testimonials, setTestimonials] = useState<TTestimonial[]>([]);
-  const [equipment, setEquipment] = useState<TEquipmentItem[]>([]);
-  const [partners, setPartners] = useState<TPartnerItem[]>([]);
-  const [projects, setProjects] = useState<TProject[]>([]);
-  const [systemStatus, setSystemStatus] = useState<TSystemStatus>({
-    apiServer: 'Operational',
-    database: 'Operational',
-    cdn: 'Operational',
-    lastDeploy: '2 hours ago'
-  });
+  const dispatch = useDispatch<AppDispatch>();
+  const state = useSelector((s: RootState) => s.dashboard);
 
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isError, setIsError] = useState<boolean>(false);
-  const [errorMsg, setErrorMsg] = useState<string>('');
-  const [isRefetching, setIsRefetching] = useState<boolean>(false);
-
-  // Initialize and load from client storage
   useEffect(() => {
-    const loadData = () => {
-      try {
-        setIsLoading(true);
-        // Simulate minor async latency to showcase high-quality loading skeletons
-        setTimeout(() => {
-          const storedLogs = localStorage.getItem('bp_logs');
-          const storedStatus = localStorage.getItem('bp_status');
-          if (storedLogs) setLogs(JSON.parse(storedLogs));
-          else {
-            setLogs(INITIAL_LOGS);
-            localStorage.setItem('bp_logs', JSON.stringify(INITIAL_LOGS));
-          }
+    dispatch(fetchDashboardData());
+  }, [dispatch]);
 
-          fetch(`${API}/api/products`, { credentials: 'include' })
-            .then((r) => r.json())
-            .then((data) => { if (Array.isArray(data)) setProducts(data.map(normalizeProduct)); })
-            .catch(() => setProducts([]));
-
-          fetch(`${API}/api/team`, { credentials: 'include' })
-            .then((r) => r.json())
-            .then((data) => { if (Array.isArray(data)) setTeam(data.map(normalizeTeam)); })
-            .catch(() => setTeam([]));
-
-          fetch(`${API}/api/testimonials`, { credentials: 'include' })
-            .then((r) => r.json())
-            .then((data) => { if (Array.isArray(data)) setTestimonials(data.map(normalizeTestimonial)); })
-            .catch(() => setTestimonials([]));
-
-          fetch(`${API}/api/equipment`, { credentials: 'include' })
-            .then((r) => r.json())
-            .then((data) => { if (Array.isArray(data)) setEquipment(data.map(normalizeEquipment)); })
-            .catch(() => setEquipment([]));
-
-          fetch(`${API}/api/partners`, { credentials: 'include' })
-            .then((r) => r.json())
-            .then((data) => { if (Array.isArray(data)) setPartners(data.map(normalizePartner)); })
-            .catch(() => setPartners([]));
-
-          fetch(`${API}/api/projects`, { credentials: 'include' })
-            .then((r) => r.json())
-            .then((data) => { if (Array.isArray(data)) setProjects(data.map(normalizeProject)); })
-            .catch(() => setProjects([]));
-
-          fetch(`${API}/api/inquiries`, { credentials: 'include' })
-            .then((r) => r.json())
-            .then((data) => {
-              if (Array.isArray(data)) {
-                setInquiries(data.map(normalizeInquiry));
-              } else {
-                setInquiries([]);
-              }
-            })
-            .catch(() => {
-              setInquiries([]);
-            });
-
-          if (storedStatus) setSystemStatus(JSON.parse(storedStatus));
-
-          fetch(`${API}/api/services`, { credentials: 'include' })
-            .then((r) => r.json())
-            .then((data) => { if (Array.isArray(data)) setServices(data.map(normalizeService)); })
-            .catch(() => setServices([]));
-          
-          setIsLoading(false);
-          setIsError(false);
-        }, 600);
-      } catch (err) {
-        setIsLoading(false);
-        setIsError(true);
-        setErrorMsg('Failed to fetch dashboard data. Caching is disabled or localStorage is full.');
-      }
-    };
-
-    loadData();
-  }, []);
-
-  // Save changes helper
-  const saveState = useCallback((key: string, data: any) => {
-    localStorage.setItem(key, JSON.stringify(data));
-  }, []);
-
-  // Logger helper
   const addSystemLog = useCallback((type: 'info' | 'success' | 'warning' | 'error', message: string, source: string) => {
-    const newLog: TSystemLog = {
+    dispatch(addLog({
       id: `log-${Date.now()}`,
       timestamp: new Date().toTimeString().split(' ')[0],
       type,
       message,
       source
-    };
-    setLogs((prev) => {
-      const updated = [newLog, ...prev.slice(0, 19)]; // limit to 20 logs
-      saveState('bp_logs', updated);
-      return updated;
-    });
-  }, [saveState]);
+    }));
+  }, [dispatch]);
 
-  // Refetch / Synchronize data simulation
   const refetch = useCallback(async () => {
-    setIsRefetching(true);
     addSystemLog('info', 'Manual refresh triggered. Querying latest metrics...', 'Dashboard Coordinator');
-    setTimeout(() => {
-      setIsRefetching(false);
-      addSystemLog('success', 'Database synchronization complete. Caching locally.', 'Core System');
-    }, 500);
-  }, [addSystemLog]);
+    await dispatch(fetchDashboardData());
+    addSystemLog('success', 'Database synchronization complete.', 'Core System');
+  }, [dispatch, addSystemLog]);
 
   // INQUIRIES ACTIONS
   const markInquiryRead = useCallback(async (id: string) => {
-    const response = await fetch(`${API}/api/inquiries/${id}`, {
-      method: 'PATCH',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'read' }),
-    });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.message || 'Inquiry update failed');
-    const normalized = normalizeInquiry(data);
-    setInquiries((prev) => prev.map((inq) => (inq.id === id ? normalized : inq)));
+    await api.patch(`/api/inquiries/${id}`, { status: 'read' });
     addSystemLog('info', `Inquiry ${id} viewed and marked as read.`, 'Inquiry Dispatcher');
-  }, [addSystemLog]);
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
 
   const replyToInquiry = useCallback(async (id: string, replyText: string) => {
     const replyDate = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-    const response = await fetch(`${API}/api/inquiries/${id}`, {
-      method: 'PATCH',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'replied', replyText, replyDate }),
-    });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.message || 'Inquiry reply failed');
-    const normalized = normalizeInquiry(data);
-    setInquiries((prev) => prev.map((inq) => (inq.id === id ? normalized : inq)));
+    await api.patch(`/api/inquiries/${id}`, { status: 'replied', replyText, replyDate });
     addSystemLog('success', `Reply dispatched successfully to inquiry: ${id}`, 'Email Gateway');
-  }, [addSystemLog]);
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
 
   const deleteInquiry = useCallback(async (id: string) => {
-    const response = await fetch(`${API}/api/inquiries/${id}`, {
-      method: 'DELETE',
-      credentials: 'include',
-    });
-    if (!response.ok) throw new Error('Inquiry delete failed');
-    setInquiries((prev) => prev.filter((inq) => inq.id !== id));
+    await api.delete(`/api/inquiries/${id}`);
     addSystemLog('warning', `Inquiry ${id} permanently discarded.`, 'Inquiry Dispatcher');
-  }, [addSystemLog]);
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
 
   // SERVICES ACTIONS
   const addService = useCallback(async (serviceData: Omit<TService, 'id'>) => {
-    const response = await fetch(`${API}/api/services`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title: serviceData.name,
-        slug: serviceData.slug,
-        description: serviceData.description,
-        category: serviceData.category,
-        status: serviceData.status,
-        iconName: serviceData.iconName,
-        serviceTagline: serviceData.serviceTagline,
-        heroDescription: serviceData.heroDescription,
-        imageUrl: serviceData.imageUrl,
-        detailImageUrl: serviceData.detailImageUrl,
-        ctaText: serviceData.ctaText,
-        secondaryText: serviceData.secondaryText,
-        keyHighlights: serviceData.keyHighlights || [],
-        technicalProcedures: serviceData.technicalProcedures || [],
-        displayOrder: serviceData.displayOrder || 0,
-      }),
+    const res = await api.post<any>('/api/services', {
+      title: serviceData.name,
+      slug: serviceData.slug,
+      description: serviceData.description,
+      category: serviceData.category,
+      status: serviceData.status,
+      iconName: serviceData.iconName,
+      serviceTagline: serviceData.serviceTagline,
+      heroDescription: serviceData.heroDescription,
+      imageUrl: serviceData.imageUrl,
+      detailImageUrl: serviceData.detailImageUrl,
+      ctaText: serviceData.ctaText,
+      secondaryText: serviceData.secondaryText,
+      keyHighlights: serviceData.keyHighlights || [],
+      technicalProcedures: serviceData.technicalProcedures || [],
+      displayOrder: serviceData.displayOrder || 0,
     });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.message || 'Service creation failed');
-    const normalized = normalizeService(data);
-    setServices((prev) => {
-      const updated = [normalized, ...prev.filter((srv) => srv.slug !== normalized.slug)];
-      saveState('bp_services', updated);
-      return updated;
-    });
-    addSystemLog('success', `New Service added: "${normalized.name}"`, 'Services Admin');
-  }, [addSystemLog, saveState]);
+    addSystemLog('success', `New Service added: "${res.title || res.name}"`, 'Services Admin');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
 
   const updateServiceStatus = useCallback(async (id: string, status: 'Active' | 'Inactive') => {
-    const currentService = services.find((srv) => srv.id === id);
+    const currentService = state.services.find((srv) => srv.id === id);
     if (!currentService) return;
-    const response = await fetch(`${API}/api/services/${id}`, {
-      method: 'PUT',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ...currentService, status, title: currentService.title || currentService.name }),
-    });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.message || 'Service update failed');
-    const normalized = normalizeService(data);
-    setServices((prev) => {
-      const updated = prev.map((srv) => (srv.id === id ? normalized : srv));
-      saveState('bp_services', updated);
-      return updated;
-    });
+    await api.put(`/api/services/${id}`, { ...currentService, status, title: currentService.name });
     addSystemLog('info', `Service ${id} state updated as ${status}.`, 'Services Admin');
-  }, [addSystemLog, saveState, services]);
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog, state.services]);
 
   const updateService = useCallback(async (id: string, serviceData: Partial<TService>) => {
     const payload = { ...serviceData, title: serviceData.title || serviceData.name };
-    const response = await fetch(`${API}/api/services/${id}`, {
-      method: 'PUT',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.message || 'Service update failed');
-    const normalized = normalizeService(data);
-    setServices((prev) => {
-      const updated = prev.map((srv) => (srv.id === id ? normalized : srv));
-      saveState('bp_services', updated);
-      return updated;
-    });
-    addSystemLog('success', `Service updated: "${normalized.name}"`, 'Services Admin');
-  }, [addSystemLog, saveState]);
+    await api.put(`/api/services/${id}`, payload);
+    addSystemLog('success', `Service updated: "${serviceData.name || id}"`, 'Services Admin');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
 
   const deleteService = useCallback(async (id: string) => {
-    const response = await fetch(`${API}/api/services/${id}`, {
-      method: 'DELETE',
-      credentials: 'include',
-    });
-    if (!response.ok) throw new Error('Delete failed');
-    setServices((prev) => {
-      const updated = prev.filter((srv) => srv.id !== id);
-      saveState('bp_services', updated);
-      return updated;
-    });
+    await api.delete(`/api/services/${id}`);
     addSystemLog('warning', `Service ${id} deleted from catalog.`, 'Services Admin');
-  }, [addSystemLog, saveState]);
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
+
+  const updateServiceFeatured = useCallback(async (id: string, featuredOnHome: boolean) => {
+    await api.patch(`/api/services/${id}/featured`, { featuredOnHome });
+    addSystemLog('info', `Service ${id} home featured → ${featuredOnHome}`, 'Services Admin');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
 
   // PRODUCTS ACTIONS
-  const addProduct = useCallback((prodData: Omit<TProduct, 'id' | 'addedDate'>) => {
-    return fetch(`${API}/api/products`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(prodData),
-    })
-      .then(async (response) => {
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.message || 'Product creation failed');
-        const normalized = normalizeProduct(data);
-        setProducts((prev) => [normalized, ...prev]);
-        addSystemLog('success', `New battery product registered: "${normalized.name}"`, 'Catalog Manager');
-      });
-  }, [addSystemLog]);
+  const addProduct = useCallback(async (prodData: Omit<TProduct, 'id' | 'addedDate'>) => {
+    const res = await api.post<any>('/api/products', prodData);
+    addSystemLog('success', `New battery product registered: "${res.name}"`, 'Catalog Manager');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
 
-  const updateProductStock = useCallback((id: string, stockStatus: 'In Stock' | 'Low Stock' | 'Out of Stock') => {
-    return fetch(`${API}/api/products/${id}/stock`, {
-      method: 'PATCH',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ stockStatus }),
-    })
-      .then(async (response) => {
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.message || 'Stock update failed');
-        const normalized = normalizeProduct(data);
-        setProducts((prev) => prev.map((prod) => (prod.id === id ? normalized : prod)));
-        addSystemLog('info', `Product ${id} inventory updated to ${stockStatus}.`, 'Catalog Manager');
-      });
-  }, [addSystemLog]);
+  const updateProduct = useCallback(async (id: string, prodData: Partial<TProduct>) => {
+    const res = await api.put<any>(`/api/products/${id}`, prodData);
+    addSystemLog('success', `Product updated: "${res.name || id}"`, 'Catalog Manager');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
 
-  const deleteProduct = useCallback((id: string) => {
-    return fetch(`${API}/api/products/${id}`, {
-      method: 'DELETE',
-      credentials: 'include',
-    }).then((response) => {
-      if (!response.ok) throw new Error('Delete failed');
-      setProducts((prev) => prev.filter((prod) => prod.id !== id));
-      addSystemLog('warning', `Product ${id} removed from public active listings.`, 'Catalog Manager');
-    });
-  }, [addSystemLog]);
+  const updateProductStock = useCallback(async (id: string, stockStatus: 'In Stock' | 'Low Stock' | 'Out of Stock') => {
+    await api.patch(`/api/products/${id}/stock`, { stockStatus });
+    addSystemLog('info', `Product ${id} inventory updated to ${stockStatus}.`, 'Catalog Manager');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
+
+  const updateProductFeatured = useCallback(async (id: string, featuredOnHome: boolean) => {
+    await api.patch(`/api/products/${id}/featured`, { featuredOnHome });
+    addSystemLog('info', `Product ${id} home featured → ${featuredOnHome}`, 'Catalog Manager');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
+
+  const deleteProduct = useCallback(async (id: string) => {
+    await api.delete(`/api/products/${id}`);
+    addSystemLog('warning', `Product ${id} removed from active listings.`, 'Catalog Manager');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
+
+  // QUOTATION ACTIONS
+  const addQuotation = useCallback(async (quotData: Omit<TQuotation, 'id'>) => {
+    const data = await api.post<any>('/api/quotations', quotData);
+    const normalized = normalizeQuotation(data);
+    addSystemLog('success', `Quotation ${normalized.quoteNo} created`, 'Quotation Engine');
+    dispatch(fetchDashboardData());
+    return normalized;
+  }, [dispatch, addSystemLog]);
+
+  const updateQuotation = useCallback(async (id: string, quotData: Partial<TQuotation>) => {
+    const data = await api.put<any>(`/api/quotations/${id}`, quotData);
+    const normalized = normalizeQuotation(data);
+    addSystemLog('info', `Quotation ${normalized.quoteNo} updated.`, 'Quotation Engine');
+    dispatch(fetchDashboardData());
+    return normalized;
+  }, [dispatch, addSystemLog]);
+
+  const deleteQuotation = useCallback(async (id: string) => {
+    await api.delete(`/api/quotations/${id}`);
+    addSystemLog('warning', `Quotation with ID ${id} discarded.`, 'Quotation Engine');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
 
   // SETTINGS ACTIONS
-  const updateSystemStatusValue = useCallback((serviceKey: 'apiServer' | 'database' | 'cdn', state: 'Operational' | 'Degraded' | 'Offline') => {
-    setSystemStatus((prev) => {
-      const updated = { ...prev, [serviceKey]: state };
-      localStorage.setItem('bp_status', JSON.stringify(updated));
-      return updated;
-    });
-    addSystemLog('warning', `Manual override changed service status of ${serviceKey} to "${state}"`, 'System Administrator');
-  }, [addSystemLog]);
+  const updateSystemStatusValue = useCallback((serviceKey: 'apiServer' | 'database' | 'cdn', stateVal: 'Operational' | 'Degraded' | 'Offline') => {
+    const updatedStatus = { ...state.systemStatus, [serviceKey]: stateVal };
+    dispatch(setSystemStatus(updatedStatus));
+    api.put('/api/settings', { systemStatus: updatedStatus }).catch(() => {});
+    addSystemLog('warning', `Service status of ${serviceKey} changed to "${stateVal}"`, 'System Administrator');
+  }, [dispatch, state.systemStatus, addSystemLog]);
 
   // TEAM ACTIONS
-  const addTeamMember = useCallback((name: string, role: string, email: string, status: 'Active' | 'On Leave', image?: string) => {
-    return fetch(`${API}/api/team`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, role, email, status, image }),
-    })
-      .then(async (response) => {
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.message || 'Team member creation failed');
-        const normalized = normalizeTeam(data);
-        setTeam((prev) => [normalized, ...prev]);
-        addSystemLog('success', `Team Member registered: "${name}" (${role})`, 'Personnel Directory');
-      });
-  }, [addSystemLog]);
+  const addTeamMember = useCallback(async (name: string, role: string, email: string, status: 'Active' | 'On Leave', image?: string) => {
+    await api.post('/api/team', { name, role, email, status, image });
+    addSystemLog('success', `Team Member registered: "${name}" (${role})`, 'Personnel Directory');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
 
-  const updateTeamMemberStatus = useCallback((id: string, status: 'Active' | 'On Leave') => {
-    return fetch(`${API}/api/team/${id}/status`, {
-      method: 'PATCH',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status }),
-    })
-      .then(async (response) => {
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.message || 'Team update failed');
-        const normalized = normalizeTeam(data);
-        setTeam((prev) => prev.map((member) => (member.id === id ? normalized : member)));
-        addSystemLog('info', `Personnel status updated for ID ${id} to "${status}"`, 'Personnel Directory');
-      });
-  }, [addSystemLog]);
+  const updateTeamMemberStatus = useCallback(async (id: string, status: 'Active' | 'On Leave') => {
+    await api.patch(`/api/team/${id}/status`, { status });
+    addSystemLog('info', `Personnel status updated for ID ${id} to "${status}"`, 'Personnel Directory');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
 
-  const deleteTeamMember = useCallback((id: string) => {
-    return fetch(`${API}/api/team/${id}`, {
-      method: 'DELETE',
-      credentials: 'include',
-    }).then((response) => {
-      if (!response.ok) throw new Error('Delete failed');
-      setTeam((prev) => prev.filter((member) => member.id !== id));
-      addSystemLog('warning', `Team Member ID ${id} deleted from catalog.`, 'Personnel Directory');
-    });
-  }, [addSystemLog]);
+  const deleteTeamMember = useCallback(async (id: string) => {
+    await api.delete(`/api/team/${id}`);
+    addSystemLog('warning', `Team Member ID ${id} deleted from catalog.`, 'Personnel Directory');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
 
-  // TESTIMONIALS ACTIONS — real REST API
+  // TESTIMONIALS ACTIONS
   const fetchTestimonials = useCallback(async () => {
-    const res = await fetch(`${API}/api/testimonials`, { credentials: 'include' });
-    const data = await res.json();
-    setTestimonials(data);
-  }, []);
+    dispatch(fetchDashboardData());
+  }, [dispatch]);
 
   const addTestimonial = useCallback(async (formData: FormData) => {
-    const res = await fetch(`${API}/api/testimonials`, { method: 'POST', credentials: 'include', body: formData });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message);
-    setTestimonials((prev) => [normalizeTestimonial(data), ...prev]);
-    addSystemLog('success', `Testimonial added: "${data.name}" from "${data.company}"`, 'Testimonials Hub');
-  }, [addSystemLog]);
+    const BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+    const res = await fetch(`${BASE}/api/testimonials`, { method: 'POST', credentials: 'include', body: formData });
+    if (!res.ok) throw new Error('Testimonial addition failed');
+    addSystemLog('success', 'Testimonial added', 'Testimonials Hub');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
 
   const updateTestimonialStatus = useCallback(async (id: string, status: 'Approved' | 'Pending' | 'Rejected') => {
-    const res = await fetch(`${API}/api/testimonials/${id}/status`, {
-      method: 'PATCH', credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status }),
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message);
-    setTestimonials((prev) => prev.map((t) => (t._id === id ? normalizeTestimonial(data) : t)));
+    await api.patch(`/api/testimonials/${id}/status`, { status });
     addSystemLog('info', `Testimonial ${id} status → "${status}"`, 'Testimonials Hub');
-  }, [addSystemLog]);
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
 
   const deleteTestimonial = useCallback(async (id: string) => {
-    const res = await fetch(`${API}/api/testimonials/${id}`, { method: 'DELETE', credentials: 'include' });
-    if (!res.ok) throw new Error('Delete failed');
-    setTestimonials((prev) => prev.filter((t) => t._id !== id));
+    await api.delete(`/api/testimonials/${id}`);
     addSystemLog('warning', `Testimonial ID ${id} deleted.`, 'Testimonials Hub');
-  }, [addSystemLog]);
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
 
+  // EQUIPMENT ACTIONS
   const addEquipment = useCallback(async (item: Omit<TEquipmentItem, 'id' | '_id'>) => {
-    const res = await fetch(`${API}/api/equipment`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(item),
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Equipment creation failed');
-    const normalized = normalizeEquipment(data);
-    setEquipment((prev) => [normalized, ...prev]);
-    addSystemLog('success', `Equipment added: "${normalized.title}"`, 'Equipment Hub');
-  }, [addSystemLog]);
+    await api.post('/api/equipment', item);
+    addSystemLog('success', `Equipment added: "${item.title}"`, 'Equipment Hub');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
 
   const updateEquipment = useCallback(async (id: string, item: Omit<TEquipmentItem, 'id' | '_id'>) => {
-    const res = await fetch(`${API}/api/equipment/${id}`, {
-      method: 'PUT',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(item),
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Equipment update failed');
-    const normalized = normalizeEquipment(data);
-    setEquipment((prev) => prev.map((entry) => (entry.id === id ? normalized : entry)));
-    addSystemLog('info', `Equipment updated: "${normalized.title}"`, 'Equipment Hub');
-  }, [addSystemLog]);
+    await api.put(`/api/equipment/${id}`, item);
+    addSystemLog('info', `Equipment updated: "${item.title}"`, 'Equipment Hub');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
 
   const deleteEquipment = useCallback(async (id: string) => {
-    const res = await fetch(`${API}/api/equipment/${id}`, {
-      method: 'DELETE',
-      credentials: 'include',
-    });
-    if (!res.ok) throw new Error('Equipment delete failed');
-    setEquipment((prev) => prev.filter((entry) => entry.id !== id));
+    await api.delete(`/api/equipment/${id}`);
     addSystemLog('warning', `Equipment ID ${id} deleted.`, 'Equipment Hub');
-  }, [addSystemLog]);
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
 
+  // PARTNER ACTIONS
   const addPartner = useCallback(async (item: Omit<TPartnerItem, 'id' | '_id'>) => {
-    const res = await fetch(`${API}/api/partners`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(item),
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Partner creation failed');
-    const normalized = normalizePartner(data);
-    setPartners((prev) => [normalized, ...prev]);
-    addSystemLog('success', `Partner added: "${normalized.name}"`, 'Partners Hub');
-  }, [addSystemLog]);
+    await api.post('/api/partners', item);
+    addSystemLog('success', `Partner added: "${item.name}"`, 'Partners Hub');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
 
   const updatePartner = useCallback(async (id: string, item: Omit<TPartnerItem, 'id' | '_id'>) => {
-    const res = await fetch(`${API}/api/partners/${id}`, {
-      method: 'PUT',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(item),
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Partner update failed');
-    const normalized = normalizePartner(data);
-    setPartners((prev) => prev.map((entry) => (entry.id === id ? normalized : entry)));
-    addSystemLog('info', `Partner updated: "${normalized.name}"`, 'Partners Hub');
-  }, [addSystemLog]);
+    await api.put(`/api/partners/${id}`, item);
+    addSystemLog('info', `Partner updated: "${item.name}"`, 'Partners Hub');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
 
   const deletePartner = useCallback(async (id: string) => {
-    const res = await fetch(`${API}/api/partners/${id}`, {
-      method: 'DELETE',
-      credentials: 'include',
-    });
-    if (!res.ok) throw new Error('Partner delete failed');
-    setPartners((prev) => prev.filter((entry) => entry.id !== id));
+    await api.delete(`/api/partners/${id}`);
     addSystemLog('warning', `Partner ID ${id} deleted.`, 'Partners Hub');
-  }, [addSystemLog]);
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
 
+  // PROJECT ACTIONS
   const addProject = useCallback(async (projectData: Partial<TProject>) => {
-    const res = await fetch(`${API}/api/projects`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(projectData),
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Project creation failed');
-    const normalized = normalizeProject(data);
-    setProjects((prev) => [normalized, ...prev]);
-    addSystemLog('success', `Project added: "${normalized.title}"`, 'Projects Hub');
-  }, [addSystemLog]);
+    await api.post('/api/projects', projectData);
+    addSystemLog('success', `Project added: "${projectData.title}"`, 'Projects Hub');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
 
   const updateProject = useCallback(async (id: string, projectData: Partial<TProject>) => {
-    const res = await fetch(`${API}/api/projects/${id}`, {
-      method: 'PUT',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(projectData),
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Project update failed');
-    const normalized = normalizeProject(data);
-    setProjects((prev) => prev.map((p) => (p.id === id ? normalized : p)));
-    addSystemLog('info', `Project updated: "${normalized.title}"`, 'Projects Hub');
-  }, [addSystemLog]);
+    await api.put(`/api/projects/${id}`, projectData);
+    addSystemLog('info', `Project updated: "${projectData.title}"`, 'Projects Hub');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
 
   const updateProjectStatus = useCallback(async (id: string, status: 'Active' | 'Inactive') => {
-    const current = projects.find((p) => p.id === id);
+    const current = state.projects.find((p) => p.id === id);
     if (!current) return;
-    const res = await fetch(`${API}/api/projects/${id}`, {
-      method: 'PUT',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...current, status }),
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Project status update failed');
-    const normalized = normalizeProject(data);
-    setProjects((prev) => prev.map((p) => (p.id === id ? normalized : p)));
+    await api.put(`/api/projects/${id}`, { ...current, status });
     addSystemLog('info', `Project ${id} status → "${status}"`, 'Projects Hub');
-  }, [addSystemLog, projects]);
+    dispatch(fetchDashboardData());
+  }, [dispatch, state.projects, addSystemLog]);
+
+  const updateProjectFeatured = useCallback(async (id: string, featuredOnHome: boolean) => {
+    await api.patch(`/api/projects/${id}/featured`, { featuredOnHome });
+    addSystemLog('info', `Project ${id} home featured → ${featuredOnHome}`, 'Projects Hub');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
 
   const deleteProject = useCallback(async (id: string) => {
-    const res = await fetch(`${API}/api/projects/${id}`, {
-      method: 'DELETE',
-      credentials: 'include',
-    });
-    if (!res.ok) throw new Error('Project delete failed');
-    setProjects((prev) => prev.filter((p) => p.id !== id));
+    await api.delete(`/api/projects/${id}`);
     addSystemLog('warning', `Project ID ${id} deleted.`, 'Projects Hub');
-  }, [addSystemLog]);
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
+
+  // INVENTORY ACTIONS
+  const stockIn = useCallback(async (productId: string, quantity: number, note: string, warehouseId?: string) => {
+    await api.post('/api/inventory/movement', { productId, type: 'in', quantity, note, warehouseId: warehouseId || undefined });
+    addSystemLog('success', `Stock In: +${quantity} units for product ${productId}`, 'Inventory Manager');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
+
+  const stockOut = useCallback(async (productId: string, quantity: number, note: string, warehouseId?: string) => {
+    await api.post('/api/inventory/movement', { productId, type: 'out', quantity, note, warehouseId: warehouseId || undefined });
+    addSystemLog('warning', `Stock Out: -${quantity} units for product ${productId}`, 'Inventory Manager');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
+
+  const updateInventoryConfig = useCallback(async (
+    productId: string,
+    config: { minStock?: number; reorderLevel?: number; location?: string; currentStock?: number }
+  ) => {
+    await api.patch(`/api/inventory/${productId}/config`, config);
+    addSystemLog('info', `Inventory config updated for product ${productId}`, 'Inventory Manager');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
+
+  // WAREHOUSE ACTIONS
+  const addWarehouse = useCallback(async (data: Omit<TWarehouse, '_id' | 'id' | 'createdAt'>) => {
+    await api.post('/api/warehouses', data);
+    addSystemLog('success', `Warehouse added: "${data.name}" (${data.code})`, 'Warehouse Manager');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
+
+  const updateWarehouse = useCallback(async (id: string, data: Partial<TWarehouse>) => {
+    await api.put(`/api/warehouses/${id}`, data);
+    addSystemLog('info', `Warehouse updated: "${data.name}"`, 'Warehouse Manager');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
+
+  const updateWarehouseStatus = useCallback(async (id: string, status: 'Active' | 'Inactive') => {
+    await api.patch(`/api/warehouses/${id}/status`, { status });
+    addSystemLog('info', `Warehouse ${id} → ${status}`, 'Warehouse Manager');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
+
+  const deleteWarehouse = useCallback(async (id: string) => {
+    await api.delete(`/api/warehouses/${id}`);
+    addSystemLog('warning', `Warehouse ${id} deleted.`, 'Warehouse Manager');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
+
+  // CATEGORY ACTIONS
+  const addCategory = useCallback(async (data: Omit<TCategory, '_id' | 'id' | 'createdAt'>) => {
+    await api.post('/api/categories', data);
+    addSystemLog('success', `Category added: "${data.name}"`, 'Category Manager');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
+
+  const updateCategory = useCallback(async (id: string, data: Partial<TCategory>) => {
+    await api.put(`/api/categories/${id}`, data);
+    addSystemLog('info', `Category updated: "${data.name}"`, 'Category Manager');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
+
+  const deleteCategory = useCallback(async (id: string) => {
+    await api.delete(`/api/categories/${id}`);
+    addSystemLog('warning', `Category deleted.`, 'Category Manager');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
 
   return {
-    inquiries,
-    services,
-    products,
-    logs,
-    systemStatus,
-    team,
-    testimonials,
-    equipment,
-    partners,
-    projects,
-    isLoading,
-    isError,
-    errorMsg,
-    isRefetching,
-    
+    inquiries: state.inquiries,
+    services: state.services,
+    products: state.products,
+    movements: state.movements,
+    warehouses: state.warehouses,
+    categories: state.categories,
+    logs: state.logs,
+    systemStatus: state.systemStatus,
+    team: state.team,
+    testimonials: state.testimonials,
+    equipment: state.equipment,
+    partners: state.partners,
+    projects: state.projects,
+    quotations: state.quotations,
+    isLoading: state.isLoading,
+    isError: state.isError,
+    errorMsg: state.errorMsg,
+    isRefetching: state.isRefetching,
+
     // Actions
     refetch,
     markInquiryRead,
@@ -703,8 +471,11 @@ export function useDashboardData() {
     updateServiceStatus,
     updateService,
     deleteService,
+    updateServiceFeatured,
     addProduct,
+    updateProduct,
     updateProductStock,
+    updateProductFeatured,
     deleteProduct,
     updateSystemStatusValue,
     addTeamMember,
@@ -722,8 +493,25 @@ export function useDashboardData() {
     addProject,
     updateProject,
     updateProjectStatus,
+    updateProjectFeatured,
     deleteProject,
     fetchTestimonials,
+    // Inventory
+    stockIn,
+    stockOut,
+    updateInventoryConfig,
+    // Warehouses
+    addWarehouse,
+    updateWarehouse,
+    updateWarehouseStatus,
+    deleteWarehouse,
+    // Categories
+    addCategory,
+    updateCategory,
+    deleteCategory,
+    // Quotations
+    addQuotation,
+    updateQuotation,
+    deleteQuotation,
   };
 }
-

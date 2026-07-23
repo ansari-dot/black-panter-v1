@@ -1,22 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-
-const resolveImage = (image = '') => {
-  if (!image) return '';
-  if (image.startsWith('/uploads/')) return `${API}${image}`;
-  if (image.startsWith('uploads/')) return `${API}/${image}`;
-  return image;
-};
+import { useTeamCatalog } from '../hooks/useTeamCatalog';
 
 const TeamSection = ({
   title = 'Meet Our Experts',
   subtitle = 'Certified engineers and technicians dedicated to your power reliability.',
 }) => {
-  const [members, setMembers] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState('');
+  const { activeMembers: members, isLoading: loading, isError } = useTeamCatalog();
   const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
 
   React.useEffect(() => {
@@ -25,41 +15,7 @@ const TeamSection = ({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  React.useEffect(() => {
-    let active = true;
-    setLoading(true);
-    setError('');
-    fetch(`${API}/api/team`)
-      .then((response) => response.json())
-      .then((data) => {
-        if (!active) return;
-        if (Array.isArray(data) && data.length > 0) {
-          setMembers(
-            data.map((member) => ({
-              id: member._id || member.id,
-              name: member.name || 'Team Member',
-              title: member.role || '',
-              image: resolveImage(member.image),
-              }))
-          );
-        } else {
-          setMembers([]);
-        }
-      })
-      .catch(() => {
-        if (active) {
-          setMembers([]);
-          setError('Team data is unavailable right now.');
-        }
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
 
-    return () => {
-      active = false;
-    };
-  }, []);
 
   const staggerContainer = {
     hidden: { opacity: 0 },
@@ -142,10 +98,10 @@ const TeamSection = ({
           whileInView="animate"
           viewport={{ once: false, amount: 0.3 }}
         >
-          <h2 className="expert-title" style={{ color: '#383A3C', fontSize: '33px', fontWeight: 700, margin: 0 }}>
+          <h2 className="expert-title font-black" style={{ color: '#383A3C', fontSize: '33px', fontWeight: 900, margin: 0 }}>
             {title}
           </h2>
-          <p className="expert-subtitle" style={{ color: '#6b7280', fontSize: '19px', margin: 0 }}>
+          <p className="expert-subtitle" style={{ color: '#6b7280', fontSize: '19px', fontWeight: 400, margin: 0 }}>
             {subtitle}
           </p>
         </motion.div>
@@ -180,7 +136,7 @@ const TeamSection = ({
                 }}
               >
                 <img
-                  src={member.image || fallbackTeam[0].image}
+                  src={member.image}
                   alt={member.name}
                   className="expert-image"
                   style={{ width: '100%', height: '380px', objectFit: 'cover', display: 'block' }}
@@ -193,14 +149,14 @@ const TeamSection = ({
                   {member.name}
                 </h3>
                 <p className="expert-position" style={{ color: '#6b7280', fontSize: '16px', margin: 0, textAlign: 'center' }}>
-                  {member.title}
+                  {member.role}
                 </p>
               </div>
             </motion.div>
             ))
           ) : (
             <div className="col-span-full text-center text-gray-500">
-              {error || 'No team members found.'}
+              {isError ? 'Team data is unavailable right now.' : 'No team members found.'}
             </div>
           )}
         </div>

@@ -7,4 +7,7 @@ const equipmentSchema = new mongoose.Schema({
   displayOrder: { type: Number, default: 0 },
 }, { timestamps: true });
 
+equipmentSchema.index({ displayOrder: 1, createdAt: -1 });
+
 export default mongoose.model('Equipment', equipmentSchema);
+

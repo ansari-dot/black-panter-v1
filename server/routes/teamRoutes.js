@@ -6,10 +6,10 @@ import { teamSchema } from '../validators/schemas.js';
 
 const router = Router();
 
-router.get('/',       getAll);
-router.get('/:id',    getOne);
-router.post('/',      protect, adminOnly, validate(teamSchema), create);
-router.put('/:id',    protect, adminOnly, validate(teamSchema), update);
+router.get('/', getAll);
+router.get('/:id', getOne);
+router.post('/', protect, adminOnly, validate(teamSchema), create);
+router.put('/:id', protect, adminOnly, validate(teamSchema), update);
 router.patch('/:id/status', protect, adminOnly, updateStatus);
 router.delete('/:id', protect, adminOnly, remove);
 

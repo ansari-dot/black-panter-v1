@@ -42,7 +42,7 @@ export const ServiceDetailPage = () => {
     page: {
       backgroundColor: "#ffffff",
       color: "#1a1a1a",
-      fontFamily: "var(--font-family-body, 'DM Sans', sans-serif)"
+      fontFamily: "'Plus Jakarta Sans', sans-serif"
     },
     outer: {
       padding: "64px 64px 72px",

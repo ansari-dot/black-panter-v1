@@ -33,7 +33,7 @@ export default function WhoWeAreSection() {
       backgroundColor: '#f9fafb',
       padding: isMobile ? '50px 0' : '80px 0',
       gap: isMobile ? '40px' : '0',
-      fontFamily: 'Poppins, sans-serif',
+      fontFamily: "'Plus Jakarta Sans', sans-serif",
       flexWrap: 'wrap'
     },
     leftContent: {
@@ -62,7 +62,7 @@ export default function WhoWeAreSection() {
       fontSize: isMobile ? '16px' : '19px',
       marginBottom: isMobile ? '24px' : '30px',
       lineHeight: '1.8',
-      fontFamily: 'Poppins, sans-serif',
+      fontFamily: "'Plus Jakarta Sans', sans-serif",
       fontWeight: '400',
       color: '#666666',
       wordSpacing: '0.05em',

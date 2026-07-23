@@ -22,7 +22,7 @@ export default function OurMissionSection() {
       display: 'flex',
       justifyContent: 'center',
       padding: isMobile ? '0 10px' : '0 16px',
-      fontFamily: 'Poppins, sans-serif'
+      fontFamily: "'Plus Jakarta Sans', sans-serif"
     },
     missionCard: {
       width: '100%',
@@ -81,7 +81,7 @@ export default function OurMissionSection() {
       lineHeight: '1.8',
       maxWidth: '700px',
       margin: '0 auto',
-      fontFamily: 'Poppins, sans-serif',
+      fontFamily: "'Plus Jakarta Sans', sans-serif",
       fontWeight: '400',
       wordSpacing: '0.05em',
       letterSpacing: '0.02em',

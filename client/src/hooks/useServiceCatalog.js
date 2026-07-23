@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { API, normalizeServiceCatalog } from '../utils/serviceCatalog';
+import { normalizeServiceCatalog } from '../utils/serviceCatalog';
+import { servicesApi } from '../utils/api';
 
 export function useServiceCatalog() {
   const [services, setServices] = useState(() => normalizeServiceCatalog([]));
@@ -12,8 +13,7 @@ export function useServiceCatalog() {
     const loadServices = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`${API}/api/services/public`);
-        const data = await response.json();
+        const data = await servicesApi.getPublic();
         if (!isMounted) return;
         const catalog = Array.isArray(data) ? normalizeServiceCatalog(data) : normalizeServiceCatalog([]);
         setServices(catalog);

@@ -21,18 +21,35 @@ import TestimonialsPage from './pages/TestimonialsPage';
 import SettingsPage from './pages/SettingsPage';
 import PartnersPage from './pages/PartnersPage';
 import ProjectsPage from './pages/ProjectsPage';
+import HomePagePage from './pages/HomePagePage';
 import LoginPage from './pages/LoginPage';
+import InventoryPage from './pages/InventoryPage';
+import HomepageProductsPage from './pages/HomepageProductsPage';
+import HomepageServicesPage from './pages/HomepageServicesPage';
+import HomepageProjectsPage from './pages/HomepageProjectsPage';
+import WarehousePage from './pages/WarehousePage';
+import CategoriesPage from './pages/CategoriesPage';
+import CreateQuotationPage from './pages/CreateQuotationPage';
+import QuotationTemplatesPage from './pages/QuotationTemplatesPage';
+import QuotationsPage from './pages/QuotationsPage';
+import { TInquiry, TQuotation } from './types';
+
 
 // Simple fallback and trigger icons
 import { AlertTriangle, Plus, X, Battery, Sparkles } from 'lucide-react';
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState<TTab>('dashboard');
+  const [autoOpenAddProduct, setAutoOpenAddProduct] = useState(false);
   const [showQuickAddDialog, setShowQuickAddDialog] = useState(false);
   const [quickAddSelection, setQuickAddSelection] = useState<'service' | 'product'>('service');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<{ id: string; name: string; email: string; role: string } | null>(null);
+
+  const [selectedInquiryForQuote, setSelectedInquiryForQuote] = useState<TInquiry | null>(null);
+  const [selectedQuotationForEdit, setSelectedQuotationForEdit] = useState<TQuotation | null>(null);
+
 
   // Load state and actions through our custom hooks engine
   const {
@@ -60,8 +77,11 @@ export default function App() {
     updateServiceStatus,
     updateService,
     deleteService,
+    updateServiceFeatured,
     addProduct,
+    updateProduct,
     updateProductStock,
+    updateProductFeatured,
     deleteProduct,
     updateSystemStatusValue,
     addTeamMember,
@@ -79,7 +99,29 @@ export default function App() {
     addProject,
     updateProject,
     updateProjectStatus,
+    updateProjectFeatured,
     deleteProject,
+    // Inventory
+    movements,
+    stockIn,
+    stockOut,
+    updateInventoryConfig,
+    // Warehouses
+    warehouses,
+    addWarehouse,
+    updateWarehouse,
+    updateWarehouseStatus,
+    deleteWarehouse,
+    // Categories
+    categories,
+    addCategory,
+    updateCategory,
+    deleteCategory,
+    // Quotations
+    quotations,
+    addQuotation,
+    updateQuotation,
+    deleteQuotation,
   } = useDashboardData();
 
   // Helper values for metric items
@@ -231,7 +273,7 @@ export default function App() {
   };
 
   return (
-    <div id="app-root-container" className="flex bg-background font-sans min-h-screen">
+    <div id="app-root-container" className="flex min-h-screen" style={{ backgroundColor: '#f5f5f5' }}>
       
       {/* Side Control panel */}
       <AdminSidebar
@@ -251,7 +293,7 @@ export default function App() {
       />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col overflow-y-auto">
+      <div className="flex-1 flex flex-col overflow-y-auto" style={{ backgroundColor: '#f5f5f5' }}>
         
         {/* Navigation Top Header */}
         <Header
@@ -263,7 +305,7 @@ export default function App() {
         />
 
         {/* Modular Page Rendering and Dynamic Tab Selection */}
-        <main className="flex-1 px-8 py-8">
+        <main className={`flex-1 ${currentTab === 'createQuotation' ? '' : 'px-8 py-8'}`}>
           
           {currentTab === 'dashboard' && (
             <DashboardPage
@@ -301,9 +343,14 @@ export default function App() {
           {currentTab === 'products' && (
             <ProductsPage
               products={products}
+              warehouses={warehouses}
+              categories={categories}
               onAddProduct={addProduct}
+              onUpdateProduct={updateProduct}
               onUpdateStock={updateProductStock}
               onDeleteProduct={deleteProduct}
+              autoOpenAdd={autoOpenAddProduct}
+              onResetAutoOpen={() => setAutoOpenAddProduct(false)}
             />
           )}
 
@@ -357,6 +404,101 @@ export default function App() {
               onUpdateProject={updateProject}
               onUpdateStatus={updateProjectStatus}
               onDeleteProject={deleteProject}
+            />
+          )}
+
+          {currentTab === 'homePage' && (
+            <HomePagePage
+              products={products}
+              services={services}
+              projects={projects}
+              onToggleProductFeatured={updateProductFeatured}
+              onToggleServiceFeatured={updateServiceFeatured}
+              onToggleProjectFeatured={updateProjectFeatured}
+            />
+          )}
+
+          {currentTab === 'homepageProducts' && (
+            <HomepageProductsPage
+              products={products}
+              onToggleProductFeatured={updateProductFeatured}
+            />
+          )}
+
+          {currentTab === 'homepageServices' && (
+            <HomepageServicesPage
+              services={services}
+              onToggleServiceFeatured={updateServiceFeatured}
+            />
+          )}
+
+          {currentTab === 'homepageProjects' && (
+            <HomepageProjectsPage
+              projects={projects}
+              onToggleProjectFeatured={updateProjectFeatured}
+            />
+          )}
+
+          {currentTab === 'inventory' && (
+            <InventoryPage
+              products={products}
+              movements={movements}
+              warehouses={warehouses}
+              onStockIn={stockIn}
+              onStockOut={stockOut}
+              onUpdateConfig={updateInventoryConfig}
+              onAddProductClick={() => {
+                setCurrentTab('products');
+                setAutoOpenAddProduct(true);
+              }}
+            />
+          )}
+
+          {currentTab === 'warehouses' && (
+            <WarehousePage
+              warehouses={warehouses}
+              movements={movements}
+              onAdd={addWarehouse}
+              onUpdate={updateWarehouse}
+              onUpdateStatus={updateWarehouseStatus}
+              onDelete={deleteWarehouse}
+            />
+          )}
+
+          {currentTab === 'categories' && (
+            <CategoriesPage
+              categories={categories}
+              onAdd={addCategory}
+              onUpdate={updateCategory}
+              onDelete={deleteCategory}
+            />
+          )}
+
+          {currentTab === 'quotations' && (
+            <QuotationsPage
+              inquiries={inquiries}
+              quotations={quotations}
+              onDeleteQuotation={deleteQuotation}
+              setCurrentTab={setCurrentTab}
+              onSelectInquiryForQuote={setSelectedInquiryForQuote}
+              onSelectQuotationForEdit={setSelectedQuotationForEdit}
+            />
+          )}
+
+          {currentTab === 'quotationTemplates' && (
+            <QuotationTemplatesPage setCurrentTab={setCurrentTab} />
+          )}
+
+          {currentTab === 'createQuotation' && (
+            <CreateQuotationPage
+              setCurrentTab={setCurrentTab}
+              prefillData={selectedInquiryForQuote}
+              onClearPrefill={() => setSelectedInquiryForQuote(null)}
+              editData={selectedQuotationForEdit}
+              onClearEdit={() => setSelectedQuotationForEdit(null)}
+              onAddQuotation={addQuotation}
+              onUpdateQuotation={updateQuotation}
+              onReplyToInquiry={replyToInquiry}
             />
           )}
 

@@ -4,12 +4,12 @@ import { motion } from 'framer-motion';
 export default function CTASection() {
   // Responsive state
   const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
-  
+
   React.useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
     };
-    
+
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -278,19 +278,19 @@ export default function CTASection() {
   };
 
   return (
-    <motion.section 
+    <motion.section
       style={styles.section}
       initial="hidden"
       animate="visible"
       variants={containerVariants}
     >
       {/* Background Animated Circles */}
-      <motion.div 
+      <motion.div
         style={styles.backgroundCircle1}
         variants={floatingVariants}
         animate="animate"
       ></motion.div>
-      <motion.div 
+      <motion.div
         style={styles.backgroundCircle2}
         variants={floatingVariants}
         animate="animate"
@@ -300,14 +300,14 @@ export default function CTASection() {
         {/* Content Wrapper */}
         <motion.div style={styles.contentWrapper}>
           {/* Badge */}
-          <motion.div 
+          <motion.div
             style={styles.badge}
             variants={isMobile ? mobileVariants : badgeVariants}
             initial="initial"
             whileInView="animate"
             viewport={{ once: false, amount: 0.3 }}
           >
-            <motion.span 
+            <motion.span
               style={styles.dot}
               variants={pulseVariants}
               animate="animate"
@@ -319,7 +319,7 @@ export default function CTASection() {
           <motion.div style={styles.mainContent}>
             {/* Title with Gradient */}
             <motion.div style={styles.titleWrapper}>
-              <motion.h2 
+              <motion.h2
                 style={styles.title}
                 variants={isMobile ? mobileVariants : titleVariants}
                 initial="initial"
@@ -332,7 +332,7 @@ export default function CTASection() {
 
             {/* Subtitle */}
             <motion.div style={styles.subtitleWrapper}>
-              <motion.p 
+              <motion.p
                 style={styles.subtitle}
                 variants={isMobile ? mobileVariants : subtitleVariants}
                 initial="initial"
@@ -346,7 +346,7 @@ export default function CTASection() {
         </motion.div>
 
         {/* CTA Buttons */}
-        <motion.div 
+        <motion.div
           style={styles.buttonGroup}
           variants={isMobile ? mobileVariants : buttonVariants}
           initial="initial"
@@ -354,10 +354,10 @@ export default function CTASection() {
           viewport={{ once: false, amount: 0.3 }}
         >
           {/* Primary Button */}
-          <motion.button 
+          <motion.button
             style={styles.primaryButton}
-            whileHover={{ 
-              scale: 1.08, 
+            whileHover={{
+              scale: 1.08,
               translateY: -3,
               background: 'linear-gradient(to right, #F06123, #D4480A)',
               transition: { duration: 0.3 }
@@ -366,28 +366,28 @@ export default function CTASection() {
             onClick={() => alert('Request a Consultation')}
           >
             <span>Request a Consultation</span>
-            <motion.svg 
+            <motion.svg
               style={styles.arrowSvg}
-              fill="none" 
-              stroke="currentColor" 
+              fill="none"
+              stroke="currentColor"
               viewBox="0 0 24 24"
               whileHover={{ x: 5 }}
               transition={{ duration: 0.2 }}
             >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M17 8l4 4m0 0l-4 4m4-4H3" 
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17 8l4 4m0 0l-4 4m4-4H3"
               />
             </motion.svg>
           </motion.button>
 
           {/* Secondary Button */}
-          <motion.button 
+          <motion.button
             style={styles.secondaryButton}
-            whileHover={{ 
-              scale: 1.08, 
+            whileHover={{
+              scale: 1.08,
               translateY: -3,
               backgroundColor: '#ffffff',
               transition: { duration: 0.3 }
@@ -395,15 +395,15 @@ export default function CTASection() {
             whileTap={{ scale: 0.95 }}
             onClick={() => alert('Call: +61 402 277 723')}
           >
-            <motion.svg 
-              style={styles.phoneIcon} 
+            <motion.svg
+              style={styles.phoneIcon}
               viewBox="0 0 20 20"
               whileHover={{ fill: '#F06123' }}
               transition={{ duration: 0.3 }}
             >
-              <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+              <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
             </motion.svg>
-            <motion.span 
+            <motion.span
               style={{ transition: 'color 0.3s ease' }}
               whileHover={{ color: '#F06123' }}
             >

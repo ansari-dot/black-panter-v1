@@ -3,15 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useRef, FormEvent, useEffect, DragEvent, ChangeEvent } from 'react';
+import React, { useState, useEffect, useRef, FormEvent, DragEvent, ChangeEvent } from 'react';
 import { 
-  Settings, 
-  Shield, 
   Sliders, 
-  CheckCircle2, 
-  KeyRound, 
+  Building2, 
   Upload, 
-  Image as ImageIcon, 
   Trash2, 
   Twitter, 
   Linkedin, 
@@ -19,9 +15,15 @@ import {
   Instagram, 
   Eye, 
   EyeOff, 
-  Globe, 
-  Building2,
-  AlertCircle
+  CheckCircle2, 
+  AlertCircle, 
+  Activity, 
+  Server, 
+  Database, 
+  HardDrive, 
+  Download, 
+  RefreshCw, 
+  Lock,
 } from 'lucide-react';
 import { TSystemStatus } from '../types';
 
@@ -30,15 +32,66 @@ interface SettingsViewProps {
   onUpdateStatusValue: (serviceKey: 'apiServer' | 'database' | 'cdn', state: 'Operational' | 'Degraded' | 'Offline') => void;
 }
 
-// Preset modern battery branding logos that users can choose as catalog covers
-const PRESET_LOGOS = [
-  { name: 'Amber Panther Core', url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=120&q=80' },
-  { name: 'Traction Cyan', url: 'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=120&q=80' },
-  { name: 'Dark Sulfur Ion', url: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=120&q=80' },
-];
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
+const cardStyle: React.CSSProperties = {
+  backgroundColor: '#ffffff',
+  border: '1px solid #e2e2e2',
+  borderRadius: 8,
+  padding: 24,
+};
+
+const sectionTitleStyle: React.CSSProperties = {
+  fontSize: 14,
+  fontWeight: 700,
+  color: '#1a1a1a',
+  marginBottom: 4,
+};
+
+const subTextStyle: React.CSSProperties = {
+  fontSize: 12,
+  color: '#8a8a8a',
+  marginBottom: 16,
+};
+
+const labelStyle: React.CSSProperties = {
+  fontSize: 11,
+  fontWeight: 600,
+  color: '#8a8a8a',
+  textTransform: 'uppercase',
+  letterSpacing: '0.05em',
+  marginBottom: 6,
+  display: 'block',
+};
+
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  padding: '10px 14px',
+  borderRadius: 6,
+  border: '1px solid #e2e2e2',
+  fontSize: 13,
+  color: '#1a1a1a',
+  backgroundColor: '#ffffff',
+  outline: 'none',
+  boxSizing: 'border-box',
+};
+
+const primaryBtnStyle: React.CSSProperties = {
+  backgroundColor: '#e84b10',
+  color: '#ffffff',
+  fontWeight: 600,
+  fontSize: 13,
+  padding: '10px 20px',
+  borderRadius: 6,
+  border: 'none',
+  cursor: 'pointer',
+  transition: 'background-color 0.2s',
+};
 
 export default function SettingsView({ systemStatus, onUpdateStatusValue }: SettingsViewProps) {
-  // Brand name and general config
+  const [activeTab, setActiveTab] = useState<'general' | 'security' | 'system'>('general');
+
+  // Brand title and general config
   const [adminTitle, setAdminTitle] = useState(() => {
     return localStorage.getItem('bp_settings_adminTitle') || 'Black Panther Batteries';
   });
@@ -48,7 +101,7 @@ export default function SettingsView({ systemStatus, onUpdateStatusValue }: Sett
 
   // Corporate Profile photo state
   const [avatarUrl, setAvatarUrl] = useState(() => {
-    return localStorage.getItem('bp_settings_avatarUrl') || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=150&q=80';
+    return localStorage.getItem('bp_settings_avatarUrl') || '';
   });
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -75,11 +128,77 @@ export default function SettingsView({ systemStatus, onUpdateStatusValue }: Sett
   const [passwordFeedback, setPasswordFeedback] = useState<{ type: 'success' | 'error' | '', text: string }>({ type: '', text: '' });
 
   // Save feedback state
-  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
-  // Auto save text branding details to localstorage
-  const handleSaveProfileSubmit = (e: FormEvent) => {
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(''), 3000);
+  };
+
+  // Load settings from Backend REST API on mount
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await fetch(`${API_BASE}/api/settings`, { credentials: 'include' });
+        if (response.ok) {
+          const data = await response.json();
+          if (data.adminTitle) {
+            setAdminTitle(data.adminTitle);
+            localStorage.setItem('bp_settings_adminTitle', data.adminTitle);
+          }
+          if (typeof data.maintenanceMode === 'boolean') {
+            setMaintenanceMode(data.maintenanceMode);
+            localStorage.setItem('bp_settings_maintenance', String(data.maintenanceMode));
+          }
+          if (data.avatarUrl !== undefined) {
+            setAvatarUrl(data.avatarUrl);
+            localStorage.setItem('bp_settings_avatarUrl', data.avatarUrl);
+          }
+          if (data.socialTwitter) {
+            setSocialTwitter(data.socialTwitter);
+            localStorage.setItem('bp_settings_twitter', data.socialTwitter);
+          }
+          if (data.socialLinkedin) {
+            setSocialLinkedin(data.socialLinkedin);
+            localStorage.setItem('bp_settings_linkedin', data.socialLinkedin);
+          }
+          if (data.socialFacebook) {
+            setSocialFacebook(data.socialFacebook);
+            localStorage.setItem('bp_settings_facebook', data.socialFacebook);
+          }
+          if (data.socialInstagram) {
+            setSocialInstagram(data.socialInstagram);
+            localStorage.setItem('bp_settings_instagram', data.socialInstagram);
+          }
+          window.dispatchEvent(new Event('storage'));
+          window.dispatchEvent(new Event('localStorageUpdate'));
+        }
+      } catch {
+        // Fallback to localStorage if offline
+      }
+    };
+
+    fetchSettings();
+  }, []);
+
+  // Save general settings via Backend REST API
+  const handleSaveProfileSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setIsSaving(true);
+
+    const payload = {
+      adminTitle,
+      maintenanceMode,
+      avatarUrl,
+      socialTwitter,
+      socialLinkedin,
+      socialFacebook,
+      socialInstagram,
+      systemStatus,
+    };
+
+    // 1. Save to local storage for immediate UI reactivity
     localStorage.setItem('bp_settings_adminTitle', adminTitle);
     localStorage.setItem('bp_settings_maintenance', String(maintenanceMode));
     localStorage.setItem('bp_settings_avatarUrl', avatarUrl);
@@ -88,18 +207,33 @@ export default function SettingsView({ systemStatus, onUpdateStatusValue }: Sett
     localStorage.setItem('bp_settings_facebook', socialFacebook);
     localStorage.setItem('bp_settings_instagram', socialInstagram);
 
-    // Broadcast change
     window.dispatchEvent(new Event('storage'));
     window.dispatchEvent(new Event('localStorageUpdate'));
 
-    setSaveSuccess(true);
-    setTimeout(() => {
-      setSaveSuccess(false);
-    }, 2000);
+    // 2. Persist to RESTful API backend
+    try {
+      const res = await fetch(`${API_BASE}/api/settings`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Failed to save settings to server');
+      }
+
+      showToast('Settings saved to database successfully!');
+    } catch (err: any) {
+      showToast(err.message || 'Saved locally (server update pending)');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   // Drag and drop photo logic
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOver = (e: DragEvent) => {
     e.preventDefault();
     setDragOver(true);
   };
@@ -110,22 +244,24 @@ export default function SettingsView({ systemStatus, onUpdateStatusValue }: Sett
 
   const processFile = (file: File) => {
     if (!file.type.startsWith('image/')) {
-      alert('Operational error: please upload standard raster image files (JPEG/PNG/SVG).');
+      alert('Please upload a valid image file (JPEG, PNG, SVG, or WebP).');
       return;
     }
     const reader = new FileReader();
     reader.onload = (event) => {
       if (event.target?.result && typeof event.target.result === 'string') {
-        setAvatarUrl(event.target.result);
-        localStorage.setItem('bp_settings_avatarUrl', event.target.result);
+        const newUrl = event.target.result;
+        setAvatarUrl(newUrl);
+        localStorage.setItem('bp_settings_avatarUrl', newUrl);
         window.dispatchEvent(new Event('storage'));
         window.dispatchEvent(new Event('localStorageUpdate'));
+        showToast('Logo image uploaded successfully');
       }
     };
     reader.readAsDataURL(file);
   };
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = (e: DragEvent) => {
     e.preventDefault();
     setDragOver(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
@@ -133,424 +269,633 @@ export default function SettingsView({ systemStatus, onUpdateStatusValue }: Sett
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       processFile(e.target.files[0]);
     }
   };
 
-  // Change password verification logic
-  const handlePasswordChangeSubmit = (e: FormEvent) => {
+  // Change password via Backend REST API
+  const handlePasswordChangeSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!currentPassword) {
-      setPasswordFeedback({ type: 'error', text: 'Current credentials are required to overwrite system keys.' });
+      setPasswordFeedback({ type: 'error', text: 'Current password is required.' });
       return;
     }
     if (newPassword.length < 6) {
-      setPasswordFeedback({ type: 'error', text: 'Operational key must consist of 6 characters or above.' });
+      setPasswordFeedback({ type: 'error', text: 'New password must be at least 6 characters.' });
       return;
     }
     if (newPassword !== confirmPassword) {
-      setPasswordFeedback({ type: 'error', text: 'Verification failure. Passwords do not match.' });
+      setPasswordFeedback({ type: 'error', text: 'New password and confirm password do not match.' });
       return;
     }
 
-    // Save to localStorage so LoginPage can check it
-    localStorage.setItem('bp_settings_password', newPassword);
+    setIsSaving(true);
+    setPasswordFeedback({ type: '', text: '' });
 
-    // Success simulation
-    setPasswordFeedback({
-      type: 'success',
-      text: 'Security system keys and administrative password replaced successfully!'
-    });
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
-    
-    setTimeout(() => {
-      setPasswordFeedback({ type: '', text: '' });
-    }, 4500);
+    try {
+      const res = await fetch(`${API_BASE}/api/settings/password`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to update password');
+      }
+
+      // Also save to localStorage fallback
+      localStorage.setItem('bp_settings_password', newPassword);
+
+      setPasswordFeedback({
+        type: 'success',
+        text: 'Administrative password updated in database successfully!'
+      });
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+
+    } catch (err: any) {
+      setPasswordFeedback({
+        type: 'error',
+        text: err.message || 'Error updating password'
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  // Simple feedback strength rating
+  // Password strength helper
   const getPasswordStrength = () => {
-    if (!newPassword) return { label: 'Empty', color: 'bg-muted', text: 'text-muted-foreground', pct: 0 };
-    if (newPassword.length < 5) return { label: 'Weak State', color: 'bg-danger', text: 'text-danger', pct: 25 };
-    if (newPassword.length < 8) return { label: 'Good Defense', color: 'bg-warning', text: 'text-warning', pct: 60 };
-    return { label: 'Imperial Security', color: 'bg-success', text: 'text-success', pct: 100 };
+    if (!newPassword) return { label: 'None', color: '#e2e2e2', pct: 0 };
+    if (newPassword.length < 6) return { label: 'Weak', color: '#ef4444', pct: 30 };
+    if (newPassword.length < 9) return { label: 'Good', color: '#f97316', pct: 65 };
+    return { label: 'Strong', color: '#22c55e', pct: 100 };
   };
 
   const strength = getPasswordStrength();
 
+  // Export settings as JSON
+  const handleExportConfig = () => {
+    const config = {
+      adminTitle,
+      maintenanceMode,
+      socialTwitter,
+      socialLinkedin,
+      socialFacebook,
+      socialInstagram,
+      systemStatus,
+      exportedAt: new Date().toISOString(),
+    };
+    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(config, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute('href', dataStr);
+    downloadAnchor.setAttribute('download', `system-settings-${Date.now()}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+    showToast('Configuration exported as JSON');
+  };
+
   return (
-    <div id="settings-view-container" className="grid grid-cols-1 lg:grid-cols-12 gap-6 font-sans">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20, fontFamily: 'Inter, sans-serif' }}>
       
-      {/* Left panel: General Configuration (width 8 cols) */}
-      <div className="lg:col-span-8 flex flex-col gap-6">
-        
-        {/* Profile and public info formulation */}
-        <div className="bg-card border border-border rounded-lg p-6 flex flex-col gap-5">
-          <div className="flex items-start justify-between border-b border-border/60 pb-3">
-            <div>
-              <h2 className="text-base font-bold font-headings text-foreground flex items-center gap-2">
-                <Sliders className="w-4.5 h-4.5 text-primary" />
-                <span>Branding Configuration Profile</span>
-              </h2>
-              <p className="text-xs text-muted-foreground mt-0.5">Control organization primary titles, public cover photos, and deployment states.</p>
-            </div>
-            <span className="text-[10px] bg-muted px-2 py-0.5 rounded font-mono font-semibold text-muted-foreground">ID: SEC-ROOT</span>
-          </div>
-
-          <form onSubmit={handleSaveProfileSubmit} className="flex flex-col gap-5 text-xs">
-            
-            {/* BRAND TITLE INPUT */}
-            <div>
-              <label className="block font-semibold font-mono uppercase tracking-wider text-muted-foreground mb-1">Company Display Title Name</label>
-              <div className="relative">
-                <Building2 className="absolute left-3 top-3 w-4 h-4 text-muted-foreground/70" />
-                <input
-                  type="text"
-                  required
-                  value={adminTitle}
-                  onChange={(e) => setAdminTitle(e.target.value)}
-                  placeholder="e.g. Black Panther Traction Industries"
-                  className="w-full pl-9 p-2.5 rounded-md border border-border bg-background text-foreground font-semibold focus:outline-none focus:border-primary font-sans text-xs"
-                />
-              </div>
-            </div>
-
-            {/* BRAND PHOTO UPLOAD SELECTION CONTAINER */}
-            <div>
-              <label className="block font-semibold font-mono uppercase tracking-wider text-muted-foreground mb-2">Corporate Branding Photo / Logo Representation</label>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-center bg-muted/20 p-4 border border-border/80 rounded-lg">
-                
-                {/* Visual Avatar preview */}
-                <div className="flex flex-col items-center justify-center p-3 border border-border/60 bg-background rounded-md text-center">
-                  <span className="text-[9px] font-mono font-bold uppercase text-muted-foreground mb-2 block">CURRENT IMAGE</span>
-                  <div className="w-20 h-20 rounded-full border border-border overflow-hidden bg-muted flex items-center justify-center shadow-inner">
-                    {avatarUrl ? (
-                      <img src={avatarUrl} alt="Company Identity" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                    ) : (
-                      <ImageIcon className="w-8 h-8 text-muted-foreground/50" />
-                    )}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setAvatarUrl('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=150&q=80');
-                    }}
-                    className="mt-2.5 text-[10px] font-semibold text-danger hover:underline flex items-center gap-1 cursor-pointer"
-                  >
-                    <Trash2 className="w-3 h-3" />
-                    <span>Reset Preference</span>
-                  </button>
-                </div>
-
-                {/* Upload drag-n-drop zone */}
-                <div 
-                  className={`col-span-2 border-2 border-dashed rounded-lg p-5 flex flex-col items-center justify-center text-center cursor-pointer transition-all ${
-                    dragOver ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50 bg-background'
-                  }`}
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <Upload className="w-6 h-6 text-muted-foreground group-hover:text-primary mb-2" />
-                  <span className="block font-semibold text-foreground text-xs">Drag and Drop Brand Photo</span>
-                  <span className="block text-[10px] text-muted-foreground mt-1">Accepts standard PNG, JPG, or SVG formats (Max 3MB). Or click to browse.</span>
-                  
-                  <input 
-                    type="file" 
-                    ref={fileInputRef} 
-                    onChange={handleFileChange} 
-                    accept="image/*" 
-                    className="hidden" 
-                  />
-                </div>
-
-              </div>
-
-              {/* Photo Presets choice option */}
-              <div className="mt-3">
-                <span className="block font-semibold text-muted-foreground font-mono text-[9px] uppercase tracking-wider mb-2">OR SELECT FROM HIGH-POWER PRESET CONSTRUCTIONS:</span>
-                <div className="flex gap-3">
-                  {PRESET_LOGOS.map((logo, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => {
-                        setAvatarUrl(logo.url);
-                        localStorage.setItem('bp_settings_avatarUrl', logo.url);
-                        window.dispatchEvent(new Event('storage'));
-                        window.dispatchEvent(new Event('localStorageUpdate'));
-                      }}
-                      className={`flex items-center gap-2 p-1.5 border rounded-lg text-left hover:border-primary cursor-pointer bg-background transition-all shrink-0 ${
-                        avatarUrl === logo.url ? 'border-primary ring-2 ring-primary/10' : 'border-border'
-                      }`}
-                    >
-                      <img src={logo.url} alt={logo.name} className="w-7 h-7 rounded object-cover shrink-0" referrerPolicy="no-referrer" />
-                      <span className="font-sans font-medium text-[10px] pr-1.5 truncate max-w-[120px]">{logo.name}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-            </div>
-
-            {/* MAINTENANCE MODE TOGGLE OVERLAY */}
-            <div className="p-4 bg-muted/40 rounded-md border border-border/80">
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={maintenanceMode}
-                  onChange={() => setMaintenanceMode(!maintenanceMode)}
-                  className="mt-1 h-4 w-4 text-primary rounded border-border focus:ring-primary cursor-pointer"
-                />
-                <div className="text-xs">
-                  <span className="block font-semibold text-foreground">Enable Administrative Maintenance Mode</span>
-                  <span className="block text-muted-foreground mt-0.5">
-                    Locks downstream catalog modifications temporarily. Visitors see a friendly maintenance message.
-                  </span>
-                </div>
-              </label>
-            </div>
-
-            {/* SOCIAL MEDIA INTEGRATION MANAGER */}
-            <div className="border-t border-border pt-4">
-              <span className="block font-bold text-foreground mb-1 font-headings text-xs">Linked Social Media Channels</span>
-              <p className="text-xs text-muted-foreground mb-3">Include secure branding reference credentials for automated footer integration modules.</p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                
-                {/* Twitter custom feed */}
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-1 text-muted-foreground font-semibold font-mono text-[10px] uppercase">
-                    <Twitter className="w-3.5 h-3.5 text-[#1DA1F2]" />
-                    <span>Twitter / X Corporate Handle</span>
-                  </div>
-                  <input
-                    type="url"
-                    value={socialTwitter}
-                    onChange={(e) => setSocialTwitter(e.target.value)}
-                    placeholder="https://x.com/blackpanthercells"
-                    className="w-full p-2 rounded-md border border-border bg-background focus:outline-none focus:border-primary font-mono text-xs"
-                  />
-                </div>
-
-                {/* LinkedIn feed */}
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-1 text-muted-foreground font-semibold font-mono text-[10px] uppercase">
-                    <Linkedin className="w-3.5 h-3.5 text-[#0A66C2]" />
-                    <span>LinkedIn Business Listing</span>
-                  </div>
-                  <input
-                    type="url"
-                    value={socialLinkedin}
-                    onChange={(e) => setSocialLinkedin(e.target.value)}
-                    placeholder="https://linkedin.com/company/black-panther"
-                    className="w-full p-2 rounded-md border border-border bg-background focus:outline-none focus:border-primary font-mono text-xs"
-                  />
-                </div>
-
-                {/* Facebook channel */}
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-1 text-muted-foreground font-semibold font-mono text-[10px] uppercase">
-                    <Facebook className="w-3.5 h-3.5 text-[#1877F2]" />
-                    <span>Facebook Showroom Page</span>
-                  </div>
-                  <input
-                    type="url"
-                    value={socialFacebook}
-                    onChange={(e) => setSocialFacebook(e.target.value)}
-                    placeholder="https://facebook.com/blackpanthercells"
-                    className="w-full p-2 rounded-md border border-border bg-background focus:outline-none focus:border-primary font-mono text-xs"
-                  />
-                </div>
-
-                {/* Instagram index */}
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-1 text-muted-foreground font-semibold font-mono text-[10px] uppercase">
-                    <Instagram className="w-3.5 h-3.5 text-[#E1306C]" />
-                    <span>Instagram Showcase Feed</span>
-                  </div>
-                  <input
-                    type="url"
-                    value={socialInstagram}
-                    onChange={(e) => setSocialInstagram(e.target.value)}
-                    placeholder="https://instagram.com/blackpanther"
-                    className="w-full p-2 rounded-md border border-border bg-background focus:outline-none focus:border-primary font-mono text-xs"
-                  />
-                </div>
-
-              </div>
-
-              {/* Real-time Link Widget preview */}
-              <div className="mt-3 p-3 bg-muted/30 rounded border border-border/60 flex items-center justify-between">
-                <span className="text-[11px] text-muted-foreground font-mono">Real-time Public Integration Footer Mockup:</span>
-                <div className="flex gap-2">
-                  {socialTwitter && (
-                    <a href={socialTwitter} target="_blank" rel="noreferrer" title="Twitter" className="p-1.5 bg-background rounded-full border border-border hover:border-primary text-foreground transition-all">
-                      <Twitter className="w-3 h-3 text-muted-foreground hover:text-[#1DA1F2]" />
-                    </a>
-                  )}
-                  {socialLinkedin && (
-                    <a href={socialLinkedin} target="_blank" rel="noreferrer" title="LinkedIn" className="p-1.5 bg-background rounded-full border border-border hover:border-primary text-foreground transition-all">
-                      <Linkedin className="w-3 h-3 text-muted-foreground hover:text-[#0A66C2]" />
-                    </a>
-                  )}
-                  {socialFacebook && (
-                    <a href={socialFacebook} target="_blank" rel="noreferrer" title="Facebook" className="p-1.5 bg-background rounded-full border border-border hover:border-primary text-foreground transition-all">
-                      <Facebook className="w-3 h-3 text-muted-foreground hover:text-[#1877F2]" />
-                    </a>
-                  )}
-                  {socialInstagram && (
-                    <a href={socialInstagram} target="_blank" rel="noreferrer" title="Instagram" className="p-1.5 bg-background rounded-full border border-border hover:border-primary text-foreground transition-all">
-                      <Instagram className="w-3 h-3 text-muted-foreground hover:text-[#E1306C]" />
-                    </a>
-                  )}
-                </div>
-              </div>
-
-            </div>
-
-            {/* SAVE BUTTON SUMMARY FOOTER SECTION */}
-            <div className="flex items-center justify-between pt-3 border-t border-border mt-3">
-              {saveSuccess ? (
-                <span className="text-success flex items-center gap-1.5 font-semibold text-xs animate-fade-in bg-success/10 border border-success/20 px-3 py-1.5 rounded-md">
-                  <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
-                  Internal Brand Profile & Social Media Synced Successfully!
-                </span>
-              ) : (
-                <span className="text-muted-foreground text-[11px] font-mono leading-relaxed">* Recomputes application title overlays & branding instantly.</span>
-              )}
-              
-              <button
-                type="submit"
-                className="px-5 py-2.5 bg-primary text-primary-foreground font-bold rounded hover:opacity-95 shadow-sm active:scale-95 transition-all text-xs cursor-pointer text-center"
-              >
-                Commit Changes
-              </button>
-            </div>
-
-          </form>
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div style={{
+          position: 'fixed',
+          bottom: 24,
+          right: 24,
+          backgroundColor: '#1a1a1a',
+          color: '#ffffff',
+          padding: '12px 20px',
+          borderRadius: 8,
+          fontSize: 13,
+          fontWeight: 500,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          zIndex: 100,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+        }}>
+          <CheckCircle2 size={16} color="#22c55e" />
+          <span>{toastMessage}</span>
         </div>
+      )}
 
+      {/* Navigation Sub-Tabs */}
+      <div style={{ display: 'flex', gap: 8, borderBottom: '1px solid #e2e2e2', paddingBottom: 12 }}>
+        {[
+          { id: 'general' as const, label: 'General & Branding', icon: Sliders },
+          { id: 'security' as const, label: 'Security & Password', icon: Lock },
+          { id: 'system' as const, label: 'System & Services', icon: Activity },
+        ].map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '8px 16px',
+                borderRadius: 6,
+                fontSize: 13,
+                fontWeight: isActive ? 600 : 500,
+                color: isActive ? '#ffffff' : '#555555',
+                backgroundColor: isActive ? '#e84b10' : '#ffffff',
+                border: isActive ? '1px solid #e84b10' : '1px solid #e2e2e2',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+            >
+              <Icon size={16} />
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
       </div>
 
-      {/* Right panel: Password & Hardware Governors (width 4 cols) */}
-      <div className="lg:col-span-4 flex flex-col gap-6">
+      {/* TAB 1: GENERAL & BRANDING */}
+      {activeTab === 'general' && (
+        <form onSubmit={handleSaveProfileSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          
+          {/* Organization Info & Logo */}
+          <div style={cardStyle}>
+            <div style={sectionTitleStyle}>Company Branding</div>
+            <div style={subTextStyle}>Update company name, logo representation, and application title</div>
 
-        {/* Change Admin Password Option Panel */}
-        <div className="bg-card border border-border rounded-lg p-6 flex flex-col gap-5">
-          <div className="border-b border-border/60 pb-3">
-            <h2 className="text-base font-bold font-headings text-foreground flex items-center gap-2">
-              <KeyRound className="w-4.5 h-4.5 text-primary" />
-              <span>Modify Root Key / Password</span>
-            </h2>
-            <p className="text-xs text-muted-foreground mt-0.5">Maintain defensive infrastructure access control vectors.</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+              
+              {/* Title Input */}
+              <div>
+                <label style={labelStyle}>Company Display Name</label>
+                <div style={{ position: 'relative' }}>
+                  <Building2 size={16} color="#8a8a8a" style={{ position: 'absolute', left: 12, top: 12 }} />
+                  <input
+                    type="text"
+                    required
+                    value={adminTitle}
+                    onChange={(e) => setAdminTitle(e.target.value)}
+                    placeholder="e.g. Black Panther Batteries"
+                    style={{ ...inputStyle, paddingLeft: 38 }}
+                  />
+                </div>
+              </div>
+
+              {/* Logo Upload Section */}
+              <div>
+                <label style={labelStyle}>Company Logo</label>
+                <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: 16, alignItems: 'center', backgroundColor: '#f9f9f9', padding: 16, borderRadius: 8, border: '1px solid #e2e2e2' }}>
+                  
+                  {/* Current Logo Preview */}
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                    <div style={{ width: 72, height: 72, borderRadius: 8, overflow: 'hidden', border: '1px solid #e2e2e2', backgroundColor: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {avatarUrl ? (
+                        <img src={avatarUrl} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        <span style={{ fontSize: 11, color: '#8a8a8a', fontWeight: 600 }}>DEFAULT</span>
+                      )}
+                    </div>
+                    {avatarUrl && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAvatarUrl('');
+                          localStorage.removeItem('bp_settings_avatarUrl');
+                          window.dispatchEvent(new Event('storage'));
+                          window.dispatchEvent(new Event('localStorageUpdate'));
+                          showToast('Logo reset to default');
+                        }}
+                        style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+                      >
+                        <Trash2 size={12} /> Remove
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Drag-and-drop upload container */}
+                  <div
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    onClick={() => fileInputRef.current?.click()}
+                    style={{
+                      border: dragOver ? '2px dashed #e84b10' : '2px dashed #cccccc',
+                      backgroundColor: dragOver ? '#fff5f2' : '#ffffff',
+                      borderRadius: 8,
+                      padding: 20,
+                      textAlign: 'center',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                    }}
+                  >
+                    <Upload size={20} color="#8a8a8a" style={{ margin: '0 auto 6px' }} />
+                    <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>Click or Drag & Drop logo file here</div>
+                    <div style={{ fontSize: 11, color: '#8a8a8a', marginTop: 4 }}>Supports PNG, JPG, SVG, or WebP (Max 3MB)</div>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleFileChange}
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                    />
+                  </div>
+
+                </div>
+              </div>
+
+              {/* Maintenance Mode Toggle */}
+              <div style={{ padding: 16, backgroundColor: '#f9f9f9', borderRadius: 8, border: '1px solid #e2e2e2' }}>
+                <label style={{ display: 'flex', alignItems: 'flex-start', gap: 12, cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={maintenanceMode}
+                    onChange={(e) => setMaintenanceMode(e.target.checked)}
+                    style={{ marginTop: 3, width: 16, height: 16, accentColor: '#e84b10', cursor: 'pointer' }}
+                  />
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>Administrative Maintenance Mode</div>
+                    <div style={{ fontSize: 12, color: '#8a8a8a', marginTop: 2 }}>
+                      Enable this mode when performing scheduled updates or backend servicing.
+                    </div>
+                  </div>
+                </label>
+              </div>
+
+            </div>
           </div>
 
-          <form onSubmit={handlePasswordChangeSubmit} className="flex flex-col gap-3.5 text-xs text-foreground">
-            
-            {/* CURRENT PASSWORD */}
-            <div>
-              <label className="block font-semibold font-mono uppercase tracking-wider text-muted-foreground mb-1">Current Password Key</label>
-              <div className="relative">
+          {/* Social Media Channels */}
+          <div style={cardStyle}>
+            <div style={sectionTitleStyle}>Social Media Links</div>
+            <div style={subTextStyle}>Manage official corporate social media profiles displayed across public headers & footers</div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              
+              <div>
+                <label style={labelStyle}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <Twitter size={14} color="#1DA1F2" /> Twitter / X Handle
+                  </span>
+                </label>
+                <input
+                  type="url"
+                  value={socialTwitter}
+                  onChange={(e) => setSocialTwitter(e.target.value)}
+                  placeholder="https://x.com/blackpanther"
+                  style={inputStyle}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <Linkedin size={14} color="#0A66C2" /> LinkedIn Profile
+                  </span>
+                </label>
+                <input
+                  type="url"
+                  value={socialLinkedin}
+                  onChange={(e) => setSocialLinkedin(e.target.value)}
+                  placeholder="https://linkedin.com/company/blackpanther"
+                  style={inputStyle}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <Facebook size={14} color="#1877F2" /> Facebook Page
+                  </span>
+                </label>
+                <input
+                  type="url"
+                  value={socialFacebook}
+                  onChange={(e) => setSocialFacebook(e.target.value)}
+                  placeholder="https://facebook.com/blackpanther"
+                  style={inputStyle}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <Instagram size={14} color="#E1306C" /> Instagram Page
+                  </span>
+                </label>
+                <input
+                  type="url"
+                  value={socialInstagram}
+                  onChange={(e) => setSocialInstagram(e.target.value)}
+                  placeholder="https://instagram.com/blackpanther"
+                  style={inputStyle}
+                />
+              </div>
+
+            </div>
+
+            {/* Social Link Preview */}
+            <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid #e2e2e2', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: 12, color: '#8a8a8a', fontWeight: 500 }}>Live Link Preview:</span>
+              <div style={{ display: 'flex', gap: 10 }}>
+                {socialTwitter && (
+                  <a href={socialTwitter} target="_blank" rel="noreferrer" title="Twitter" style={{ padding: 6, borderRadius: '50%', border: '1px solid #e2e2e2', color: '#1DA1F2', display: 'flex' }}>
+                    <Twitter size={14} />
+                  </a>
+                )}
+                {socialLinkedin && (
+                  <a href={socialLinkedin} target="_blank" rel="noreferrer" title="LinkedIn" style={{ padding: 6, borderRadius: '50%', border: '1px solid #e2e2e2', color: '#0A66C2', display: 'flex' }}>
+                    <Linkedin size={14} />
+                  </a>
+                )}
+                {socialFacebook && (
+                  <a href={socialFacebook} target="_blank" rel="noreferrer" title="Facebook" style={{ padding: 6, borderRadius: '50%', border: '1px solid #e2e2e2', color: '#1877F2', display: 'flex' }}>
+                    <Facebook size={14} />
+                  </a>
+                )}
+                {socialInstagram && (
+                  <a href={socialInstagram} target="_blank" rel="noreferrer" title="Instagram" style={{ padding: 6, borderRadius: '50%', border: '1px solid #e2e2e2', color: '#E1306C', display: 'flex' }}>
+                    <Instagram size={14} />
+                  </a>
+                )}
+              </div>
+            </div>
+
+          </div>
+
+          {/* Submit Action */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+            <button
+              type="submit"
+              disabled={isSaving}
+              style={{ ...primaryBtnStyle, opacity: isSaving ? 0.7 : 1 }}
+            >
+              {isSaving ? 'Saving...' : 'Save General Settings'}
+            </button>
+          </div>
+
+        </form>
+      )}
+
+      {/* TAB 2: SECURITY & PASSWORD */}
+      {activeTab === 'security' && (
+        <form onSubmit={handlePasswordChangeSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <div style={cardStyle}>
+            <div style={sectionTitleStyle}>Admin Security & Credentials</div>
+            <div style={subTextStyle}>Update your administrative password for admin portal access</div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 500 }}>
+              
+              {/* Current Password */}
+              <div>
+                <label style={labelStyle}>Current Password</label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={showPass ? 'text' : 'password'}
+                    required
+                    placeholder="Enter current password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    style={inputStyle}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPass(!showPass)}
+                    style={{ position: 'absolute', right: 12, top: 12, background: 'none', border: 'none', color: '#8a8a8a', cursor: 'pointer' }}
+                  >
+                    {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+
+              {/* New Password */}
+              <div>
+                <label style={labelStyle}>New Password</label>
                 <input
                   type={showPass ? 'text' : 'password'}
                   required
-                  placeholder="••••••••••••"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="w-full p-2 rounded-md border border-border bg-background focus:outline-none focus:border-primary text-foreground font-mono text-xs"
+                  placeholder="Minimum 6 characters"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  style={inputStyle}
                 />
+                
+                {/* Strength Meter */}
+                {newPassword && (
+                  <div style={{ marginTop: 8, padding: 8, backgroundColor: '#f9f9f9', borderRadius: 6, border: '1px solid #e2e2e2' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 4 }}>
+                      <span style={{ color: '#8a8a8a' }}>Strength:</span>
+                      <span style={{ fontWeight: 700, color: strength.color }}>{strength.label}</span>
+                    </div>
+                    <div style={{ width: '100%', height: 4, backgroundColor: '#e2e2e2', borderRadius: 2, overflow: 'hidden' }}>
+                      <div style={{ width: `${strength.pct}%`, height: '100%', backgroundColor: strength.color, transition: 'width 0.3s' }} />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Confirm Password */}
+              <div>
+                <label style={labelStyle}>Confirm New Password</label>
+                <input
+                  type={showPass ? 'text' : 'password'}
+                  required
+                  placeholder="Re-enter new password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  style={inputStyle}
+                />
+                {newPassword && confirmPassword && (
+                  <div style={{ fontSize: 12, marginTop: 6, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 6, color: newPassword === confirmPassword ? '#22c55e' : '#ef4444' }}>
+                    {newPassword === confirmPassword ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />}
+                    <span>{newPassword === confirmPassword ? 'Passwords match' : 'Passwords do not match'}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Feedback Message Banner */}
+              {passwordFeedback.text && (
+                <div style={{
+                  padding: 12,
+                  borderRadius: 6,
+                  fontSize: 13,
+                  fontWeight: 500,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  backgroundColor: passwordFeedback.type === 'success' ? '#dcfce7' : '#fee2e2',
+                  color: passwordFeedback.type === 'success' ? '#15803d' : '#b91c1c',
+                  border: `1px solid ${passwordFeedback.type === 'success' ? '#bbf7d0' : '#fecaca'}`,
+                }}>
+                  {passwordFeedback.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+                  <span>{passwordFeedback.text}</span>
+                </div>
+              )}
+
+              <div style={{ marginTop: 8 }}>
                 <button
-                  type="button"
-                  onClick={() => setShowPass(!showPass)}
-                  className="absolute right-2.5 top-2 text-muted-foreground hover:text-foreground cursor-pointer focus:outline-none"
+                  type="submit"
+                  disabled={isSaving}
+                  style={{ ...primaryBtnStyle, opacity: isSaving ? 0.7 : 1 }}
                 >
-                  {showPass ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                  {isSaving ? 'Updating...' : 'Update Password'}
                 </button>
               </div>
-            </div>
 
-            {/* NEW PASSWORD */}
-            <div>
-              <label className="block font-semibold font-mono uppercase tracking-wider text-muted-foreground mb-1">New Root Password</label>
-              <input
-                type={showPass ? 'text' : 'password'}
-                required
-                placeholder="Minimum 6 characters"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full p-2 rounded-md border border-border bg-background focus:outline-none focus:border-primary text-foreground font-mono text-xs"
-              />
+            </div>
+          </div>
+        </form>
+      )}
+
+      {/* TAB 3: SYSTEM & SERVICES */}
+      {activeTab === 'system' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          
+          {/* System Services Controls */}
+          <div style={cardStyle}>
+            <div style={sectionTitleStyle}>System Services & Infrastructure</div>
+            <div style={subTextStyle}>Monitor and control system component operational statuses</div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               
-              {/* password meter strength display */}
-              {newPassword && (
-                <div className="mt-1.5 p-1.5 bg-muted/40 rounded border border-border/60">
-                  <div className="flex justify-between items-center text-[10px] font-mono mb-1">
-                    <span className="text-muted-foreground uppercase">Password strength safety:</span>
-                    <span className={`font-bold ${strength.text}`}>{strength.label}</span>
+              {[
+                { key: 'apiServer' as const, label: 'Core API Server', icon: Server, desc: 'REST API backend routes and authentication middleware' },
+                { key: 'database' as const, label: 'Database Service', icon: Database, desc: 'MongoDB primary datastore & connection pool' },
+                { key: 'cdn' as const, label: 'CDN & Media Storage', icon: HardDrive, desc: 'Static image assets, logos and file uploads server' },
+              ].map(({ key, label, icon: Icon, desc }) => {
+                const currentStatus = systemStatus[key] || 'Operational';
+                return (
+                  <div key={key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 16, borderRadius: 8, border: '1px solid #e2e2e2', backgroundColor: '#ffffff' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                      <div style={{ padding: 10, borderRadius: 8, backgroundColor: '#f5f5f5', color: '#1a1a1a' }}>
+                        <Icon size={20} />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a' }}>{label}</div>
+                        <div style={{ fontSize: 12, color: '#8a8a8a' }}>{desc}</div>
+                      </div>
+                    </div>
+
+                    {/* Status switch buttons */}
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      {(['Operational', 'Degraded', 'Offline'] as const).map((st) => {
+                        const isCurrent = currentStatus === st;
+                        let bg = '#f5f5f5';
+                        let color = '#555555';
+                        let border = '#e2e2e2';
+
+                        if (isCurrent) {
+                          if (st === 'Operational') { bg = '#dcfce7'; color = '#15803d'; border = '#86efac'; }
+                          if (st === 'Degraded') { bg = '#fef3c7'; color = '#b45309'; border = '#fde68a'; }
+                          if (st === 'Offline') { bg = '#fee2e2'; color = '#b91c1c'; border = '#fca5a5'; }
+                        }
+
+                        return (
+                          <button
+                            key={st}
+                            type="button"
+                            onClick={async () => {
+                              onUpdateStatusValue(key, st);
+                              showToast(`${label} status set to ${st}`);
+
+                              // Persist updated system status via REST API
+                              try {
+                                const newStatus = { ...systemStatus, [key]: st };
+                                await fetch(`${API_BASE}/api/settings`, {
+                                  method: 'PUT',
+                                  credentials: 'include',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ systemStatus: newStatus }),
+                                });
+                              } catch {
+                                // Handled gracefully
+                              }
+                            }}
+                            style={{
+                              padding: '6px 12px',
+                              borderRadius: 6,
+                              fontSize: 12,
+                              fontWeight: isCurrent ? 700 : 500,
+                              backgroundColor: bg,
+                              color: color,
+                              border: `1px solid ${border}`,
+                              cursor: 'pointer',
+                              transition: 'all 0.2s',
+                            }}
+                          >
+                            {st}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
-                  <div className="w-full bg-border rounded-full h-1 overflow-hidden">
-                    <div className={`h-full ${strength.color} transition-all duration-350`} style={{ width: `${strength.pct}%` }}></div>
-                  </div>
-                </div>
-              )}
+                );
+              })}
+
             </div>
+          </div>
 
-            {/* CONFIRM NEW PASSWORD */}
-            <div>
-              <label className="block font-semibold font-mono uppercase tracking-wider text-muted-foreground mb-1">Verify New Password Key</label>
-              <input
-                type={showPass ? 'text' : 'password'}
-                required
-                placeholder="Re-type new cell key"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full p-2 rounded-md border border-border bg-background focus:outline-none focus:border-primary text-foreground font-mono text-xs"
-              />
-              
-              {newPassword && confirmPassword && (
-                <div className="mt-1 text-[10px] font-mono">
-                  {newPassword === confirmPassword ? (
-                    <span className="text-success flex items-center gap-1 font-semibold">
-                      <CheckCircle2 className="w-3 h-3 stroke-[2.5]" /> Keys synchronized correctly.
-                    </span>
-                  ) : (
-                    <span className="text-danger flex items-center gap-1 font-semibold">
-                      <AlertCircle className="w-3 h-3" /> Warning: Keys mismatch.
-                    </span>
-                  )}
-                </div>
-              )}
+          {/* Configuration Data Utilities */}
+          <div style={cardStyle}>
+            <div style={sectionTitleStyle}>Data Utilities & Export</div>
+            <div style={subTextStyle}>Export configuration files or reset local cache</div>
+
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button
+                type="button"
+                onClick={handleExportConfig}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '10px 16px',
+                  borderRadius: 6,
+                  border: '1px solid #e2e2e2',
+                  backgroundColor: '#ffffff',
+                  color: '#1a1a1a',
+                  fontWeight: 600,
+                  fontSize: 13,
+                  cursor: 'pointer',
+                }}
+              >
+                <Download size={16} /> Export Settings JSON
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  if (window.confirm('Clear cached local settings? Page will refresh.')) {
+                    localStorage.clear();
+                    window.location.reload();
+                  }
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '10px 16px',
+                  borderRadius: 6,
+                  border: '1px solid #fee2e2',
+                  backgroundColor: '#fff5f5',
+                  color: '#ef4444',
+                  fontWeight: 600,
+                  fontSize: 13,
+                  cursor: 'pointer',
+                }}
+              >
+                <RefreshCw size={16} /> Clear Local Cache
+              </button>
             </div>
+          </div>
 
-            {/* Verification Result Feedback */}
-            {passwordFeedback.text && (
-              <div className={`p-2.5 rounded text-xs border font-medium ${
-                passwordFeedback.type === 'success' 
-                  ? 'bg-success/10 border-success/20 text-success' 
-                  : 'bg-danger/10 border-danger/20 text-danger'
-              }`}>
-                {passwordFeedback.text}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              className="w-full mt-1.5 py-2.5 bg-foreground text-background font-bold rounded hover:opacity-95 transition-all text-xs cursor-pointer text-center font-sans"
-            >
-              Update Password Key
-            </button>
-
-          </form>
         </div>
-
-      </div>
+      )}
 
     </div>
   );

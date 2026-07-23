@@ -1,453 +1,328 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { useServiceCatalog } from '../hooks/useServiceCatalog';
-import { getServiceCardIcon } from '../utils/serviceCatalog';
+import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import {
+  Wrench,
+  Zap,
+  Recycle,
+  Activity,
+  ShieldCheck,
+  AlarmClock,
+  ArrowRight,
+  Phone,
+} from "lucide-react";
 
-export default function ComprehensiveBatterySolutions() {
+const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
+const iconMap = {
+  wrench: Wrench,
+  zap: Zap,
+  recycle: Recycle,
+  activity: Activity,
+  "shield-check": ShieldCheck,
+  "alarm-clock": AlarmClock,
+  battery: Wrench,
+  default: Wrench,
+};
+
+const getIcon = (iconName) => {
+  const IconComponent = iconMap[iconName] || iconMap.default;
+  return IconComponent;
+};
+
+export default function ServicesSection() {
   const navigate = useNavigate();
-  const { activeServices } = useServiceCatalog();
-  const services = activeServices.map((service) => ({
-    icon: getServiceCardIcon(service.iconName, service.title),
-    title: service.title,
-    description: service.heroDescription || service.description,
-    slug: service.slug,
-  }));
+  const [services, setServices] = useState([]);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2
-      }
-    }
-  };
+  useEffect(() => {
+    fetch(`${API}/api/services?featuredOnHome=true`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          const active = data
+            .filter((s) => s.status === "Active")
+            .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+          setServices(active);
+        }
+      })
+      .catch(() => {});
 
-  const headerVariants = {
-    initial: { y: -50, opacity: 0 },
-    animate: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.8,
-        ease: "easeOut"
-      }
-    }
-  };
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const cardVariants = {
-    initial: { y: 60, opacity: 0, scale: 0.9 },
+    initial: { y: 60, opacity: 0, scale: 0.95 },
     animate: {
       y: 0,
       opacity: 1,
       scale: 1,
-      transition: {
-        duration: 0.6,
-        ease: "easeOut"
-      }
-    }
+      transition: { duration: 0.6, ease: "easeOut" },
+    },
   };
 
-  // Lighter animation for mobile
-  const mobileCardVariants = {
-    initial: { opacity: 0, y: 20 },
-    animate: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.4,
-        ease: "easeOut"
-      }
-    }
+  const getImageUrl = (imageUrl) => {
+    if (!imageUrl) return null;
+    if (imageUrl.startsWith("http")) return imageUrl;
+    return `${API}${imageUrl}`;
   };
 
-  const floatingVariants = {
-    animate: {
-      y: [0, -8, 0],
-      transition: {
-        duration: 3,
-        repeat: Infinity,
-        repeatType: "reverse",
-        ease: "easeInOut"
-      }
-    }
-  };
+  const defaultImages = [
+    "https://storage.googleapis.com/banani-generated-images/generated-images/ef1a733e-f432-4df7-9a24-1b66b2bc3ebb.jpg",
+    "https://storage.googleapis.com/banani-generated-images/generated-images/25bd57a3-2c71-4208-8f64-db46228ec478.jpg",
+    "https://storage.googleapis.com/banani-generated-images/generated-images/14d2aed3-d701-4017-ae7a-932b5befb291.jpg",
+    "https://storage.googleapis.com/banani-generated-images/generated-images/18faaae3-fe37-4396-abd8-4f02b7a68912.jpg",
+    "https://storage.googleapis.com/banani-generated-images/generated-images/0ea4cf40-cbed-4abd-a47b-b5baf1e0b36d.jpg",
+    "https://storage.googleapis.com/banani-generated-images/generated-images/e4d8ca25-4759-43ba-a1d1-a3c4478d0d68.jpg",
+  ];
 
-  const pulseVariants = {
-    animate: {
-      scale: [1, 1.05, 1],
-      transition: {
-        duration: 2,
-        repeat: Infinity,
-        repeatType: "reverse",
-        ease: "easeInOut"
-      }
-    }
-  };
-
-  // Responsive breakpoint hook
-  const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
-  
-  React.useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  const styles = {
-    section: {
-      background: 'linear-gradient(180deg, #F8F9FA 0%, #FFFFFF 100%)',
-      padding: isMobile ? '60px 15px' : '96px 20px 101px 20px',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-      position: 'relative',
-      overflow: 'hidden'
-    },
-    backgroundCircle1: {
-      position: 'absolute',
-      top: '40px',
-      right: '40px',
-      width: '288px',
-      height: '288px',
-      backgroundColor: '#F06123',
-      borderRadius: '50%',
-      opacity: '0.05',
-      filter: 'blur(80px)',
-      pointerEvents: 'none'
-    },
-    backgroundCircle2: {
-      position: 'absolute',
-      bottom: '80px',
-      left: '40px',
-      width: '384px',
-      height: '384px',
-      backgroundColor: '#FF8803',
-      borderRadius: '50%',
-      opacity: '0.05',
-      filter: 'blur(80px)',
-      pointerEvents: 'none'
-    },
-    container: {
-      maxWidth: '1400px',
-      margin: '0 auto',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      gap: '60px',
-      position: 'relative',
-      zIndex: '10'
-    },
-    header: {
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      gap: '20px',
-      textAlign: 'center'
-    },
-    labelWrapper: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '12px',
-      marginBottom: '8px'
-    },
-    line: {
-      height: '2px',
-      width: '48px',
-      background: 'linear-gradient(to right, transparent, #F06123)'
-    },
-    lineReverse: {
-      height: '2px',
-      width: '48px',
-      background: 'linear-gradient(to left, transparent, #F06123)'
-    },
-    label: {
-      color: '#F06123',
-      fontSize: '14px',
-      fontWeight: '600',
-      textTransform: 'uppercase',
-      letterSpacing: '1.5px'
-    },
-    title: {
-      fontSize: isMobile ? '28px' : '42px',
-      fontWeight: '700',
-      color: '#383A3C',
-      margin: '0',
-      letterSpacing: '-0.5px',
-      lineHeight: '1.2'
-    },
-    subtitle: {
-      fontSize: isMobile ? '16px' : '19px',
-      color: '#6b6b6b',
-      lineHeight: '1.7',
-      margin: '0',
-      maxWidth: '680px'
-    },
-    grid: {
-      display: 'grid',
-      gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
-      gap: isMobile ? '20px' : '32px',
-      width: '100%',
-      padding: isMobile ? '0 10px' : '0 48px'
-    },
-    card: {
-      backgroundColor: '#ffffff',
-      padding: isMobile ? '24px' : '32px',
-      borderRadius: isMobile ? '12px' : '16px',
-      border: '1px solid #f3f4f6',
-      minHeight: isMobile ? 'auto' : '320px',
-      display: 'flex',
-      flexDirection: 'column',
-      position: 'relative',
-      overflow: 'hidden',
-      cursor: 'pointer',
-      transition: 'all 0.4s ease'
-    },
-    iconContainer: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: isMobile ? '56px' : '64px',
-      height: isMobile ? '56px' : '64px',
-      borderRadius: isMobile ? '10px' : '12px',
-      background: 'linear-gradient(to bottom right, rgba(255, 136, 3, 0.1), rgba(240, 97, 35, 0.1))',
-      marginBottom: isMobile ? '16px' : '24px',
-      transition: 'all 0.3s ease',
-      position: 'relative',
-      zIndex: '10'
-    },
-    icon: {
-      transition: 'all 0.3s ease',
-      position: 'relative',
-      zIndex: '10',
-      color: '#F06123'
-    },
-    cardTitle: {
-      fontSize: isMobile ? '18px' : '24px',
-      fontWeight: '700',
-      color: '#070B15',
-      margin: '0 0 12px 0',
-      lineHeight: '1.3',
-      transition: 'color 0.3s ease',
-      position: 'relative',
-      zIndex: '10'
-    },
-    cardDescription: {
-      fontSize: isMobile ? '14px' : '17px',
-      color: '#6b6b6b',
-      lineHeight: '1.65',
-      margin: isMobile ? '0 0 16px 0' : '0 0 20px 0',
-      flex: '1',
-      position: 'relative',
-      zIndex: '10'
-    },
-    learnMore: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '8px',
-      color: '#F06123',
-      fontSize: '14px',
-      fontWeight: '600',
-      marginTop: 'auto',
-      cursor: 'pointer',
-      transition: 'transform 0.3s ease',
-      position: 'relative',
-      zIndex: '10'
-    },
-    arrow: {
-      width: '20px',
-      height: '20px'
-    },
-    gradientOverlay: {
-      position: 'absolute',
-      inset: '0',
-      background: 'linear-gradient(to bottom right, rgba(240, 97, 35, 0.05), transparent)',
-      opacity: '0',
-      transition: 'opacity 0.5s ease',
-      pointerEvents: 'none'
-    },
-    cornerElement: {
-      position: 'absolute',
-      top: '0',
-      right: '0',
-      width: '128px',
-      height: '128px',
-      background: 'linear-gradient(to bottom right, rgba(255, 136, 3, 0.1), transparent)',
-      borderBottomLeftRadius: '100%',
-      opacity: '0',
-      transform: 'scale(0) rotate(-45deg)',
-      transition: 'all 0.5s ease',
-      pointerEvents: 'none'
-    }
-  };
+  if (!services.length) return null;
 
   return (
-    <motion.section 
-      style={styles.section}
-      initial="hidden"
-      animate="visible"
-      variants={containerVariants}
+    <section
+      className="w-full relative overflow-hidden"
+      style={{
+        backgroundColor: "#f6f1ea",
+        padding: isMobile ? "60px 16px 80px" : "72px 72px 96px",
+        fontFamily: "'Plus Jakarta Sans', sans-serif",
+      }}
     >
-      {/* Background Circles */}
-      <motion.div 
-        style={styles.backgroundCircle1}
-        variants={floatingVariants}
-        animate="animate"
-      ></motion.div>
-      <motion.div 
-        style={styles.backgroundCircle2}
-        variants={floatingVariants}
-        animate="animate"
-      ></motion.div>
+      {/* Ambient Orbs */}
+      <div
+        className="absolute rounded-full opacity-95 hidden md:block"
+        style={{
+          width: "220px",
+          height: "220px",
+          background: "#fcede4",
+          top: "120px",
+          left: "24px",
+          zIndex: 0,
+        }}
+      />
+      <div
+        className="absolute rounded-full opacity-95 hidden md:block"
+        style={{
+          width: "280px",
+          height: "280px",
+          background: "#efe6dc",
+          top: "40px",
+          right: "40px",
+          zIndex: 0,
+        }}
+      />
 
-      <motion.div style={styles.container}>
-        {/* Header */}
-        <motion.div 
-          style={styles.header}
-          variants={isMobile ? mobileCardVariants : headerVariants}
-          initial="initial"
-          whileInView="animate"
-          viewport={{ once: false, amount: 0.3 }}
+      <div
+        className="relative z-10 mx-auto"
+        style={{ maxWidth: "1296px", display: "flex", flexDirection: "column", gap: "56px" }}
+      >
+        {/* Heading */}
+        <div className="flex flex-col items-center justify-center gap-5 text-center px-4">
+          <div className="flex items-center gap-4 text-[#e85a1f] text-sm font-bold uppercase tracking-[0.18em] whitespace-nowrap">
+            <span className="block w-14 h-px bg-[#e85a1f] opacity-45" />
+            <span>Our Services</span>
+            <span className="block w-14 h-px bg-[#e85a1f] opacity-45" />
+          </div>
+          <h2
+            className="font-extrabold leading-tight"
+            style={{
+              fontSize: isMobile ? "24px" : "40px",
+              maxWidth: "860px",
+              color: "#181615",
+              letterSpacing: "-0.02em",
+              lineHeight: "1.1",
+            }}
+          >
+            Comprehensive Battery Solutions
+          </h2>
+          <p
+            className="mt-2 leading-relaxed"
+            style={{
+              fontSize: isMobile ? "16px" : "18px",
+              maxWidth: "760px",
+              color: "#6e645b",
+              lineHeight: "1.7",
+            }}
+          >
+            From installation to recycling, we manage the entire lifecycle of your industrial power systems with precision, speed, and expert care.
+          </p>
+        </div>
+
+        {/* Services Grid */}
+        <div
+          className="grid gap-6 w-full"
+          style={{
+            gridTemplateColumns: isMobile ? "1fr" : "repeat(3, minmax(0, 1fr))",
+          }}
         >
-          <motion.div style={styles.labelWrapper}>
-            <motion.div style={styles.line}></motion.div>
-            <motion.span style={styles.label}>Our Services</motion.span>
-            <motion.div style={styles.lineReverse}></motion.div>
-          </motion.div>
-          
-          <motion.h2 style={styles.title}>Comprehensive Battery Solutions</motion.h2>
-          
-          <motion.p style={styles.subtitle}>
-            From installation to recycling, we manage the entire lifecycle of your industrial power systems with precision and expertise.
-          </motion.p>
-        </motion.div>
+          {services.map((service, index) => {
+            const IconComponent = getIcon(service.iconName);
+            const imageUrl = getImageUrl(service.imageUrl) || defaultImages[index % defaultImages.length];
+            const isFeatured = index === 1;
 
-        {/* Service Cards Grid */}
-        <motion.div style={styles.grid}>
-          {services.map((service, index) => (
-             <motion.div 
-              key={index}
-              style={styles.card}
-              variants={isMobile ? mobileCardVariants : cardVariants}
-              initial="initial"
-              whileInView="animate"
-              viewport={{ once: false, amount: 0.3 }}
-              whileHover={{ 
-                scale: 1.05,
-                boxShadow: '0px 20px 50px rgba(240, 97, 35, 0.15)',
-                transition: { duration: 0.3 }
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-10px) scale(1.03)';
-                e.currentTarget.style.boxShadow = '0px 20px 50px rgba(240, 97, 35, 0.15)';
-                
-                const overlay = e.currentTarget.querySelector('[data-overlay]');
-                if (overlay) overlay.style.opacity = '1';
-                
-                const corner = e.currentTarget.querySelector('[data-corner]');
-                if (corner) {
-                  corner.style.opacity = '1';
-                  corner.style.transform = 'scale(1) rotate(0deg)';
-                }
-                
-                const iconContainer = e.currentTarget.querySelector('[data-icon-container]');
-                if (iconContainer) {
-                  iconContainer.style.background = 'linear-gradient(to bottom right, #F06123, #FF8803)';
-                }
-                
-                const icon = e.currentTarget.querySelector('[data-icon]');
-                if (icon) {
-                  icon.style.color = '#ffffff';
-                  icon.style.transform = 'scale(1.1)';
-                }
-                
-                const title = e.currentTarget.querySelector('[data-title]');
-                if (title) title.style.color = '#F06123';
-                
-                const learnMore = e.currentTarget.querySelector('[data-learn-more]');
-                if (learnMore) learnMore.style.transform = 'translateX(5px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                e.currentTarget.style.boxShadow = 'none';
-                
-                const overlay = e.currentTarget.querySelector('[data-overlay]');
-                if (overlay) overlay.style.opacity = '0';
-                
-                const corner = e.currentTarget.querySelector('[data-corner]');
-                if (corner) {
-                  corner.style.opacity = '0';
-                  corner.style.transform = 'scale(0) rotate(-45deg)';
-                }
-                
-                const iconContainer = e.currentTarget.querySelector('[data-icon-container]');
-                if (iconContainer) {
-                  iconContainer.style.background = 'linear-gradient(to bottom right, rgba(255, 136, 3, 0.1), rgba(240, 97, 35, 0.1))';
-                }
-                
-                const icon = e.currentTarget.querySelector('[data-icon]');
-                if (icon) {
-                  icon.style.color = '#F06123';
-                  icon.style.transform = 'scale(1)';
-                }
-                
-                const title = e.currentTarget.querySelector('[data-title]');
-                if (title) title.style.color = '#070B15';
-                
-                const learnMore = e.currentTarget.querySelector('[data-learn-more]');
-                if (learnMore) learnMore.style.transform = 'translateX(0)';
-              }}
-            >
-              {/* Gradient Overlay */}
-              <div data-overlay style={styles.gradientOverlay}></div>
-              
-              {/* Corner Element */}
-              <div data-corner style={styles.cornerElement}></div>
-
-              {/* Icon */}
-              <motion.div 
-                data-icon-container 
-                style={styles.iconContainer}
-                variants={pulseVariants}
-                animate="animate"
-              >
-                {React.createElement(service.icon, {
-                  size: isMobile ? 28 : 32,
-                  style: styles.icon,
-                  'data-icon': true
-                })}
-              </motion.div>
-
-              {/* Title */}
-              <h3 data-title style={styles.cardTitle}>{service.title}</h3>
-
-              {/* Description */}
-              <p style={styles.cardDescription}>{service.description}</p>
-
-              {/* Learn More */}
-              <motion.div 
-                data-learn-more 
-                style={styles.learnMore}
-                whileHover={{ x: 5 }}
-                transition={{ duration: 0.2 }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(`/service/${service.slug}`);
+            return (
+              <motion.div
+                key={service._id || index}
+                variants={cardVariants}
+                initial="initial"
+                whileInView="animate"
+                viewport={{ once: false, amount: 0.3 }}
+                className="relative overflow-hidden rounded-[28px] h-[280px] flex items-end"
+                style={{
+                  background: isFeatured
+                    ? "linear-gradient(135deg, #181615 0%, #26211f 100%)"
+                    : "linear-gradient(180deg, #fffdfc 0%, #fffdfc 100%)",
+                  border: "1px solid #e7ddd1",
+                  transition: "box-shadow 0.3s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.boxShadow = "0 20px 50px rgba(232, 90, 31, 0.15)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = "none";
+                }}
+                whileHover={{ 
+                  transition: { duration: 0.3 }
                 }}
               >
-                <span>Learn More</span>
-                <svg style={styles.arrow} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
+                {/* Service Image */}
+                <img
+                  src={imageUrl}
+                  alt={service.title}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  style={{ zIndex: 0 }}
+                />
+
+                {/* Overlay */}
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    zIndex: 1,
+                    background: isFeatured
+                      ? "linear-gradient(180deg, rgba(24, 22, 21, 0.08) 0%, rgba(24, 22, 21, 0.22) 32%, rgba(24, 22, 21, 0.74) 100%)"
+                      : "linear-gradient(180deg, rgba(24, 22, 21, 0.08) 0%, rgba(24, 22, 21, 0.24) 28%, rgba(24, 22, 21, 0.82) 68%, rgba(24, 22, 21, 0.94) 100%)",
+                  }}
+                />
+
+                {/* Card Glow */}
+                <div
+                  className="absolute rounded-full"
+                  style={{
+                    width: "140px",
+                    height: "140px",
+                    background: "rgba(232, 90, 31, 0.18)",
+                    right: "-48px",
+                    bottom: "-52px",
+                    zIndex: 1,
+                  }}
+                />
+
+                {/* Top Section */}
+                <div
+                  className="absolute top-5 left-5 right-5 flex items-start justify-between gap-3"
+                  style={{ zIndex: 2 }}
+                >
+                  <div
+                    className="flex items-center justify-center"
+                    style={{
+                      width: "48px",
+                      height: "48px",
+                      borderRadius: "14px",
+                      background: isFeatured
+                        ? "rgba(252, 237, 228, 0.22)"
+                        : "rgba(252, 237, 228, 0.86)",
+                      backdropFilter: "blur(4px)",
+                    }}
+                  >
+                    <IconComponent
+                      size={20}
+                      style={{ color: "#e85a1f" }}
+                    />
+                  </div>
+                  <div
+                    className="text-sm font-bold tracking-[0.14em] pt-2"
+                    style={{
+                      color: "rgba(255, 255, 255, 0.92)",
+                      zIndex: 2,
+                    }}
+                  >
+                    {String(index + 1).padStart(2, "0")}
+                  </div>
+                </div>
+
+                {/* Main Content */}
+                <div
+                  className="relative w-full flex flex-col gap-3 px-6 pb-6 pt-24"
+                  style={{ zIndex: 2 }}
+                >
+                  <h3
+                    className="font-extrabold leading-tight"
+                    style={{
+                      fontSize: "24px",
+                      color: "#ffffff",
+                      textShadow: "0 3px 14px rgba(0, 0, 0, 0.5)",
+                      lineHeight: "1.12",
+                    }}
+                  >
+                    {service.title}
+                  </h3>
+                  <p
+                    className="leading-relaxed"
+                    style={{
+                      fontSize: "14px",
+                      color: "rgba(255, 255, 255, 0.92)",
+                      lineHeight: "1.65",
+                      textShadow: "0 3px 14px rgba(0, 0, 0, 0.5)",
+                    }}
+                  >
+                    {service.heroDescription || service.description}
+                  </p>
+
+                  {/* Tags */}
+                  {service.keyHighlights && service.keyHighlights.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      {service.keyHighlights.slice(0, 3).map((tag, i) => (
+                        <span
+                          key={i}
+                          className="px-3 py-1.5 rounded-full text-xs font-bold"
+                          style={{
+                            background: "rgba(24, 22, 21, 0.52)",
+                            color: "#ffffff",
+                            backdropFilter: "blur(4px)",
+                            lineHeight: 1,
+                          }}
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Learn More */}
+                  <div
+                    className="flex items-center gap-2 mt-2 cursor-pointer font-bold"
+                    style={{
+                      fontSize: "14px",
+                      color: "#ffffff",
+                      textShadow: "0 3px 14px rgba(0, 0, 0, 0.5)",
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/service/${service.slug}`);
+                    }}
+                  >
+                    <span>Learn More</span>
+                    <ArrowRight size={16} style={{ color: "#ffffff" }} />
+                  </div>
+                </div>
               </motion.div>
-            </motion.div>
-          ))}
-        </motion.div>
-      </motion.div>
-    </motion.section>
+            );
+          })}
+        </div>
+
+
+      </div>
+    </section>
   );
 }

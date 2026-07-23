@@ -10,10 +10,10 @@ interface PartnersPageProps {
 
 export default function PartnersPage({ partners, onAddPartner, onUpdatePartner, onDeletePartner }: PartnersPageProps) {
   return (
-    <div id="tab-partners" className="animate-fade-in flex flex-col gap-5 font-sans">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <div>
-        <h1 className="text-3xl font-headings font-bold text-foreground tracking-tight">Partner Logos</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">Manage the trusted-by logo strip shown across the public site.</p>
+        <h1 style={{ fontSize: 24, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Partner Logos</h1>
+        <p style={{ fontSize: 13, color: '#888888', marginTop: 4, marginBottom: 0 }}>Manage the trusted-by logo strip shown across the public site.</p>
       </div>
       <PartnerManager
         partners={partners}

@@ -13,8 +13,10 @@ import {
   Wrench,
   Zap,
 } from 'lucide-react';
+import BASE_URL, { resolveImageUrl as resolveUrl } from './api';
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+// keep API export for any legacy references
+export const API = BASE_URL;
 
 const ICON_MAP = {
   battery: Battery,
@@ -51,12 +53,7 @@ const titleCase = (value = '') => value
   .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
   .join(' ');
 
-const resolveImageUrl = (value = '') => {
-  if (!value) return '';
-  if (value.startsWith('/uploads/')) return `${API}${value}`;
-  if (value.startsWith('uploads/')) return `${API}/${value}`;
-  return value;
-};
+const resolveImageUrl = resolveUrl;
 
 const splitHeroTitle = (title = '') => {
   const words = title.split(/\s+/).filter(Boolean);
@@ -177,4 +174,4 @@ export const getServiceCardIcon = (iconName, title) => getIconComponent(iconName
 
 export const buildServiceDetail = (service, catalog = []) => normalizeServiceRecord(service, catalog);
 
-export { API, slugify, titleCase };
+export { slugify, titleCase };

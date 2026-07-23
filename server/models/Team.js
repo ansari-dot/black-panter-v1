@@ -10,4 +10,7 @@ const teamSchema = new mongoose.Schema({
   joinedDate: { type: String },
 }, { timestamps: true });
 
+teamSchema.index({ createdAt: -1 });
+
 export default mongoose.model('Team', teamSchema);
+

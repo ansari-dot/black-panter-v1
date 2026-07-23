@@ -1,53 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-
-const resolveImageUrl = (value = '') => {
-  if (!value) return '';
-  if (value.startsWith('/uploads/')) return `${API}${value}`;
-  if (value.startsWith('uploads/')) return `${API}/${value}`;
-  return value;
-};
+import { useProjectCatalog } from '../hooks/useProjectCatalog';
 
 export default function RecentProjects() {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
-  
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const response = await fetch(`${API}/api/projects/public`);
-        const data = await response.json();
-        if (Array.isArray(data)) {
-          setProjects(data.slice(0, 3).map(p => ({
-            ...p,
-            image: resolveImageUrl(p.imageUrl),
-            title: p.title,
-            description: p.subtitle || p.description,
-            gradient: "linear-gradient(to right, #F06123, #FF8803)",
-            slug: p.slug
-          })));
-        }
-      } catch (error) {
-        console.error('Failed to fetch projects:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProjects();
-  }, []);
+  const { activeProjects, isLoading: loading } = useProjectCatalog({ featuredOnHome: true });
+  const projects = activeProjects;
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -125,7 +84,7 @@ export default function RecentProjects() {
   const styles = {
     section: {
       padding: isMobile ? '60px 15px' : '80px 20px',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+      fontFamily: "'Plus Jakarta Sans', sans-serif",
       backgroundColor: '#ffffff'
     },
     container: {

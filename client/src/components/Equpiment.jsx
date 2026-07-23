@@ -40,8 +40,8 @@ const EquipmentCapabilities = ({
   return (
     <div className="equipment-section">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        .equipment-section { width: 100%; background: linear-gradient(135deg, #e8e8e8 0%, #f5f5f5 100%); padding: 80px 20px; font-family: 'Inter', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+        .equipment-section { width: 100%; background: linear-gradient(135deg, #e8e8e8 0%, #f5f5f5 100%); padding: 80px 20px; font-family: 'Plus Jakarta Sans', sans-serif; }
         .equipment-container { max-width: 1280px; margin: 0 auto; }
         .equipment-header { text-align: center; margin-bottom: 60px; }
         .equipment-header h2 { font-size: 38px; font-weight: 700; color: #2d2d2d; margin: 0 0 16px 0; letter-spacing: -0.5px; }

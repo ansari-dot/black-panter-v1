@@ -76,23 +76,12 @@ const Footer = () => {
     objectFit: 'contain'
   };
 
-  const companyNameStyle = {
-    color: 'white',
-    fontSize: '14px',
-    fontWeight: '600',
-    fontFamily: 'Poppins, sans-serif',
-    textTransform: 'uppercase',
-    letterSpacing: '1px',
-    lineHeight: '1.2',
-    margin: 0
-  };
-
   const descriptionStyle = {
     color: 'rgba(255, 255, 255, 0.7)',
     fontSize: '14px',
     lineHeight: '1.6',
     maxWidth: '280px',
-    fontFamily: 'Inter, sans-serif',
+    fontFamily: "'Plus Jakarta Sans', sans-serif",
     margin: 0
   };
 
@@ -141,8 +130,8 @@ const Footer = () => {
   const columnTitleStyle = {
     color: 'white',
     fontSize: '16px',
-    fontWeight: '600',
-    fontFamily: 'Poppins, sans-serif',
+    fontWeight: '700',
+    fontFamily: "'Plus Jakarta Sans', sans-serif",
     margin: '0 0 4px 0'
   };
 
@@ -158,7 +147,7 @@ const Footer = () => {
     transition: 'all 0.3s ease',
     cursor: 'pointer',
     textDecoration: 'none',
-    fontFamily: 'Inter, sans-serif'
+    fontFamily: "'Plus Jakarta Sans', sans-serif"
   };
 
   const bottomBarStyle = {
@@ -179,13 +168,12 @@ const Footer = () => {
     color: 'rgba(255, 255, 255, 0.6)',
     fontSize: '13px',
     textAlign: 'center',
-    fontFamily: 'Inter, sans-serif',
+    fontFamily: "'Plus Jakarta Sans', sans-serif",
     margin: 0
   };
 
-  // Responsive styles
   const mediaQueryStyles = `
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap');
     
     .footer-main-content {
       flex-direction: row;

@@ -77,7 +77,7 @@ const TestimonialsSection = () => {
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: '0.1em',
-    fontFamily: 'Poppins, sans-serif',
+    fontFamily: "'Plus Jakarta Sans', sans-serif",
     whiteSpace: 'nowrap'
   };
 
@@ -87,7 +87,7 @@ const TestimonialsSection = () => {
     fontWeight: '700',
     textAlign: 'center',
     lineHeight: '1.2',
-    fontFamily: 'Poppins, sans-serif',
+    fontFamily: "'Plus Jakarta Sans', sans-serif",
     letterSpacing: '-0.5px',
     margin: 0,
     padding: '0 20px',
@@ -101,7 +101,7 @@ const TestimonialsSection = () => {
     textAlign: 'center',
     maxWidth: '650px',
     lineHeight: '1.7',
-    fontFamily: 'Inter, sans-serif',
+    fontFamily: "'Plus Jakarta Sans', sans-serif",
     margin: 0,
     padding: '0 20px',
     width: '100%',
@@ -110,7 +110,7 @@ const TestimonialsSection = () => {
 
   // Responsive styles with better mobile optimization
   const mediaQueryStyles = `
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap');
     
     * {
       box-sizing: border-box;

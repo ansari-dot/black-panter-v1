@@ -22,7 +22,13 @@ const serviceSchema = new mongoose.Schema({
   keyHighlights: { type: [String], default: [] },
   technicalProcedures: { type: [technicalProcedureSchema], default: [] },
   gallery: { type: [String], default: [] },
-  displayOrder: { type: Number, default: 0 },
+  displayOrder:   { type: Number, default: 0 },
+  featuredOnHome: { type: Boolean, default: false },
 }, { timestamps: true });
 
+serviceSchema.index({ displayOrder: 1, createdAt: -1 });
+serviceSchema.index({ status: 1, displayOrder: 1, createdAt: -1 });
+serviceSchema.index({ featuredOnHome: 1, status: 1, displayOrder: 1, createdAt: -1 });
+
 export default mongoose.model('Service', serviceSchema);
+

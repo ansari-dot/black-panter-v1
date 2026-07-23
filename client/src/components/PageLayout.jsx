@@ -5,13 +5,59 @@ import { IoIosArrowDown } from "react-icons/io";
 import { ScrollToTop } from "./ScrollToTop";
 import logo from '../assets/logo.webp';
 import { useServiceCatalog } from "../hooks/useServiceCatalog";
+import QuoteModal from "./QuoteModal";
 import { getServiceCardIcon } from "../utils/serviceCatalog";
 
 const navigationItems = [
   { label: "Home", path: "/" },
   { label: "About", path: "/about" },
-  { label: "Services", path: "/services", hasDropdown: true },
+  { label: "Services", path: "/services", dropdownType: "services" },
+  { label: "Products", path: "/product" },
   { label: "Contact", path: "/contact" },
+];
+
+const productDropdownCategories = [
+  {
+    label: "Lithium Traction",
+    description: "High-performance lithium batteries for industrial & traction vehicles.",
+    path: "/product?category=Lithium%20Traction",
+    badge: "Hot",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+      </svg>
+    )
+  },
+  {
+    label: "Solar & Deep Cycle",
+    description: "Clean, renewable energy storage for off-grid & solar systems.",
+    path: "/product?category=Solar%20%2F%20Deep%20Cycle",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m11.314 11.314l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+      </svg>
+    )
+  },
+  {
+    label: "Lead-Acid Traction",
+    description: "Traditional heavy-duty power solutions for forklifts & logistics.",
+    path: "/product?category=Lead-Acid%20Traction",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+      </svg>
+    )
+  },
+  {
+    label: "Industrial Solutions",
+    description: "Industrial energy storage engineered for critical infrastructure.",
+    path: "/product?category=Industrial%20Solutions",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+      </svg>
+    )
+  }
 ];
 
 export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackground, backgroundSlider }) => {
@@ -19,11 +65,13 @@ export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackg
   const navigate = useNavigate();
   const { activeServices } = useServiceCatalog();
   const [isServicesOpen, setIsServicesOpen] = useState(false);
+  const [isProductsOpen, setIsProductsOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const handleGetQuote = () => {
-    navigate('/contact');
+    setIsQuoteModalOpen(true);
   };
 
   // Handle slider functionality
@@ -48,7 +96,7 @@ export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackg
   return (
     <div className="bg-[#f4f5f7] w-full overflow-x-hidden">
       {/* Hero Section with Background */}
-      <div className="relative w-full min-h-[40vh] rounded-[2rem] md:rounded-[3.5rem] overflow-hidden">
+      <div className="relative w-full min-h-[40vh] rounded-b-[3.5rem] md:rounded-b-[5.5rem] overflow-hidden">
         {/* Background Image Layer (behind vector) */}
         {backgroundImage && (
           <div className="absolute inset-0 w-full h-full">
@@ -71,7 +119,7 @@ export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackg
             height="1024"
           />
           <img
-            className="absolute top-0 md:top-[72px] left-1/2 -translate-x-1/2 w-full h-full object-cover object-center z-10"
+            className="absolute top-0 md:top-[72px] left-1/2 -translate-x-1/2 w-full h-full object-cover object-center z-10 rounded-xl md:rounded-2xl"
             width="1920"
             height="1080"
             fetchPriority="high"
@@ -129,10 +177,8 @@ export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackg
             <div className="flex items-center gap-4 md:gap-6 lg:gap-[39.75px]">
               {navigationItems.map((item, index) => (
                 <div key={index} className="relative">
-                  {item.hasDropdown ? (
-                    <div
-                      className="relative group"
-                    >
+                  {item.dropdownType ? (
+                    <div className="relative group">
                       <Link
                         to={item.path}
                         className={`transition-all duration-300 p-0 m-0 flex items-center gap-1 ${location.pathname === item.path
@@ -143,7 +189,7 @@ export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackg
                         <span
                           className="font-bold text-[15.1px] whitespace-nowrap text-[#F06123]"
                           style={{
-                            fontFamily: 'DM_Sans, Helvetica',
+                            fontFamily: "'Plus Jakarta Sans', sans-serif",
                             color: '#F06123'
                           }}
                         >
@@ -152,24 +198,66 @@ export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackg
                         <IoIosArrowDown className="text-[#F06123] text-xs" />
                       </Link>
 
-                      {/* Services Dropdown - Desktop */}
-                      <div className="absolute top-full left-0 mt-2 w-[320px] bg-white rounded-lg shadow-xl border border-gray-200 py-3 z-[100] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                        {servicesDropdownItems.map((service, idx) => {
-                          const IconComponent = service.Icon;
-                          return (
-                            <Link
-                              key={idx}
-                              to={`/service/${service.slug}`}
-                              className="flex items-center gap-4 px-5 py-3.5 hover:bg-gray-50 transition-colors duration-200 group/item"
-                            >
-                              <IconComponent className="text-lg text-gray-500 group-hover/item:text-[#F06123] transition-colors duration-200 flex-shrink-0" />
-                              <span className="text-sm text-gray-700 font-medium group-hover/item:text-gray-900 transition-colors duration-200 leading-relaxed">
-                                {service.label}
-                              </span>
+                      {item.dropdownType === 'services' && (
+                        /* Services Dropdown - Desktop */
+                        <div className="absolute top-full left-0 mt-2 w-[320px] bg-white rounded-lg shadow-xl border border-gray-200 py-3 z-[100] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                          {servicesDropdownItems.map((service, idx) => {
+                            const IconComponent = service.Icon;
+                            return (
+                              <Link
+                                key={idx}
+                                to={`/service/${service.slug}`}
+                                className="flex items-center gap-4 px-5 py-3.5 hover:bg-gray-50 transition-colors duration-200 group/item"
+                              >
+                                <IconComponent className="text-lg text-gray-500 group-hover/item:text-[#F06123] transition-colors duration-200 flex-shrink-0" />
+                                <span className="text-sm text-gray-700 font-medium group-hover/item:text-gray-900 transition-colors duration-200 leading-relaxed">
+                                  {service.label}
+                                </span>
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      {item.dropdownType === 'products' && (
+                        /* Products Dropdown - Desktop */
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[540px] bg-white rounded-2xl shadow-2xl border border-gray-100 py-5 px-6 z-[100] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform scale-95 group-hover:scale-100 origin-top">
+                          <div className="grid grid-cols-2 gap-4">
+                            {productDropdownCategories.map((category, idx) => (
+                              <Link
+                                key={idx}
+                                to={category.path}
+                                className="flex items-start gap-4 p-3 rounded-xl hover:bg-gradient-to-r hover:from-orange-50/50 hover:to-orange-50/20 group/item transition-all duration-200"
+                              >
+                                <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-orange-50 text-[#F06123] flex items-center justify-center group-hover/item:bg-[#F06123] group-hover/item:text-white transition-all duration-300">
+                                  {category.icon}
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-bold text-[14px] text-gray-900 group-hover/item:text-[#F06123] transition-colors duration-200">
+                                      {category.label}
+                                    </span>
+                                    {category.badge && (
+                                      <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-orange-100 text-[#F06123] uppercase tracking-wider">
+                                        {category.badge}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="text-[12px] text-gray-500 mt-1 leading-relaxed">
+                                    {category.description}
+                                  </p>
+                                </div>
+                              </Link>
+                            ))}
+                          </div>
+                          <div className="mt-5 pt-4 border-t border-gray-100 flex items-center justify-between text-xs">
+                            <span className="text-gray-500">Need a custom battery configuration?</span>
+                            <Link to="/contact" className="font-semibold text-[#F06123] hover:text-[#D4480A] flex items-center gap-1 transition-all duration-200 hover:translate-x-0.5">
+                              Contact Experts <span className="text-sm">→</span>
                             </Link>
-                          );
-                        })}
-                      </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <Link
@@ -276,25 +364,31 @@ export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackg
               <div className="flex-1 overflow-y-auto py-4">
                 {navigationItems.map((item, index) => (
                   <div key={index} className="border-b border-gray-50">
-                    {item.hasDropdown ? (
+                    {item.dropdownType ? (
                       <div>
                         <button
-                          onClick={() => setIsServicesOpen(!isServicesOpen)}
+                          onClick={() => {
+                            if (item.dropdownType === 'services') {
+                              setIsServicesOpen(!isServicesOpen);
+                            } else if (item.dropdownType === 'products') {
+                              setIsProductsOpen(!isProductsOpen);
+                            }
+                          }}
                           className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-gray-50 transition-colors duration-200"
                         >
                           <span
                             className="font-semibold text-[16px] text-gray-900"
                             style={{
-                              fontFamily: 'DM_Sans, Helvetica'
+                              fontFamily: "'Plus Jakarta Sans', sans-serif"
                             }}
                           >
                             {item.label}
                           </span>
-                          <IoIosArrowDown className={`text-gray-500 text-sm transition-transform duration-200 ${isServicesOpen ? 'rotate-180' : ''}`} />
+                          <IoIosArrowDown className={`text-gray-500 text-sm transition-transform duration-200 ${(item.dropdownType === 'services' ? isServicesOpen : isProductsOpen) ? 'rotate-180' : ''}`} />
                         </button>
 
                         {/* Services Dropdown - Mobile */}
-                        {isServicesOpen && (
+                        {item.dropdownType === 'services' && isServicesOpen && (
                           <div className="bg-gray-50">
                             {servicesDropdownItems.map((service, idx) => {
                               const IconComponent = service.Icon;
@@ -306,12 +400,45 @@ export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackg
                                   onClick={() => setIsMobileMenuOpen(false)}
                                 >
                                   <IconComponent className="text-xl text-gray-500 group-hover:text-[#F06123] transition-colors duration-200 flex-shrink-0" />
-                                  <div className="flex items-center gap-4 px-6 py-4 text-gray-700 font-medium group-hover:text-gray-900 transition-colors duration-200 leading-relaxed block min-h-[44px]">
+                                  <div className="text-sm text-gray-700 font-medium group-hover:text-gray-900 transition-colors duration-200 leading-relaxed block min-h-[44px]">
                                     {service.label}
                                   </div>
                                 </Link>
                               );
                             })}
+                          </div>
+                        )}
+
+                        {/* Products Dropdown - Mobile */}
+                        {item.dropdownType === 'products' && isProductsOpen && (
+                          <div className="bg-gray-50 py-1">
+                            {productDropdownCategories.map((category, idx) => (
+                              <Link
+                                key={idx}
+                                to={category.path}
+                                className="flex items-start gap-4 px-8 py-3.5 hover:bg-gray-100 transition-colors duration-200"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                              >
+                                <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-orange-50 text-[#F06123] flex items-center justify-center">
+                                  {category.icon}
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-semibold text-sm text-gray-800">
+                                      {category.label}
+                                    </span>
+                                    {category.badge && (
+                                      <span className="text-[9px] font-extrabold px-1 py-0.2 rounded bg-orange-100 text-[#F06123] uppercase">
+                                        {category.badge}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="text-[11px] text-gray-500 mt-0.5 leading-relaxed">
+                                    {category.description}
+                                  </p>
+                                </div>
+                              </Link>
+                            ))}
                           </div>
                         )}
                       </div>
@@ -327,7 +454,7 @@ export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackg
                         <span
                           className="font-semibold text-[16px] text-gray-800"
                           style={{
-                            fontFamily: 'DM_Sans, Helvetica'
+                            fontFamily: "'Plus Jakarta Sans', sans-serif"
                           }}
                         >
                           {item.label}
@@ -398,6 +525,9 @@ export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackg
       {/* Page Content */}
       {children}
 
+      {isQuoteModalOpen && (
+        <QuoteModal isOpen={isQuoteModalOpen} onClose={() => setIsQuoteModalOpen(false)} sourceButton="PageLayout Get a Quote" />
+      )}
       {/* Scroll to Top Button */}
       <ScrollToTop />
     </div>

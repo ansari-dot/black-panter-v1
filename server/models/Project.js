@@ -27,7 +27,13 @@ const projectSchema = new mongoose.Schema({
   timeline: { type: String, default: '' },
   unitsInstalled: { type: String, default: '' },
   uptime: { type: String, default: '' },
-  displayOrder: { type: Number, default: 0 },
+  displayOrder:   { type: Number, default: 0 },
+  featuredOnHome: { type: Boolean, default: false },
 }, { timestamps: true });
 
+projectSchema.index({ displayOrder: 1, createdAt: -1 });
+projectSchema.index({ status: 1, displayOrder: 1, createdAt: -1 });
+projectSchema.index({ featuredOnHome: 1, status: 1, displayOrder: 1, createdAt: -1 });
+
 export default mongoose.model('Project', projectSchema);
+

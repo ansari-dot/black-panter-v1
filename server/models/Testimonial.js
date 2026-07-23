@@ -9,4 +9,8 @@ const testimonialSchema = new mongoose.Schema({
   status:  { type: String, enum: ['Approved', 'Pending', 'Rejected'], default: 'Pending' },
 }, { timestamps: true });
 
+testimonialSchema.index({ createdAt: -1 });
+testimonialSchema.index({ status: 1, createdAt: -1 });
+
 export default mongoose.model('Testimonial', testimonialSchema);
+

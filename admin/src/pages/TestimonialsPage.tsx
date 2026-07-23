@@ -10,10 +10,10 @@ interface Props {
 
 export default function TestimonialsPage({ testimonials, onAddTestimonial, onUpdateStatus, onDeleteTestimonial }: Props) {
   return (
-    <div className="animate-fade-in flex flex-col gap-5 font-sans">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <div>
-        <h1 className="text-3xl font-headings font-bold text-foreground tracking-tight">Testimonials Hub</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">Manage client testimonials — add, approve, reject or delete.</p>
+        <h1 style={{ fontSize: 24, fontWeight: 700, color: '#1a1a1a', margin: 0 }}>Testimonials Hub</h1>
+        <p style={{ fontSize: 13, color: '#888888', marginTop: 4, marginBottom: 0 }}>Manage client testimonials — add, approve, reject, or delete.</p>
       </div>
       <TestimonialsManager
         testimonials={testimonials}

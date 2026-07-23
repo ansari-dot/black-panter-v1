@@ -55,7 +55,7 @@ export default function WhyChooseUsSection() {
       width: '100%',
       backgroundColor: '#3d3d3d',
       padding: isMobile ? '60px 15px' : '80px 40px',
-      fontFamily: 'system-ui, -apple-system, sans-serif'
+      fontFamily: "'Plus Jakarta Sans', sans-serif"
     },
     header: {
       marginBottom: isMobile ? '40px' : '60px'
