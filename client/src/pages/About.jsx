@@ -6,10 +6,10 @@ import Footer from "../components/Footer";
 import WhoSection from "../components/WhoSection";
 import WhyChooseUsSection from "../components/WhyChoose";
 import TeamSection from "../components/Team";
-import Testimonals from "../components/TestiomonialsSection";
 import TestimonialsSection from "../components/Testimonials";
 import CTA from "../components/CTA";
 import aboutHeroImage from '../assets/herosections/about.webp';
+
 export const About = () => {
   return (
     <PageLayout 
@@ -22,7 +22,6 @@ export const About = () => {
       <WhoSection />
       <WhyChooseUsSection />
       <TeamSection />
-      <Testimonals />
       <TestimonialsSection />
       <CTA />
      
