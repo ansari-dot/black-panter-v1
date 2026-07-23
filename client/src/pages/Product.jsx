@@ -8,6 +8,7 @@ import { PageLayout } from "../components/PageLayout";
 import { HeroSection } from "../components/HeroSections/ProductHeroSection";
 import productHeroImage from "../assets/herosections/about.webp";
 import Footer from "../components/Footer";
+import { X, SlidersHorizontal } from "lucide-react";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -30,6 +31,7 @@ export const Product = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
   // Advanced filter states
   const [searchQuery, setSearchQuery] = useState("");
@@ -93,6 +95,16 @@ export const Product = () => {
       .finally(() => setLoading(false));
   }, [currentPage, selectedCategory, debouncedSearchQuery, priceValue, stockStatus, sortOption]);
 
+  const handleCategoryChange = (cat) => {
+    if (cat === "All Products") {
+      searchParams.delete("category");
+    } else {
+      searchParams.set("category", cat);
+    }
+    setSearchParams(searchParams);
+    setCurrentPage(1);
+  };
+
   const handleClearFilters = () => {
     setSearchQuery("");
     setDebouncedSearchQuery("");
@@ -117,41 +129,83 @@ export const Product = () => {
     ])
   ];
 
+  const sidebarProps = {
+    categories,
+    selectedCategory,
+    onCategoryChange: handleCategoryChange,
+    searchQuery,
+    onSearchChange: setSearchQuery,
+    priceValue,
+    onPriceChange: (val) => {
+      setPriceValue(val);
+      setCurrentPage(1);
+    },
+    stockStatus,
+    onStockStatusChange: (status) => {
+      setStockStatus(status);
+      setCurrentPage(1);
+    },
+    onClearFilters: handleClearFilters
+  };
+
   return (
     <PageLayout
       heroContent={<HeroSection />}
       vectorBackground={productHeroImage}
     >
       {/* ── CONTENT ── */}
-      <div id="products-catalog-section" className="max-w-screen-xl mx-auto pl-4 lg:pl-0 pr-6 md:pr-12 py-12 mt-16">
-        <div className="flex flex-col lg:flex-row gap-10">
-          <ProductSidebar
-            categories={categories}
-            selectedCategory={selectedCategory}
-            onCategoryChange={(cat) => {
-              if (cat === "All Products") {
-                searchParams.delete("category");
-              } else {
-                searchParams.set("category", cat);
-              }
-              setSearchParams(searchParams);
-              setCurrentPage(1);
-            }}
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            priceValue={priceValue}
-            onPriceChange={(val) => {
-              setPriceValue(val);
-              setCurrentPage(1);
-            }}
-            stockStatus={stockStatus}
-            onStockStatusChange={(status) => {
-              setStockStatus(status);
-              setCurrentPage(1);
-            }}
-            onClearFilters={handleClearFilters}
-          />
+      <div id="products-catalog-section" className="max-w-screen-xl mx-auto px-4 sm:px-8 md:px-12 py-8 md:py-16 mt-8 md:mt-16 font-sans">
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-10">
+          
+          {/* DESKTOP SIDEBAR (Visible on >= lg screens) */}
+          <div className="hidden lg:block w-80 shrink-0">
+            <ProductSidebar {...sidebarProps} />
+          </div>
 
+          {/* MOBILE FILTER SLIDE-OUT DRAWER (< lg screens) */}
+          {mobileFilterOpen && (
+            <div className="fixed inset-0 z-50 lg:hidden font-sans">
+              {/* Backdrop */}
+              <div 
+                className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+                onClick={() => setMobileFilterOpen(false)}
+              />
+              
+              {/* Drawer Container */}
+              <div className="fixed inset-y-0 left-0 w-[88vw] max-w-sm bg-white shadow-2xl z-50 overflow-y-auto p-4 flex flex-col justify-between animate-slide-in-left">
+                <div>
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+                    <h3 className="font-extrabold text-slate-900 text-base flex items-center gap-2">
+                      <SlidersHorizontal className="w-4 h-4 text-[#F06123]" /> Filter Products
+                    </h3>
+                    <button 
+                      onClick={() => setMobileFilterOpen(false)}
+                      className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:text-slate-900"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                  
+                  <ProductSidebar 
+                    {...sidebarProps} 
+                    onCategoryChange={(cat) => {
+                      handleCategoryChange(cat);
+                      setMobileFilterOpen(false);
+                    }}
+                  />
+                </div>
+
+                <button
+                  onClick={() => setMobileFilterOpen(false)}
+                  className="w-full mt-6 bg-[#F06123] hover:bg-[#FF8803] text-white font-bold py-3 rounded-xl text-center text-sm shadow-md transition-colors"
+                >
+                  Apply & View Results
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* MAIN PRODUCT CATALOG GRID */}
           <div className="flex-1 min-w-0">
             <ProductsTopBar 
               totalCount={totalCount} 
@@ -160,18 +214,19 @@ export const Product = () => {
                 setSortOption(val);
                 setCurrentPage(1);
               }}
+              onOpenMobileFilter={() => setMobileFilterOpen(true)}
             />
 
             {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 {Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
-                  <div key={i} className="rounded-2xl bg-gray-100 animate-pulse" style={{ aspectRatio: '4/3' }} />
+                  <div key={i} className="rounded-2xl bg-slate-100 animate-pulse" style={{ aspectRatio: '4/3' }} />
                 ))}
               </div>
             ) : products.length === 0 ? (
-              <div className="py-20 text-center text-gray-400">No products found.</div>
+              <div className="py-20 text-center text-slate-400">No products found.</div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 {products.map((product) => (
                   <ProductCard key={product._id} product={{ ...product, id: product._id, title: product.name }} />
                 ))}
@@ -180,10 +235,10 @@ export const Product = () => {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2 mt-10 font-body">
+              <div className="flex items-center justify-center gap-2 mt-10 font-sans">
                 <div
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                  className="h-9 w-9 rounded-lg border border-border bg-card text-muted-foreground flex items-center justify-center cursor-pointer hover:bg-muted"
+                  className="h-9 w-9 rounded-lg border border-slate-200 bg-white text-slate-600 flex items-center justify-center cursor-pointer hover:bg-slate-50"
                 >
                   <ChevronLeft />
                 </div>
@@ -193,23 +248,23 @@ export const Product = () => {
                     onClick={() => setCurrentPage(page)}
                     className={`h-9 w-9 rounded-lg border flex items-center justify-center text-sm font-semibold cursor-pointer ${
                       currentPage === page
-                        ? "border-primary text-white"
-                        : "bg-card text-foreground border-border hover:bg-muted"
+                        ? "border-[#F06123] text-white bg-[#F06123]"
+                        : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
                     }`}
-                    style={currentPage === page ? { backgroundColor: "#f06123" } : {}}
                   >
                     {page}
                   </div>
                 ))}
                 <div
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                  className="h-9 w-9 rounded-lg border border-border bg-card text-muted-foreground flex items-center justify-center cursor-pointer hover:bg-muted"
+                  className="h-9 w-9 rounded-lg border border-slate-200 bg-white text-slate-600 flex items-center justify-center cursor-pointer hover:bg-slate-50"
                 >
                   <ChevronRightPag />
                 </div>
               </div>
             )}
           </div>
+
         </div>
       </div>
 
