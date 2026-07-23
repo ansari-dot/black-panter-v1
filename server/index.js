@@ -29,7 +29,18 @@ database.connect()
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const allowedOrigins = (process.env.CLIENT_URLS || 'http://localhost:5173,http://localhost:2000').split(',');
+const defaultOrigins = [
+  'http://localhost:5173',
+  'http://localhost:2000',
+  'https://www.blackpanther-batteries.com',
+  'https://blackpanther-batteries.com',
+  'https://admin.blackpanther-batteries.com',
+  'http://www.blackpanther-batteries.com',
+  'http://blackpanther-batteries.com',
+  'http://admin.blackpanther-batteries.com'
+];
+const envOrigins = process.env.CLIENT_URLS ? process.env.CLIENT_URLS.split(',').map((u) => u.trim()) : [];
+const allowedOrigins = Array.from(new Set([...defaultOrigins, ...envOrigins]));
 
 app.use(cors({
     origin: (origin, cb) => {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useTeamCatalog } from '../hooks/useTeamCatalog';
 
@@ -7,162 +7,125 @@ const TeamSection = ({
   subtitle = 'Certified engineers and technicians dedicated to your power reliability.',
 }) => {
   const { activeMembers: members, isLoading: loading, isError } = useTeamCatalog();
-  const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
+  const [activeMobileSlide, setActiveMobileSlide] = useState(0);
+  const mobileSliderRef = useRef(null);
 
-  React.useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-
-
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.15, delayChildren: 0.1 },
-    },
+  const handleMobileScroll = () => {
+    if (!mobileSliderRef.current) return;
+    const scrollLeft = mobileSliderRef.current.scrollLeft;
+    const width = mobileSliderRef.current.offsetWidth;
+    const newIndex = Math.round(scrollLeft / width);
+    setActiveMobileSlide(newIndex);
   };
 
-  const cardVariants = {
-    initial: { y: 60, opacity: 0, scale: 0.9 },
-    animate: {
-      y: 0,
-      opacity: 1,
-      scale: 1,
-      transition: { duration: 0.6, ease: 'easeOut' },
-    },
+  const scrollToMobileSlide = (index) => {
+    if (!mobileSliderRef.current) return;
+    const width = mobileSliderRef.current.offsetWidth;
+    mobileSliderRef.current.scrollTo({
+      left: index * width,
+      behavior: 'smooth',
+    });
+    setActiveMobileSlide(index);
   };
 
-  const mobileVariants = {
-    initial: { opacity: 0, y: 20 },
-    animate: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.4, ease: 'easeOut' },
-    },
-  };
+  if (loading) {
+    return (
+      <section className="w-full py-12 bg-[#f9fafb] text-center text-slate-500 font-sans">
+        Loading team members...
+      </section>
+    );
+  }
 
-  const sectionStyle = {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    alignSelf: 'stretch',
-    backgroundColor: '#f9fafb',
-    padding: '80px 0',
-    marginBottom: '80px',
-    gap: '50px',
-    width: '100%',
-    boxSizing: 'border-box',
-  };
-
-  const gridStyle = {
-    display: 'grid',
-    alignSelf: 'stretch',
-    padding: '0 16px',
-    gap: '24px',
-    width: '100%',
-    boxSizing: 'border-box',
-  };
-
-  const mediaQueryStyles = `
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
-    .experts-grid { grid-template-columns: 1fr !important; padding: 0 16px !important; gap: 24px !important; }
-    @media (min-width: 768px) { .experts-grid { grid-template-columns: repeat(2, 1fr) !important; padding: 0 32px !important; gap: 32px !important; } }
-    @media (min-width: 1024px) { .experts-grid { grid-template-columns: repeat(3, 1fr) !important; padding: 0 48px !important; gap: 40px !important; } }
-    .expert-card:hover .expert-image { transform: scale(1.05); }
-    .expert-card:hover .expert-name { color: #F06123; }
-    @media (max-width: 640px) {
-      .expert-title { font-size: 24px !important; }
-      .expert-subtitle { font-size: 16px !important; }
-      .expert-image-wrapper { height: 450px !important; max-width: 100% !important; border-radius: 24px !important; }
-      .expert-image { height: 450px !important; object-fit: cover !important; background-color: #f3f4f6 !important; }
-    }
-    @media (max-width: 480px) {
-      .expert-title { font-size: 20px !important; }
-      .expert-subtitle { font-size: 15px !important; }
-      .expert-name { font-size: 18px !important; }
-      .expert-position { font-size: 14px !important; }
-    }
-  `;
+  if (!members || members.length === 0) {
+    return null;
+  }
 
   return (
-    <>
-      <style>{mediaQueryStyles}</style>
-      <motion.div style={sectionStyle} initial="hidden" animate="visible" variants={staggerContainer}>
-        <motion.div
-          className="text-center px-4"
-          variants={isMobile ? mobileVariants : cardVariants}
-          initial="initial"
-          whileInView="animate"
-          viewport={{ once: false, amount: 0.3 }}
-        >
-          <h2 className="expert-title font-black" style={{ color: '#383A3C', fontSize: '33px', fontWeight: 900, margin: 0 }}>
+    <section className="w-full py-12 md:py-24 bg-[#f9fafb] font-sans overflow-hidden select-none">
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-8 md:px-16">
+
+        {/* Section Header */}
+        <div className="text-center max-w-2xl mx-auto mb-8 md:mb-14">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-800 tracking-tight leading-tight mb-2">
             {title}
           </h2>
-          <p className="expert-subtitle" style={{ color: '#6b7280', fontSize: '19px', fontWeight: 400, margin: 0 }}>
+          <p className="text-sm md:text-base text-slate-500 font-normal leading-relaxed">
             {subtitle}
           </p>
-        </motion.div>
+        </div>
 
-        <div className="experts-grid" style={gridStyle}>
-          {loading ? (
-            <div className="col-span-full text-center text-gray-500">Loading team members...</div>
-          ) : members.length > 0 ? (
-            members.map((member) => (
-            <motion.div
-              key={member.id}
-              className="expert-card"
-              variants={isMobile ? mobileVariants : cardVariants}
-              initial="initial"
-              whileInView="animate"
-              viewport={{ once: false, amount: 0.3 }}
-              whileHover={{ y: -8, scale: 1.02, transition: { duration: 0.3 } }}
-              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
-            >
-              <div
-                className="expert-image-wrapper"
-                style={{
-                  backgroundColor: '#f3f4f6',
-                  borderRadius: '24px',
-                  overflow: 'hidden',
-                  width: '100%',
-                  maxWidth: '320px',
-                  height: '380px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <img
-                  src={member.image}
-                  alt={member.name}
-                  className="expert-image"
-                  style={{ width: '100%', height: '380px', objectFit: 'cover', display: 'block' }}
-                  loading="lazy"
-                  decoding="async"
+        {/* MOBILE SLIDER (< 768px): 1 Card per screen with swipe */}
+        <div className="block md:hidden">
+          <div
+            ref={mobileSliderRef}
+            onScroll={handleMobileScroll}
+            className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-none py-2 -mx-4 px-5 scroll-smooth"
+            style={{ WebkitOverflowScrolling: 'touch' }}
+          >
+            {members.map((member, index) => (
+              <div key={member.id || index} className="w-[85vw] sm:w-[320px] shrink-0 snap-center">
+                <TeamCard member={member} index={index} />
+              </div>
+            ))}
+          </div>
+
+          {/* Mobile Dot Indicators */}
+          {members.length > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-6">
+              {members.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => scrollToMobileSlide(i)}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    activeMobileSlide === i ? 'w-6 bg-[#F06123]' : 'w-2 bg-slate-300'
+                  }`}
+                  aria-label={`Go to slide ${i + 1}`}
                 />
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '24px', width: '100%', maxWidth: '320px' }}>
-                <h3 className="expert-name" style={{ color: '#070B15', fontSize: '20px', fontWeight: 700, margin: '0 0 4px 0' }}>
-                  {member.name}
-                </h3>
-                <p className="expert-position" style={{ color: '#6b7280', fontSize: '16px', margin: 0, textAlign: 'center' }}>
-                  {member.role}
-                </p>
-              </div>
-            </motion.div>
-            ))
-          ) : (
-            <div className="col-span-full text-center text-gray-500">
-              {isError ? 'Team data is unavailable right now.' : 'No team members found.'}
+              ))}
             </div>
           )}
         </div>
-      </motion.div>
-    </>
+
+        {/* DESKTOP GRID (>= 768px): 3-Column Grid */}
+        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {members.map((member, index) => (
+            <TeamCard key={member.id || index} member={member} index={index} />
+          ))}
+        </div>
+
+      </div>
+    </section>
   );
 };
+
+function TeamCard({ member, index }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.1 }}
+      transition={{ duration: 0.45, delay: index * 0.05 }}
+      className="flex flex-col items-center group cursor-pointer w-full"
+    >
+      <div className="w-full h-[360px] rounded-2xl overflow-hidden bg-slate-200 shadow-md group-hover:shadow-xl transition-all duration-300">
+        <img
+          src={member.image}
+          alt={member.name}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+      <div className="flex flex-col items-center mt-4 text-center">
+        <h3 className="text-lg sm:text-xl font-bold text-slate-900 group-hover:text-[#F06123] transition-colors">
+          {member.name}
+        </h3>
+        <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
+          {member.role}
+        </p>
+      </div>
+    </motion.div>
+  );
+}
 
 export default TeamSection;

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ArrowLeftIcon, ArrowRightIcon, ChevronRightIcon, CheckCircle2Icon, ShieldIcon, ActivityIcon, SettingsIcon, ShieldCheckIcon, ZapIcon, ChevronLeftIcon } from "lucide-react";
+import { ArrowLeftIcon, ArrowRightIcon, ChevronRightIcon, CheckCircle2Icon, ShieldIcon, ActivityIcon, SettingsIcon, ShieldCheckIcon, ZapIcon, ChevronLeftIcon, PhoneIcon } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { PageLayout } from "../components/PageLayout";
 import { HeroSection } from "../components/HeroSections/ServiceDetailHeroSection";
@@ -15,15 +15,12 @@ export const ServiceDetailPage = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   if (!service) {
-    return <div className="p-8 text-center font-body">Service not found</div>;
+    return <div className="p-8 text-center font-sans text-slate-500">Service not found</div>;
   }
 
-  // Create a gallery array for the slider. Fallback to duplicated images if no gallery exists.
-  const galleryImages = service.gallery || [
-    service.detailImageUrl,
-    service.imageUrl,
-    "https://storage.googleapis.com/banani-generated-images/generated-images/7d66692f-d887-4861-bc6d-74007658d57d.jpg" // Placeholder for demonstration
-  ].filter(Boolean);
+  // Filter gallery images and remove old unrelated placeholder URLs
+  const rawGallery = (service.gallery || []).filter(img => img && typeof img === 'string' && !img.includes('banani-generated-images'));
+  const galleryImages = rawGallery.length > 0 ? rawGallery : [service.detailImageUrl, service.imageUrl].filter(Boolean);
 
   const nextImage = () => setCurrentImageIndex((prev) => (prev + 1) % galleryImages.length);
   const prevImage = () => setCurrentImageIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length);
@@ -38,407 +35,51 @@ export const ServiceDetailPage = () => {
     />
   );
 
-  const styles = {
-    page: {
-      backgroundColor: "#ffffff",
-      color: "#1a1a1a",
-      fontFamily: "'Plus Jakarta Sans', sans-serif"
-    },
-    outer: {
-      padding: "64px 64px 72px",
-      maxWidth: "1440px",
-      margin: "0 auto"
-    },
-    introRow: {
-      display: "flex",
-      gap: "64px",
-      alignItems: "flex-start",
-      flexWrap: "wrap"
-    },
-    introMain: {
-      flex: 1,
-      minWidth: "320px",
-      display: "flex",
-      flexDirection: "column",
-      gap: "20px"
-    },
-    eyebrow: {
-      fontSize: "12px",
-      fontWeight: 700,
-      textTransform: "uppercase",
-      letterSpacing: "0.1em",
-      color: "#f06123",
-      margin: 0
-    },
-    title: {
-      fontSize: "clamp(34px, 4vw, 48px)",
-      lineHeight: 1.15,
-      fontWeight: 700,
-      margin: 0,
-      color: "#1a1a1a"
-    },
-    bodyText: {
-      fontSize: "16px",
-      lineHeight: 1.8,
-      color: "#666",
-      margin: 0,
-      whiteSpace: "pre-line"
-    },
-    sidebar: {
-      width: "320px",
-      flexShrink: 0,
-      display: "flex",
-      flexDirection: "column",
-      gap: "24px"
-    },
-    infoCard: {
-      backgroundColor: "#f8f7f5",
-      border: "1px solid #e8e3de",
-      borderRadius: "12px",
-      padding: "28px",
-      display: "flex",
-      flexDirection: "column",
-      gap: "20px"
-    },
-    infoTitle: {
-      fontSize: "18px",
-      fontWeight: 700,
-      color: "#1a1a1a",
-      margin: 0,
-      marginBottom: "8px"
-    },
-    infoList: {
-      display: "flex",
-      flexDirection: "column",
-      gap: "12px",
-      padding: 0,
-      margin: 0,
-      listStyle: "none"
-    },
-    infoListItem: {
-      display: "flex",
-      alignItems: "flex-start",
-      gap: "12px",
-      fontSize: "14px",
-      color: "#333",
-      lineHeight: 1.5
-    },
-    infoIcon: {
-      color: "#f06123",
-      flexShrink: 0,
-      marginTop: "2px"
-    },
-    quoteButton: {
-      backgroundColor: "#f06123",
-      color: "#fff",
-      border: "none",
-      borderRadius: "6px",
-      padding: "16px 24px",
-      fontSize: "15px",
-      fontWeight: 700,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: "8px",
-      cursor: "pointer",
-      textDecoration: "none",
-      transition: "background-color 0.2s ease"
-    },
-    staticBox2: {
-      backgroundColor: "#ffffff",
-      borderRadius: "16px",
-      padding: "32px 24px",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      textAlign: "center",
-      gap: "16px",
-      boxShadow: "0 4px 20px rgba(0,0,0,0.05)"
-    },
-    staticBox2IconWrap: {
-      width: "56px",
-      height: "56px",
-      borderRadius: "50%",
-      backgroundColor: "#f06123",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      color: "#fff",
-      marginBottom: "8px"
-    },
-    staticBox2Title: {
-      fontSize: "17px",
-      fontWeight: 700,
-      color: "#1a202c",
-      margin: 0
-    },
-    staticBox2Text: {
-      fontSize: "15px",
-      color: "#4a5568",
-      lineHeight: 1.5,
-      margin: 0
-    },
-    section: {
-      display: "flex",
-      flexDirection: "column",
-      gap: "32px",
-      marginTop: "80px"
-    },
-    sectionHeader: {
-      display: "flex",
-      flexDirection: "column",
-      gap: "8px"
-    },
-    sectionKicker: {
-      fontSize: "12px",
-      fontWeight: 700,
-      textTransform: "uppercase",
-      letterSpacing: "0.1em",
-      color: "#f06123",
-      margin: 0
-    },
-    sectionTitle: {
-      fontSize: "32px",
-      fontWeight: 700,
-      color: "#1a1a1a",
-      margin: 0
-    },
-    
-    // Slider Styles
-    sliderContainer: {
-      position: "relative",
-      width: "100%",
-      height: "400px",
-      borderRadius: "16px",
-      overflow: "hidden",
-      marginTop: "48px",
-      boxShadow: "0 24px 50px rgba(0,0,0,0.1)",
-      group: "slider"
-    },
-    sliderInner: {
-      display: "flex",
-      width: "100%",
-      height: "100%",
-      transition: "transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
-      transform: `translateX(-${currentImageIndex * 100}%)`
-    },
-    slideItem: {
-      minWidth: "100%",
-      height: "100%",
-      position: "relative"
-    },
-    imageFit: {
-      width: "100%",
-      height: "100%",
-      objectFit: "cover",
-      display: "block"
-    },
-    sliderBtn: {
-      position: "absolute",
-      top: "50%",
-      transform: "translateY(-50%)",
-      width: "48px",
-      height: "48px",
-      borderRadius: "50%",
-      backgroundColor: "rgba(255,255,255,0.9)",
-      border: "none",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      cursor: "pointer",
-      boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-      color: "#1a1a1a",
-      zIndex: 10,
-      transition: "all 0.2s ease"
-    },
-    sliderDots: {
-      position: "absolute",
-      bottom: "20px",
-      left: "50%",
-      transform: "translateX(-50%)",
-      display: "flex",
-      gap: "8px",
-      zIndex: 10
-    },
-    dot: (active) => ({
-      width: active ? "24px" : "8px",
-      height: "8px",
-      borderRadius: "4px",
-      backgroundColor: active ? "#f06123" : "rgba(255,255,255,0.6)",
-      transition: "all 0.3s ease",
-      cursor: "pointer"
-    }),
-
-    // Sexy Boxes Grid
-    resultsGrid: {
-      display: "grid",
-      gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-      gap: "32px"
-    },
-    resultCard: {
-      backgroundColor: "#ffffff",
-      border: "1px solid #f0ece8",
-      borderRadius: "20px",
-      padding: "36px",
-      display: "flex",
-      flexDirection: "column",
-      gap: "24px",
-      transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-      cursor: "pointer",
-      position: "relative",
-      overflow: "hidden",
-      boxShadow: "0 10px 30px rgba(0,0,0,0.03)"
-    },
-    resultCardHover: `
-      .sexy-box:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 20px 40px rgba(240, 97, 35, 0.12);
-        border-color: #f06123;
-      }
-      .sexy-box:hover .icon-container {
-        background: linear-gradient(135deg, #f06123 0%, #ff8803 100%);
-        color: #ffffff !important;
-        transform: scale(1.1);
-      }
-      .sexy-box .bg-decoration {
-        position: absolute;
-        top: -50px;
-        right: -50px;
-        width: 150px;
-        height: 150px;
-        background: radial-gradient(circle, rgba(240,97,35,0.08) 0%, transparent 70%);
-        border-radius: 50%;
-        transition: all 0.5s ease;
-        z-index: 1;
-      }
-      .sexy-box:hover .bg-decoration {
-        transform: scale(1.5);
-      }
-      .slider-btn:hover {
-        background-color: #f06123 !important;
-        color: white !important;
-        transform: translateY(-50%) scale(1.1) !important;
-      }
-    `,
-    resultIconContainer: {
-      width: "64px",
-      height: "64px",
-      borderRadius: "16px",
-      background: "linear-gradient(135deg, rgba(240,97,35,0.1) 0%, rgba(255,136,3,0.1) 100%)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      color: "#f06123",
-      fontSize: "28px",
-      transition: "all 0.4s ease",
-      position: "relative",
-      zIndex: 2
-    },
-    resultTitle: {
-      fontSize: "20px",
-      fontWeight: 700,
-      margin: 0,
-      color: "#1a1a1a",
-      position: "relative",
-      zIndex: 2
-    },
-    resultText: {
-      fontSize: "15px",
-      lineHeight: 1.7,
-      margin: 0,
-      color: "#666",
-      position: "relative",
-      zIndex: 2
-    },
-    ctaBar: {
-      marginTop: "80px",
-      background: "linear-gradient(135deg, #1d1f24 0%, #383A3C 100%)",
-      borderRadius: "24px",
-      padding: "56px 64px",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      gap: "32px",
-      flexWrap: "wrap",
-      boxShadow: "0 24px 50px rgba(0,0,0,0.2)"
-    },
-    ctaTitle: {
-      fontSize: "36px",
-      fontWeight: 700,
-      color: "#fff",
-      margin: 0,
-      marginBottom: "12px",
-      letterSpacing: "-0.02em"
-    },
-    ctaText: {
-      fontSize: "16px",
-      color: "#bcbcbc",
-      margin: 0,
-      maxWidth: "500px",
-      lineHeight: 1.6
-    },
-    ctaButtons: {
-      display: "flex",
-      gap: "16px",
-      flexWrap: "wrap"
-    },
-    ctaPrimary: {
-      backgroundColor: "#f06123",
-      color: "#fff",
-      border: "none",
-      borderRadius: "8px",
-      padding: "16px 28px",
-      fontSize: "16px",
-      fontWeight: 700,
-      display: "inline-flex",
-      alignItems: "center",
-      gap: "10px",
-      textDecoration: "none",
-      transition: "background-color 0.2s ease"
-    },
-    ctaSecondary: {
-      backgroundColor: "transparent",
-      color: "#fff",
-      border: "1px solid rgba(255,255,255,0.2)",
-      borderRadius: "8px",
-      padding: "16px 28px",
-      fontSize: "16px",
-      fontWeight: 600,
-      display: "inline-flex",
-      alignItems: "center",
-      gap: "10px",
-      textDecoration: "none",
-      transition: "background-color 0.2s ease"
-    }
+  // Helper to clean quotes and commas from key highlights strings
+  const cleanText = (str) => {
+    if (!str || typeof str !== 'string') return '';
+    return str.replace(/^["'\s]+|["'\s,]+$/g, '').trim();
   };
 
   // Helper to render dynamic Fa icons
   const renderIcon = (iconName) => {
     const Icon = FaIcons[iconName];
     if (Icon) return <Icon />;
-    return <SettingsIcon />; // fallback
+    return <SettingsIcon />;
   };
 
   return (
-    <div style={styles.page}>
-      <style>{styles.resultCardHover}</style>
+    <div className="bg-white color-slate-900 font-sans select-none">
       <PageLayout heroContent={heroContent} vectorBackground={serviceDetailHeroImage}>
-        <div style={styles.outer}>
+        <div className="max-w-[1280px] mx-auto px-4 sm:px-8 md:px-16 py-10 md:py-20">
           
-          <div style={styles.introRow}>
-            <div style={styles.introMain}>
-              <p style={styles.eyebrow}>About the Service</p>
-              <h2 style={styles.title}>{service.criticalPowerTitle}</h2>
-              <p style={styles.bodyText}>
-                {service.criticalPowerDescription}
-              </p>
-              
+          {/* Main 2-Column Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12 items-start">
+            
+            {/* Left Content Area (2 Cols on Desktop) */}
+            <div className="lg:col-span-2 flex flex-col gap-6">
+              <div>
+                <span className="text-xs font-bold uppercase tracking-widest text-[#F06123]">
+                  About the Service
+                </span>
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 leading-tight mt-2 mb-4">
+                  {service.criticalPowerTitle || service.title}
+                </h1>
+                <p className="text-sm md:text-base text-slate-600 leading-relaxed whitespace-pre-line">
+                  {service.criticalPowerDescription || service.description}
+                </p>
+              </div>
+
+              {/* Gallery Image Slider */}
               {galleryImages.length > 0 && (
-                <div style={styles.sliderContainer}>
-                  <div style={styles.sliderInner}>
+                <div className="relative w-full h-[260px] sm:h-[360px] md:h-[420px] rounded-2xl overflow-hidden shadow-lg border border-slate-100 group mt-4">
+                  <div 
+                    className="flex w-full h-full transition-transform duration-500 ease-out"
+                    style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
+                  >
                     {galleryImages.map((img, idx) => (
-                      <div key={idx} style={styles.slideItem}>
-                        <img src={img} alt={`${service.title} view ${idx + 1}`} style={styles.imageFit} />
+                      <div key={idx} className="min-w-full h-full relative shrink-0">
+                        <img src={img} alt={`${service.title} view ${idx + 1}`} className="w-full h-full object-cover" />
                       </div>
                     ))}
                   </div>
@@ -447,26 +88,24 @@ export const ServiceDetailPage = () => {
                   {galleryImages.length > 1 && (
                     <>
                       <button 
-                        className="slider-btn" 
-                        style={{...styles.sliderBtn, left: "20px"}} 
+                        className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 text-slate-800 flex items-center justify-center shadow-md hover:bg-[#F06123] hover:text-white transition-all cursor-pointer z-10"
                         onClick={prevImage}
                       >
-                        <ChevronLeftIcon size={24} />
+                        <ChevronLeftIcon size={20} />
                       </button>
                       <button 
-                        className="slider-btn" 
-                        style={{...styles.sliderBtn, right: "20px"}} 
+                        className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 text-slate-800 flex items-center justify-center shadow-md hover:bg-[#F06123] hover:text-white transition-all cursor-pointer z-10"
                         onClick={nextImage}
                       >
-                        <ChevronRightIcon size={24} />
+                        <ChevronRightIcon size={20} />
                       </button>
                       
-                      <div style={styles.sliderDots}>
+                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
                         {galleryImages.map((_, idx) => (
-                          <div 
+                          <button 
                             key={idx} 
-                            style={styles.dot(currentImageIndex === idx)}
                             onClick={() => setCurrentImageIndex(idx)}
+                            className={`h-2 rounded-full transition-all duration-300 ${currentImageIndex === idx ? 'w-6 bg-[#F06123]' : 'w-2 bg-white/70'}`}
                           />
                         ))}
                       </div>
@@ -476,89 +115,128 @@ export const ServiceDetailPage = () => {
               )}
             </div>
 
-            <div style={styles.sidebar}>
-              <div style={styles.infoCard}>
-                <h3 style={styles.infoTitle}>Key Highlights</h3>
-                <ul style={styles.infoList}>
-                  {service.keyHighlights?.map((highlight, index) => (
-                    <li key={index} style={styles.infoListItem}>
-                      <CheckCircle2Icon size={18} style={styles.infoIcon} />
-                      <span>{highlight}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+            {/* Right Sidebar */}
+            <div className="flex flex-col gap-6">
               
+              {/* Key Highlights Card */}
+              {service.keyHighlights && service.keyHighlights.length > 0 && (
+                <div className="bg-[#fcfaf7] border border-orange-100/80 rounded-2xl p-6 shadow-sm">
+                  <h3 className="text-lg font-bold text-slate-900 mb-4">Key Highlights</h3>
+                  <ul className="flex flex-col gap-3 p-0 m-0 list-none">
+                    {service.keyHighlights.map((highlight, index) => {
+                      const cleanItem = cleanText(highlight);
+                      if (!cleanItem) return null;
+                      return (
+                        <li key={index} className="flex items-start gap-3 text-xs sm:text-sm text-slate-700 leading-snug">
+                          <CheckCircle2Icon size={16} className="text-[#F06123] shrink-0 mt-0.5" />
+                          <span>{cleanItem}</span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
+
+              {/* Certification Badge */}
               {(service.certificationTitle || service.certificationDescription) && (
-                <div style={{...styles.infoCard, backgroundColor: "#fff", border: "1px solid #f06123"}}>
+                <div className="bg-white border border-[#F06123]/30 rounded-2xl p-6 shadow-sm">
                   {service.certificationTitle && (
-                    <h3 style={{...styles.infoTitle, color: "#f06123"}}>{service.certificationTitle}</h3>
+                    <h3 className="text-base font-bold text-[#F06123] mb-2">{service.certificationTitle}</h3>
                   )}
                   {service.certificationDescription && (
-                    <p style={{fontSize: "14px", color: "#666", lineHeight: 1.5, margin: 0}}>
+                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                       {service.certificationDescription}
                     </p>
                   )}
                 </div>
               )}
 
-              <Link to="/contact" style={styles.quoteButton}>
+              {/* Schedule Service CTA Button */}
+              <Link 
+                to="/contact" 
+                className="w-full bg-[#F06123] hover:bg-[#FF8803] text-white font-bold text-sm sm:text-base py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md shadow-[#F06123]/20"
+              >
                 Schedule Service
-                <ArrowRightIcon size={16} />
+                <ArrowRightIcon size={18} />
               </Link>
 
-              {/* Static Box 2 */}
-              <div style={styles.staticBox2}>
-                <div style={styles.staticBox2IconWrap}>
-                  <ShieldCheckIcon size={28} />
+              {/* Australian Standards Compliant Box */}
+              <div className="bg-white border border-slate-100 rounded-2xl p-6 flex flex-col items-center text-center gap-3 shadow-md">
+                <div className="w-12 h-12 rounded-full bg-[#F06123] flex items-center justify-center text-white shadow-sm">
+                  <ShieldCheckIcon size={24} />
                 </div>
-                <h3 style={styles.staticBox2Title}>Australian Standards Compliant</h3>
-                <p style={styles.staticBox2Text}>
-                  All maintenance programs meet or exceed Australian reliability standards.
+                <h3 className="text-base font-bold text-slate-900">Australian Standards Compliant</h3>
+                <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+                  All maintenance programs meet or exceed Australian reliability and safety standards.
                 </p>
               </div>
+
             </div>
           </div>
 
-          <div style={styles.section}>
-            <div style={styles.sectionHeader}>
-              <p style={styles.sectionKicker}>Our Expertise</p>
-              <h3 style={styles.sectionTitle}>Technical Procedures</h3>
-              <p style={{color: "#666", fontSize: "16px", maxWidth: "600px", marginTop: "8px"}}>
-                From installation to maintenance, we manage the entire lifecycle of your industrial power systems with precision.
-              </p>
-            </div>
-            
-            <div style={styles.resultsGrid}>
-              {service.technicalProcedures?.map((proc) => (
-                <div key={proc.title} style={styles.resultCard} className="sexy-box">
-                  <div className="bg-decoration"></div>
-                  <div style={styles.resultIconContainer} className="icon-container">
-                    {renderIcon(proc.icon)}
+          {/* Technical Procedures Section */}
+          {service.technicalProcedures && service.technicalProcedures.length > 0 && (
+            <div className="mt-16 md:mt-24 pt-12 border-t border-slate-100">
+              <div className="mb-8">
+                <span className="text-xs font-bold uppercase tracking-widest text-[#F06123]">
+                  Our Expertise
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1 mb-2">
+                  Technical Procedures
+                </h2>
+                <p className="text-xs sm:text-sm md:text-base text-slate-500 max-w-xl leading-relaxed">
+                  From installation to preventive maintenance, we manage the entire lifecycle of your industrial power systems.
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {service.technicalProcedures.map((proc, idx) => (
+                  <div 
+                    key={proc.title || idx} 
+                    className="bg-white border border-slate-100 hover:border-[#F06123] rounded-2xl p-6 flex flex-col gap-4 shadow-sm hover:shadow-xl transition-all duration-300 group"
+                  >
+                    <div className="w-12 h-12 rounded-xl bg-orange-50 text-[#F06123] group-hover:bg-[#F06123] group-hover:text-white flex items-center justify-center text-xl transition-colors">
+                      {renderIcon(proc.icon)}
+                    </div>
+                    <div>
+                      <h4 className="text-base font-bold text-slate-900 mb-1.5 group-hover:text-[#F06123] transition-colors">
+                        {proc.title}
+                      </h4>
+                      <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+                        {proc.description}
+                      </p>
+                    </div>
                   </div>
-                  <div style={{ position: 'relative', zIndex: 2 }}>
-                    <h4 style={styles.resultTitle}>{proc.title}</h4>
-                    <p style={styles.resultText}>{proc.description}</p>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
-          <div style={styles.ctaBar}>
+          {/* Emergency 24/7 Support Banner */}
+          <div className="mt-16 md:mt-24 bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 sm:p-12 md:p-14 text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-8 shadow-2xl">
             <div>
-              <p style={{color: "#f06123", fontWeight: 700, fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "12px"}}>
-                {service.emergencyTitle}
+              <span className="text-xs font-bold uppercase tracking-widest text-[#FF8803]">
+                {service.emergencyTitle || "24/7 Emergency Support"}
+              </span>
+              <h3 className="text-2xl sm:text-3xl font-extrabold text-white mt-2 mb-3">
+                Need Immediate Support?
+              </h3>
+              <p className="text-sm text-slate-300 max-w-lg leading-relaxed">
+                {service.emergencyDescription || "Contact our round-the-clock emergency team for fast dispatch and on-site industrial battery repair."}
               </p>
-              <h3 style={styles.ctaTitle}>Need Immediate Support?</h3>
-              <p style={styles.ctaText}>{service.emergencyDescription}</p>
             </div>
-            <div style={styles.ctaButtons}>
-              <Link to="/contact" style={styles.ctaPrimary}>
-                <FaIcons.FaPhoneAlt />
+            <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+              <Link 
+                to="/contact" 
+                className="bg-[#F06123] hover:bg-[#FF8803] text-white font-bold text-sm px-6 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md"
+              >
+                <FaIcons.FaPhoneAlt className="text-xs" />
                 Contact 24/7 Hotline
               </Link>
-              <Link to="/services" style={styles.ctaSecondary}>
+              <Link 
+                to="/services" 
+                className="border border-white/20 hover:bg-white/10 text-white font-bold text-sm px-6 py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all text-center"
+              >
                 <ArrowLeftIcon size={16} />
                 Explore Other Services
               </Link>

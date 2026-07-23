@@ -143,6 +143,7 @@ export default function App() {
         const data = await response.json();
         setCurrentUser(data.user);
         setIsAuthenticated(true);
+        refetch();
       } catch {
         setIsAuthenticated(false);
         setCurrentUser(null);
@@ -152,7 +153,7 @@ export default function App() {
     };
 
     loadSession();
-  }, []);
+  }, [refetch]);
 
   // Handle Quick Creator Action dispatch
   const [quickServiceName, setQuickServiceName] = useState('');
@@ -188,7 +189,7 @@ export default function App() {
       setQuickServiceDesc('');
     } else {
       if (!quickProdName.trim() || !quickProdCap.trim()) return;
-      addProduct({
+      await addProduct({
         name: quickProdName.trim(),
         slug: quickProdName.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
         category: quickProdCategory,
@@ -202,6 +203,7 @@ export default function App() {
       setQuickProdCap('');
     }
     setShowQuickAddDialog(false);
+    await refetch();
   };
 
   if (isLoading) {
@@ -255,9 +257,10 @@ export default function App() {
   if (!isAuthenticated) {
     return (
       <LoginPage
-        onLoginSuccess={(user) => {
+        onLoginSuccess={async (user) => {
           setIsAuthenticated(true);
           setCurrentUser(user);
+          await refetch();
         }}
         productsCount={products.length}
         activeServicesCount={services.filter((s) => s.status === 'Active').length}

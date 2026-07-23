@@ -90,8 +90,12 @@ export const fetchDashboardData = createAsyncThunk(
         api.get<any>('/api/settings'),
       ]);
 
-      const normalize = (res: PromiseSettledResult<any[]>) => 
-        res.status === 'fulfilled' && Array.isArray(res.value) ? res.value : [];
+      const normalize = (res: PromiseSettledResult<any>) => {
+        if (res.status !== 'fulfilled' || !res.value) return [];
+        if (Array.isArray(res.value)) return res.value;
+        if (Array.isArray(res.value.data)) return res.value.data;
+        return [];
+      };
 
       return {
         products: normalize(productsRes).map((p: any) => ({ ...p, id: p._id || p.id })),

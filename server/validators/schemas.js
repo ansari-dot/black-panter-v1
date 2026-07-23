@@ -9,6 +9,7 @@ export const registerSchema = z.object({
 export const loginSchema = z.object({
   email:    z.string().email(),
   password: z.string().min(1),
+  otp:      z.union([z.string(), z.number()]).optional(),
 });
 
 export const productSchema = z.object({

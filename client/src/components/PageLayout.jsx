@@ -96,17 +96,17 @@ export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackg
   return (
     <div className="bg-[#f4f5f7] w-full overflow-x-hidden">
       {/* Hero Section with Background */}
-      <div className="relative w-full min-h-[40vh] rounded-b-[3.5rem] md:rounded-b-[5.5rem] overflow-hidden">
+      <div className="relative w-full min-h-[40vh] rounded-b-none overflow-hidden">
         {/* Background Image Layer (behind vector) */}
         {backgroundImage && (
-          <div className="absolute inset-0 w-full h-full">
+          <div className="absolute inset-0 w-full h-full rounded-b-none">
             <img
-              className="absolute inset-0 w-full h-full object-cover object-center opacity-40"
+              className="absolute inset-0 w-full h-full object-cover object-center opacity-40 rounded-b-none"
               alt="Background"
               src={backgroundImage}
             />
             {/* Dark Overlay */}
-            <div className="absolute inset-0 w-full h-full bg-black/40" />
+            <div className="absolute inset-0 w-full h-full bg-black/40 rounded-b-none" />
           </div>
         )}
 
@@ -119,7 +119,7 @@ export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackg
             height="1024"
           />
           <img
-            className="absolute top-0 md:top-[72px] left-1/2 -translate-x-1/2 w-full h-full object-cover object-center z-10 rounded-xl md:rounded-2xl"
+            className="absolute top-0 md:top-[72px] left-1/2 -translate-x-1/2 w-full h-full object-cover object-center z-10 rounded-t-xl md:rounded-t-2xl rounded-b-none"
             width="1920"
             height="1080"
             fetchPriority="high"

@@ -15,6 +15,11 @@ const run = async () => {
     throw new Error('Set ADMIN_NAME, ADMIN_EMAIL, and ADMIN_PASSWORD in .env before running this script');
   }
 
+  const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+  if (!strongPasswordRegex.test(password)) {
+    throw new Error('ADMIN_PASSWORD in .env must be at least 8 characters long and contain uppercase, lowercase, numbers, and special characters (e.g. Admin123!@#).');
+  }
+
   await mongoose.connect(process.env.MONGO_URI);
 
   const existing = await User.findOne({ email });

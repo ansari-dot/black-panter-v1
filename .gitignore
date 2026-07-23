@@ -1,0 +1,41 @@
+# ==========================================
+# ROOT .GITIGNORE FOR BLACK PANTHER PROJECT
+# ==========================================
+
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Environment Configuration Secrets (Keep .env.example / .env.production.example)
+.env
+.env.production
+.env.local
+.env.*.local
+**/.env
+**/.env.production
+**/.env.local
+!**/.env.example
+!**/.env.production.example
+
+# Uploaded Media & User Upload Images (DO NOT COMMIT USER UPLOADS TO GITHUB)
+uploads/
+**/uploads/
+**/uploads/*
+!**/uploads/.gitkeep
+
+# Build Output Directories
+dist/
+build/
+**/dist/
+**/build/
+
+# Logs & Runtime
+*.log
+logs/
+**/logs/
+
+# System & OS Files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
