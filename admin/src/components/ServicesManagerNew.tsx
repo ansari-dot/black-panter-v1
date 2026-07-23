@@ -46,8 +46,21 @@ export default function ServicesManagerNew({ services, onAddService, onUpdateSer
   const [form, setForm] = useState({ ...EMPTY });
   const [saving, setSaving] = useState(false);
   const [uploadingImg, setUploadingImg] = useState(false);
+  const [uploadingIcon, setUploadingIcon] = useState(false);
   const [imgPreview, setImgPreview] = useState('');
   const imgRef = useRef<HTMLInputElement>(null);
+  const iconRef = useRef<HTMLInputElement>(null);
+
+  const handleIconUpload = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingIcon(true);
+    try {
+      const url = await uploadFile(file);
+      setForm(p => ({ ...p, iconName: url }));
+    } catch { alert('SVG icon upload failed'); }
+    finally { setUploadingIcon(false); e.target.value = ''; }
+  };
 
   const filtered = services.filter((s) => {
     const q = search.toLowerCase();
@@ -288,6 +301,31 @@ export default function ServicesManagerNew({ services, onAddService, onUpdateSer
                 <div>
                   <label style={lbl}>CTA Text</label>
                   <input value={form.ctaText} onChange={f('ctaText')} style={inp} placeholder="Get a Quote" />
+                </div>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <label style={lbl}>Service Icon (Lucide Icon Name or Upload SVG File)</label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <input
+                      value={form.iconName}
+                      onChange={f('iconName')}
+                      style={{ ...inp, flex: 1 }}
+                      placeholder="e.g. wrench, zap, battery or upload custom SVG icon"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => iconRef.current?.click()}
+                      disabled={uploadingIcon}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px',
+                        borderRadius: 6, border: '1px border #e8e8e8', backgroundColor: '#fff3ee',
+                        color: '#e84b10', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap'
+                      }}
+                    >
+                      {uploadingIcon ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
+                      {uploadingIcon ? 'Uploading...' : 'Upload SVG'}
+                    </button>
+                    <input ref={iconRef} type="file" accept="image/svg+xml,image/png,image/jpeg,image/webp,.svg" className="hidden" onChange={handleIconUpload} />
+                  </div>
                 </div>
                 <div>
                   <label style={lbl}>Status</label>

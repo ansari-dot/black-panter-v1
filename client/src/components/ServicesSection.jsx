@@ -46,7 +46,7 @@ export default function ServicesSection() {
           setServices(active);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const handleMobileScroll = () => {
@@ -131,9 +131,8 @@ export default function ServicesSection() {
                 <button
                   key={i}
                   onClick={() => scrollToMobileSlide(i)}
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    activeMobileSlide === i ? "w-6 bg-[#e85a1f]" : "w-2 bg-slate-300"
-                  }`}
+                  className={`h-2 rounded-full transition-all duration-300 ${activeMobileSlide === i ? "w-6 bg-[#e85a1f]" : "w-2 bg-slate-300"
+                    }`}
                   aria-label={`Go to slide ${i + 1}`}
                 />
               ))}
@@ -160,8 +159,10 @@ export default function ServicesSection() {
   );
 }
 
+import { getServiceCardIcon } from "../utils/serviceCatalog";
+
 function ServiceCard({ service, index, navigate, getImageUrl, defaultImages }) {
-  const IconComponent = getIcon(service.iconName);
+  const IconComponent = getServiceCardIcon(service.iconName, service.title);
   const imageUrl = getImageUrl(service.imageUrl) || defaultImages[index % defaultImages.length];
   const isFeatured = index === 1;
 

@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   AlertCircle,
   Battery,
@@ -12,6 +13,10 @@ import {
   Sparkles,
   Wrench,
   Zap,
+  Activity,
+  ShieldCheck,
+  Clock,
+  WrenchIcon,
 } from 'lucide-react';
 import BASE_URL, { resolveImageUrl as resolveUrl } from './api';
 
@@ -35,6 +40,12 @@ const ICON_MAP = {
   shield: Shield,
   sparkles: Sparkles,
   cog: Cog,
+  activity: Activity,
+  'shield-check': ShieldCheck,
+  shieldcheck: ShieldCheck,
+  'alarm-clock': Clock,
+  alarmclock: Clock,
+  clock: Clock,
 };
 
 const slugify = (value = '') => value
@@ -104,7 +115,21 @@ const buildServiceCards = (catalog, activeSlug) =>
     }));
 
 const getIconComponent = (iconName = '', title = '') => {
-  const normalizedIcon = iconName.toLowerCase().replace(/[\s-]/g, '');
+  const str = (iconName || '').trim();
+
+  // If iconName is an Image or SVG URL
+  if (str.startsWith('http') || str.startsWith('/uploads') || str.startsWith('data:image') || str.includes('.svg') || str.includes('.png')) {
+    const fullUrl = resolveUrl(str);
+    return ({ className = 'w-5 h-5', style }) =>
+      React.createElement('img', {
+        src: fullUrl,
+        alt: title || 'Service Icon',
+        className: `${className} object-contain`,
+        style,
+      });
+  }
+
+  const normalizedIcon = str.toLowerCase().replace(/[\s-]/g, '');
   if (ICON_MAP[normalizedIcon]) return ICON_MAP[normalizedIcon];
 
   const normalizedTitle = title.toLowerCase();

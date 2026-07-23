@@ -184,7 +184,7 @@ export const Header = () => {
               alt="Frame"
               src="https://c.animaapp.com/mj32vqleeMiOmR/img/frame-20577.svg"
             />
-            <Button 
+            <Button
               onClick={() => setIsQuoteModalOpen(true)}
               className="w-[157px] lg:w-[190px] xl:w-[220px] 2xl:w-[250px] h-[43px] lg:h-[52px] xl:h-[60px] 2xl:h-[68px] bg-c-1 hover:bg-c-1/90 rounded-[13px] lg:rounded-[16px] xl:rounded-[18px] transition-colors"
             >
