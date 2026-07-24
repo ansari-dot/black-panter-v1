@@ -1,18 +1,27 @@
 import React, { useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { FaBolt, FaThermometerHalf, FaBalanceScale, FaWrench, FaSyncAlt, FaCheckCircle, FaVial, FaSearch, FaChartLine, FaTools, FaFileAlt, FaClipboardCheck, FaShieldAlt, FaTruck, FaRecycle, FaBiohazard, FaCertificate, FaCog, FaChargingStation, FaClock, FaNetworkWired, FaStethoscope, FaPlug, FaExchangeAlt, FaRedo, FaArrowRight, FaSearchPlus, FaFlask, FaBatteryFull, FaSatelliteDish, FaAmbulance, FaHardHat, FaEraser, FaSoap, FaWind, FaStar, FaCar, FaBus, FaShip } from 'react-icons/fa';
+import { getServiceCardIcon } from '../utils/serviceCatalog';
+
+const defaultProcedures = [
+  { title: "Capacity Testing & Analysis", description: "Controlled discharge testing to measure actual battery capacity under full industrial load.", icon: "FaBolt" },
+  { title: "Electrolyte Rejuvenation", description: "Precise chemical balancing, gravity check, and cell cleaning for maximum longevity.", icon: "FaThermometerHalf" },
+  { title: "Cell Balancing & Equalization", description: "Equalizing individual block voltages to eliminate weak links across the battery string.", icon: "FaBalanceScale" },
+  { title: "Preventive Component Inspection", description: "Comprehensive infrared thermography and torque checking of terminal connections.", icon: "FaWrench" },
+  { title: "UPS & Backup System Testing", description: "Simulated power failure testing to guarantee instant emergency transition.", icon: "FaSyncAlt" },
+  { title: "Environmental & Recycling Care", description: "Eco-friendly disposal and recycling compliant with EPA standards.", icon: "FaRecycle" }
+];
 
 const TechnicalProcedures = ({ service }) => {
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: false, amount: 0.15 });
-  const [hoveredCard, setHoveredCard] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  
+
   React.useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
     };
-    
+
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -30,12 +39,12 @@ const TechnicalProcedures = ({ service }) => {
   };
 
   const fadeInUp = {
-    hidden: { 
-      opacity: 0, 
-      y: 40 
+    hidden: {
+      opacity: 0,
+      y: 40
     },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
       transition: {
         duration: 0.7,
@@ -45,24 +54,21 @@ const TechnicalProcedures = ({ service }) => {
   };
 
   const scaleIn = {
-    hidden: { 
-      opacity: 0, 
-      y: 50,
-      scale: 0.95
+    hidden: {
+      opacity: 0,
+      y: 30
     },
-    visible: (i) => ({ 
-      opacity: 1, 
+    visible: (i) => ({
+      opacity: 1,
       y: 0,
-      scale: 1,
       transition: {
-        duration: 0.6,
-        delay: i * 0.1,
+        duration: 0.5,
+        delay: i * 0.08,
         ease: [0.25, 0.46, 0.45, 0.94]
       }
     })
   };
 
-  // Lighter animation for mobile
   const mobileVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -78,19 +84,23 @@ const TechnicalProcedures = ({ service }) => {
   // Icon mapping
   const iconMap = {
     FaBolt, FaThermometerHalf, FaBalanceScale, FaWrench, FaSyncAlt, FaCheckCircle,
-    FaVial, FaSearch, FaChartLine, FaTools, FaFileAlt, FaClipboardCheck, FaShieldAlt, 
-    FaTruck, FaRecycle, FaBiohazard, FaCertificate, FaCog, FaChargingStation, 
-    FaClock, FaNetworkWired, FaStethoscope, FaPlug, FaExchangeAlt, FaRedo, 
+    FaVial, FaSearch, FaChartLine, FaTools, FaFileAlt, FaClipboardCheck, FaShieldAlt,
+    FaTruck, FaRecycle, FaBiohazard, FaCertificate, FaCog, FaChargingStation,
+    FaClock, FaNetworkWired, FaStethoscope, FaPlug, FaExchangeAlt, FaRedo,
     FaArrowRight, FaSearchPlus, FaFlask, FaBatteryFull, FaCar, FaBus, FaShip,
     FaSatelliteDish, FaAmbulance, FaHardHat, FaEraser, FaSoap, FaWind, FaStar
   };
 
-  const procedures = Array.isArray(service?.technicalProcedures)
-    ? service.technicalProcedures.map((proc) => ({
-        ...proc,
-        Icon: iconMap[proc.icon] || FaBolt
-      }))
-    : [];
+  const rawProcedures = Array.isArray(service?.technicalProcedures) && service.technicalProcedures.length > 0
+    ? service.technicalProcedures
+    : defaultProcedures;
+
+  const procedures = rawProcedures.map((proc, index) => ({
+    id: proc.id || proc._id || index,
+    title: proc.title,
+    description: proc.description,
+    Icon: iconMap[proc.icon] || getServiceCardIcon(proc.icon, proc.title) || FaBolt
+  }));
 
   // Styles
   const sectionStyle = {
@@ -236,7 +246,6 @@ const TechnicalProcedures = ({ service }) => {
     pointerEvents: 'none'
   };
 
-
   const iconContainerStyle = {
     display: 'flex',
     alignItems: 'center',
@@ -279,8 +288,6 @@ const TechnicalProcedures = ({ service }) => {
     zIndex: '10'
   };
 
-
-  // Responsive styles
   const mediaQueryStyles = `
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap');
     
@@ -288,68 +295,46 @@ const TechnicalProcedures = ({ service }) => {
       transform: translateY(-8px);
       box-shadow: 0px 20px 50px rgba(240, 97, 35, 0.25);
     }
-    
-    @keyframes pulseRing {
-      0% {
-        box-shadow: 0 0 0 0 rgba(255, 136, 3, 0.4);
-      }
-      100% {
-        box-shadow: 0 0 0 15px rgba(255, 136, 3, 0);
-      }
-    }
-    
-    .pulse-ring {
-      animation: pulseRing 2.5s ease-in-out infinite;
-    }
-    
-    @media (max-width: 768px) {
-      .procedure-card:hover {
-        transform: translateY(-4px);
-      }
-    }
   `;
 
   return (
     <>
       <style>{mediaQueryStyles}</style>
-      
-      <motion.section 
+
+      <motion.section
         style={sectionStyle}
         ref={sectionRef}
         initial="hidden"
         animate={isInView ? "visible" : "hidden"}
         variants={staggerContainer}
       >
-        {/* Background decorative circles */}
-        <div style={backgroundCircle1}></div>
-        <div style={backgroundCircle2}></div>
+        <div style={backgroundCircle1} />
+        <div style={backgroundCircle2} />
 
         <motion.div style={containerStyle}>
           {/* Header Section */}
-          <motion.div 
+          <motion.div
             style={headerStyle}
             variants={fadeInUp}
           >
             <div style={labelWrapperStyle}>
-              <div style={lineStyle}></div>
+              <div style={lineStyle} />
               <span style={labelStyle}>OUR EXPERTISE</span>
-              <div style={lineReverseStyle}></div>
+              <div style={lineReverseStyle} />
             </div>
             <h2 style={titleStyle}>Technical Procedures</h2>
-            {procedures.length > 0 ? (
-              <p style={subtitleStyle}>
-                From installation to recycling, we manage the entire lifecycle of your industrial power systems.
-              </p>
-            ) : null}
+            <p style={subtitleStyle}>
+              From installation to recycling, we manage the entire lifecycle of your industrial power systems.
+            </p>
           </motion.div>
-        
+
           {/* Service Cards Grid */}
           <motion.div style={gridStyle}>
             {procedures.map((procedure, index) => {
               const IconComponent = procedure.Icon;
-              
+
               return (
-                <motion.div 
+                <motion.div
                   key={procedure.id}
                   className="procedure-card"
                   style={cardStyle}
@@ -357,78 +342,76 @@ const TechnicalProcedures = ({ service }) => {
                   initial="hidden"
                   animate={isInView ? "visible" : "hidden"}
                   variants={isMobile ? mobileVariants : scaleIn}
-                  whileHover={{ 
-                    scale: 1.05,
-                    boxShadow: '0px 20px 50px rgba(240, 97, 35, 0.15)',
-                    transition: { duration: 0.3 }
+                  whileHover={{
+                    y: -5,
+                    boxShadow: '0px 10px 25px rgba(240, 97, 35, 0.12)',
+                    transition: { duration: 0.2 }
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-10px) scale(1.03)';
-                    e.currentTarget.style.boxShadow = '0px 20px 50px rgba(240, 97, 35, 0.15)';
-                    
+                    e.currentTarget.style.transform = 'translateY(-5px)';
+                    e.currentTarget.style.boxShadow = '0px 10px 25px rgba(240, 97, 35, 0.12)';
+
                     const overlay = e.currentTarget.querySelector('[data-overlay]');
                     if (overlay) overlay.style.opacity = '1';
-                    
+
                     const corner = e.currentTarget.querySelector('[data-corner]');
                     if (corner) {
                       corner.style.opacity = '1';
-                      corner.style.transform = 'scale(1) rotate(0deg)';
+                      corner.style.transform = 'rotate(0deg)';
                     }
-                    
+
                     const iconContainer = e.currentTarget.querySelector('[data-icon-container]');
                     if (iconContainer) {
                       iconContainer.style.background = 'linear-gradient(to bottom right, #F06123, #FF8803)';
                     }
-                    
+
                     const icon = e.currentTarget.querySelector('[data-icon]');
                     if (icon) {
                       icon.style.color = '#ffffff';
-                      icon.style.transform = 'scale(1.1)';
                     }
-                    
+
                     const title = e.currentTarget.querySelector('[data-title]');
                     if (title) title.style.color = '#F06123';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.transform = '';
                     e.currentTarget.style.boxShadow = '';
-                    
+
                     const overlay = e.currentTarget.querySelector('[data-overlay]');
                     if (overlay) overlay.style.opacity = '0';
-                    
+
                     const corner = e.currentTarget.querySelector('[data-corner]');
                     if (corner) {
                       corner.style.opacity = '0';
-                      corner.style.transform = 'scale(0) rotate(-45deg)';
+                      corner.style.transform = 'rotate(-45deg)';
                     }
-                    
+
                     const iconContainer = e.currentTarget.querySelector('[data-icon-container]');
                     if (iconContainer) {
                       iconContainer.style.background = 'linear-gradient(to bottom right, rgba(255, 136, 3, 0.1), rgba(240, 97, 35, 0.1))';
                     }
-                    
+
                     const icon = e.currentTarget.querySelector('[data-icon]');
                     if (icon) {
                       icon.style.color = '#F06123';
-                      icon.style.transform = 'scale(1)';
                     }
-                    
+
                     const title = e.currentTarget.querySelector('[data-title]');
                     if (title) title.style.color = '#070B15';
                   }}
                 >
                   {/* Gradient Overlay */}
-                  <div data-overlay style={gradientOverlayStyle}></div>
-                  
+                  <div data-overlay style={gradientOverlayStyle} />
+
                   {/* Decorative Corner */}
-                  <div data-corner style={cornerElementStyle}></div>
+                  <div data-corner style={cornerElementStyle} />
 
                   {/* Icon */}
-                  <motion.div 
-                    data-icon-container 
+                  <motion.div
+                    data-icon-container
                     style={iconContainerStyle}
                   >
-                    <IconComponent 
+                    <IconComponent
                       size={isMobile ? 28 : 32}
                       style={iconStyle}
                       data-icon="true"
@@ -443,11 +426,6 @@ const TechnicalProcedures = ({ service }) => {
                 </motion.div>
               );
             })}
-            {procedures.length === 0 ? (
-              <div style={{ color: '#6b6b6b', fontSize: isMobile ? '14px' : '16px' }}>
-                No technical procedures added for this service yet.
-              </div>
-            ) : null}
           </motion.div>
         </motion.div>
       </motion.section>

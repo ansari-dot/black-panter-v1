@@ -5,9 +5,9 @@ import ServicesSection from "../components/ServicesSection";
 import Equipment from '../components/Equpiment'
 import WhyChooseUsSection from "../components/WhyChoose";
 import RecentProjects from "../components/RecentProject";
-import Team from '../components/Team'
-import TestimonialsCards from "../components/Testimonials";
+import Team from '../components/Team';
 import TestimonialsSection from "../components/TestiomonialsSection";
+import TestimonialsCards from "../components/Testimonials";
 import CTASection from "../components/CTA";
 import IndustriesWeServe from "../components/IndustryServe";
 import Footer from "../components/Footer";
@@ -22,7 +22,6 @@ export const Service = () => {
       <Equipment />
       <WhyChooseUsSection />
       <Team />
-      <TestimonialsSection />
       <TestimonialsCards />
       <CTASection />
       <IndustriesWeServe />

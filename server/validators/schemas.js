@@ -65,9 +65,9 @@ export const serviceSchema = z.object({
   secondaryText: z.string().optional(),
   keyHighlights: z.array(z.string().min(2)).optional(),
   technicalProcedures: z.array(z.object({
-    title: z.string().min(2),
-    description: z.string().min(2),
-    icon: z.string().min(2),
+    title: z.string().min(1),
+    description: z.string().optional().default(''),
+    icon: z.string().optional().default('FaBolt'),
   })).optional(),
   gallery: z.array(z.string()).optional(),
   displayOrder: z.number().optional(),

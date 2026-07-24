@@ -1,5 +1,5 @@
 import { useState, FormEvent, useRef, ChangeEvent } from 'react';
-import { Search, Plus, Trash2, Pencil, X, ChevronLeft, ChevronRight, Upload, Loader2, Image as ImageIcon } from 'lucide-react';
+import { Search, Plus, Trash2, Pencil, X, ChevronLeft, ChevronRight, Upload, Loader2 } from 'lucide-react';
 import { TService } from '../types';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -18,6 +18,12 @@ interface Props {
   onUpdateStatus: (id: string, status: 'Active' | 'Inactive') => Promise<void> | void;
   onDeleteService: (id: string) => Promise<void> | void;
   isCompact?: boolean;
+}
+
+interface ProcedureItem {
+  title: string;
+  description: string;
+  icon: string;
 }
 
 const EMPTY = {
@@ -44,9 +50,11 @@ export default function ServicesManagerNew({ services, onAddService, onUpdateSer
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState({ ...EMPTY });
+  const [proceduresList, setProceduresList] = useState<ProcedureItem[]>([]);
   const [saving, setSaving] = useState(false);
   const [uploadingImg, setUploadingImg] = useState(false);
   const [uploadingIcon, setUploadingIcon] = useState(false);
+  const [procUploadingIdx, setProcUploadingIdx] = useState<number | null>(null);
   const [imgPreview, setImgPreview] = useState('');
   const imgRef = useRef<HTMLInputElement>(null);
   const iconRef = useRef<HTMLInputElement>(null);
@@ -60,6 +68,17 @@ export default function ServicesManagerNew({ services, onAddService, onUpdateSer
       setForm(p => ({ ...p, iconName: url }));
     } catch { alert('SVG icon upload failed'); }
     finally { setUploadingIcon(false); e.target.value = ''; }
+  };
+
+  const handleProcedureIconUpload = async (index: number, e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setProcUploadingIdx(index);
+    try {
+      const url = await uploadFile(file);
+      updateProcedure(index, 'icon', url);
+    } catch { alert('Procedure SVG icon upload failed'); }
+    finally { setProcUploadingIdx(null); e.target.value = ''; }
   };
 
   const filtered = services.filter((s) => {
@@ -77,6 +96,7 @@ export default function ServicesManagerNew({ services, onAddService, onUpdateSer
   const openAdd = () => {
     setEditingId(null);
     setForm({ ...EMPTY });
+    setProceduresList([]);
     setImgPreview('');
     setShowModal(true);
   };
@@ -88,10 +108,24 @@ export default function ServicesManagerNew({ services, onAddService, onUpdateSer
       status: s.status, iconName: s.iconName || '', serviceTagline: s.serviceTagline || '',
       heroDescription: s.heroDescription || '', imageUrl: s.imageUrl || '', detailImageUrl: s.detailImageUrl || '',
       ctaText: s.ctaText || '', secondaryText: s.secondaryText || '',
-      keyHighlights: (s.keyHighlights || []).join('\n'), displayOrder: s.displayOrder || 0,
+      keyHighlights: (s.keyHighlights || []).join('\n'),
+      displayOrder: s.displayOrder || 0,
     });
+    setProceduresList(s.technicalProcedures || []);
     setImgPreview(resolveImg(s.imageUrl || ''));
     setShowModal(true);
+  };
+
+  const addProcedure = () => {
+    setProceduresList(prev => [...prev, { title: '', description: '', icon: 'FaBolt' }]);
+  };
+
+  const updateProcedure = (index: number, field: keyof ProcedureItem, value: string) => {
+    setProceduresList(prev => prev.map((item, idx) => idx === index ? { ...item, [field]: value } : item));
+  };
+
+  const removeProcedure = (index: number) => {
+    setProceduresList(prev => prev.filter((_, idx) => idx !== index));
   };
 
   const uploadFile = async (file: File): Promise<string> => {
@@ -123,7 +157,8 @@ export default function ServicesManagerNew({ services, onAddService, onUpdateSer
       const payload = {
         ...form,
         keyHighlights: form.keyHighlights.split('\n').map(s => s.trim()).filter(Boolean),
-        technicalProcedures: [], gallery: [],
+        technicalProcedures: proceduresList.filter(p => p.title.trim() !== ''),
+        gallery: [],
       };
       if (editingId && onUpdateService) await onUpdateService(editingId, payload);
       else await onAddService(payload);
@@ -268,7 +303,7 @@ export default function ServicesManagerNew({ services, onAddService, onUpdateSer
       {/* Add / Edit Modal */}
       {showModal && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, padding: 24 }}>
-          <div style={{ backgroundColor: '#fff', borderRadius: 12, width: '100%', maxWidth: 660, maxHeight: '92vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          <div style={{ backgroundColor: '#fff', borderRadius: 12, width: '100%', maxWidth: 720, maxHeight: '92vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div style={{ padding: '16px 20px', borderBottom: '1px solid #e8e8e8', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a' }}>{editingId ? 'Edit Service' : 'Add Service'}</div>
               <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888' }}><X size={18} /></button>
@@ -317,7 +352,7 @@ export default function ServicesManagerNew({ services, onAddService, onUpdateSer
                       disabled={uploadingIcon}
                       style={{
                         display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px',
-                        borderRadius: 6, border: '1px border #e8e8e8', backgroundColor: '#fff3ee',
+                        borderRadius: 6, border: '1px solid #e8e8e8', backgroundColor: '#fff3ee',
                         color: '#e84b10', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap'
                       }}
                     >
@@ -367,8 +402,100 @@ export default function ServicesManagerNew({ services, onAddService, onUpdateSer
                   <label style={lbl}>Key Highlights (one per line)</label>
                   <textarea rows={3} value={form.keyHighlights} onChange={f('keyHighlights')} style={{ ...inp, resize: 'vertical' }} placeholder={"Reliable Power\nMaximum Performance"} />
                 </div>
+
+                {/* Visual Technical Procedures Builder */}
+                <div style={{ gridColumn: '1 / -1', borderTop: '1px solid #e8e8e8', paddingTop: 14, marginTop: 4 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                    <div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a' }}>Technical Procedures</div>
+                      <div style={{ fontSize: 11, color: '#888' }}>Add visual procedure steps with custom title, description, and SVG icon.</div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={addProcedure}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px',
+                        borderRadius: 6, border: 'none', backgroundColor: '#e84b10', color: '#fff',
+                        fontSize: 11, fontWeight: 600, cursor: 'pointer'
+                      }}
+                    >
+                      <Plus size={13} /> Add Procedure
+                    </button>
+                  </div>
+
+                  {proceduresList.length === 0 ? (
+                    <div style={{ padding: 14, textStyle: 'italic', textAlign: 'center', color: '#aaa', fontSize: 11, border: '1px dashed #e8e8e8', borderRadius: 8 }}>
+                      No technical procedures added. Click "+ Add Procedure" to create steps.
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                      {proceduresList.map((proc, idx) => (
+                        <div key={idx} style={{ backgroundColor: '#fafafa', border: '1px solid #e8e8e8', borderRadius: 8, padding: 12, display: 'flex', flexDirection: 'column', gap: 8, position: 'relative' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyBetween: 'space-between', gap: 8 }}>
+                            <div style={{ flex: 1 }}>
+                              <label style={lbl}>Procedure Title #{idx + 1}</label>
+                              <input
+                                value={proc.title}
+                                onChange={(e) => updateProcedure(idx, 'title', e.target.value)}
+                                style={inp}
+                                placeholder="e.g. Capacity Testing & Analysis"
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => removeProcedure(idx)}
+                              title="Remove procedure"
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', padding: 4, marginTop: 12 }}
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          </div>
+
+                          <div>
+                            <label style={lbl}>Description</label>
+                            <textarea
+                              rows={2}
+                              value={proc.description}
+                              onChange={(e) => updateProcedure(idx, 'description', e.target.value)}
+                              style={{ ...inp, resize: 'vertical' }}
+                              placeholder="Controlled discharge testing to measure actual battery capacity under full industrial load."
+                            />
+                          </div>
+
+                          <div>
+                            <label style={lbl}>Procedure Icon (Icon Name or Upload SVG File)</label>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                              <input
+                                value={proc.icon}
+                                onChange={(e) => updateProcedure(idx, 'icon', e.target.value)}
+                                style={{ ...inp, flex: 1 }}
+                                placeholder="e.g. FaBolt, wrench, zap or upload custom SVG"
+                              />
+                              <label style={{
+                                display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px',
+                                borderRadius: 6, border: '1px solid #e8e8e8', backgroundColor: '#fff3ee',
+                                color: '#e84b10', fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap'
+                              }}>
+                                {procUploadingIdx === idx ? <Loader2 size={12} className="animate-spin" /> : <Upload size={12} />}
+                                {procUploadingIdx === idx ? 'Uploading...' : 'Upload SVG'}
+                                <input
+                                  type="file"
+                                  accept="image/svg+xml,image/png,image/jpeg,image/webp,.svg"
+                                  className="hidden"
+                                  disabled={procUploadingIdx === idx}
+                                  onChange={(e) => handleProcedureIconUpload(idx, e)}
+                                />
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, paddingTop: 4 }}>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, paddingTop: 10 }}>
                 <button type="button" onClick={() => setShowModal(false)}
                   style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid #e8e8e8', background: '#fff', color: '#888', fontSize: 13, cursor: 'pointer' }}>
                   Cancel

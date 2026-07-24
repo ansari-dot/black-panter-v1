@@ -5,8 +5,9 @@ import { AboutSection } from "../components/AboutSection";
 import ServicesSection from "../components/ServicesSection";
 import HomeProductsSection from "../components/HomeProductsSection";
 import RecentProjects from "../components/RecentProject";
-import Team from '../components/Team'
-import TestimonialsSection from "../components/Testimonials";
+import Team from '../components/Team';
+import TestimonialsSection from "../components/TestiomonialsSection";
+import TestimonialsCards from "../components/Testimonials";
 import CTASection from "../components/CTA";
 import IndustryServe from '../components/IndustryServe'
 import Footer from '../components/Footer'
@@ -27,7 +28,7 @@ export const Home = () => {
         title="Meet Our Experts"
         subtitle="Certified engineers and technicians dedicated to your power reliability."
       />
-      <TestimonialsSection />
+      <TestimonialsCards />
       <CTASection />
       <IndustryServe />
       <Footer />

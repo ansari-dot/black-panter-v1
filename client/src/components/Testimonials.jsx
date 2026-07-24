@@ -42,21 +42,22 @@ export default function Testimonials() {
   if (!testimonials.length) return null;
 
   return (
-    <section className="w-full py-12 md:py-24 bg-[#f4f4f4] font-sans overflow-hidden select-none">
+    <section className="w-full py-12 md:py-16 bg-[#F8F9FA] font-sans overflow-hidden select-none">
       <div className="max-w-[1280px] mx-auto px-4 sm:px-8 md:px-16">
         
-        {/* Section Header */}
-        <div className="text-center mb-8 md:mb-14">
-          <span className="inline-block text-xs font-bold uppercase tracking-[0.2em] mb-2.5 text-[#F06123]">
-            Testimonials
-          </span>
-          <h2 className="text-[24px] md:text-[33px] font-bold text-[#383A3C] leading-tight mb-3 tracking-tight">
+        {/* Unified Header */}
+        <div className="text-center mb-8 md:mb-10">
+          <div className="inline-flex items-center justify-center gap-3 mb-2">
+            <div className="h-[2px] w-10 md:w-12 bg-gradient-to-r from-transparent to-[#F06123]" />
+            <span className="text-xs md:text-sm font-semibold uppercase tracking-[0.15em] text-[#F06123]">
+              TESTIMONIALS
+            </span>
+            <div className="h-[2px] w-10 md:w-12 bg-gradient-to-l from-transparent to-[#F06123]" />
+          </div>
+          <h2 className="text-[28px] md:text-[42px] font-bold text-[#383A3C] tracking-tight leading-tight mb-3">
             Trusted by Industry Leaders
           </h2>
-          <p 
-            className="text-[16px] md:text-[19px] font-normal text-[#666666] max-w-xl mx-auto leading-[1.8]"
-            style={{ fontFamily: "'Poppins', sans-serif" }}
-          >
+          <p className="text-[15px] md:text-[19px] font-normal text-[#666666] max-w-2xl mx-auto leading-relaxed">
             See what our clients say about our reliable service and technical expertise.
           </p>
         </div>
@@ -115,7 +116,7 @@ export default function Testimonials() {
 
           {/* Desktop Slider Controls */}
           {testimonials.length > 3 && (
-            <div className="flex items-center justify-center gap-4 mt-10">
+            <div className="flex items-center justify-center gap-4 mt-8">
               <button
                 className="w-10 h-10 rounded-full flex items-center justify-center bg-white border border-slate-200 text-slate-800 shadow-sm hover:shadow-md hover:bg-slate-50 transition-all cursor-pointer"
                 onClick={slideLeft}
@@ -170,7 +171,7 @@ function TestimonialCard({ t }) {
 
         {/* Testimonial Message */}
         <p 
-          className="text-[17px] font-normal leading-[1.8] text-[#666666] italic"
+          className="text-[16px] md:text-[17px] font-normal leading-[1.7] text-[#666666] italic"
           style={{ fontFamily: "'Poppins', sans-serif" }}
         >
           &ldquo;{t.message}&rdquo;
@@ -204,11 +205,11 @@ function TestimonialCard({ t }) {
             </div>
           )}
           <div>
-            <p className="text-[12px] font-normal text-[#4B5563] m-0 leading-tight">
+            <p className="text-[13px] font-bold text-[#1F2937] m-0 leading-tight">
               {t.name}
             </p>
             {t.company && (
-              <p className="text-[12px] font-normal text-[#4B5563] m-0 leading-tight">
+              <p className="text-[12px] font-normal text-[#6B7280] m-0 leading-tight mt-0.5">
                 {t.company}
               </p>
             )}

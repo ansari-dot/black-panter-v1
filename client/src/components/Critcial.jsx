@@ -1,13 +1,16 @@
 import React, { useRef } from 'react';
-import { ChevronRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { ChevronRight, PhoneCall, ShieldCheck } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
+import { useServiceCatalog } from '../hooks/useServiceCatalog';
 
 export default function ServiceDetailSection({ service }) {
   const sectionRef = useRef(null);
+  const navigate = useNavigate();
   const isInView = useInView(sectionRef, { once: false, amount: 0.15 });
   const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
-  
+  const { services: catalogServices } = useServiceCatalog();
+
   React.useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
@@ -17,8 +20,33 @@ export default function ServiceDetailSection({ service }) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const highlights = Array.isArray(service?.keyHighlights) ? service.keyHighlights : [];
-  const services = Array.isArray(service?.services) ? service.services : [];
+  // Highlights list with robust fallback
+  const rawHighlights = Array.isArray(service?.keyHighlights) && service.keyHighlights.length > 0
+    ? service.keyHighlights
+    : [
+        "Full ISO 17025 Lab Testing Capabilities",
+        "NERC PRC-005-6 Compliance Documentation",
+        "Nationwide 24/7 Field Support Response",
+        "Ecologically Responsible Recycling Program",
+        "NERC PRC-005-6 Compliance Documentation"
+      ];
+
+  // Services list for right sidebar card
+  const rawSidebarServices = Array.isArray(service?.services) && service.services.length > 0
+    ? service.services
+    : catalogServices && catalogServices.length > 0
+      ? catalogServices.map(s => ({
+          name: s.name || s.title,
+          slug: s.slug,
+          active: s.slug === service?.slug,
+        }))
+      : [
+          { name: "Ni-Cd & Block Nickel Maintenance", slug: "ni-cd-maintenance", active: true },
+          { name: "Preventive Maintenance Programs", slug: "preventive-maintenance", active: false },
+          { name: "Battery Recycling & Disposal", slug: "battery-recycling", active: false },
+          { name: "UPS Battery Bank Support", slug: "ups-battery-support", active: false },
+          { name: "Emergency Response Services", slug: "emergency-response", active: false },
+        ];
 
   const styles = {
     container: {
@@ -40,7 +68,7 @@ export default function ServiceDetailSection({ service }) {
       alignItems: 'flex-start',
       flex: '1',
       maxWidth: isMobile ? '100%' : '900px',
-      gap: isMobile ? '30px' : '40px',
+      gap: isMobile ? '24px' : '32px',
       width: '100%'
     },
     contentSection: {
@@ -48,7 +76,7 @@ export default function ServiceDetailSection({ service }) {
       flexDirection: 'column',
       alignItems: 'flex-start',
       width: '100%',
-      gap: isMobile ? '20px' : '30px'
+      gap: isMobile ? '16px' : '24px'
     },
     titleWrapper: {
       display: 'flex',
@@ -77,56 +105,40 @@ export default function ServiceDetailSection({ service }) {
       whiteSpace: 'pre-line'
     },
     keyHighlightsTitle: {
-      color: '#F06123',
-      fontSize: isMobile ? '17px' : '19px',
+      color: '#2D3748',
+      fontSize: isMobile ? '20px' : '24px',
       fontWeight: '700',
-      margin: '0'
+      margin: '8px 0 0 0'
     },
     highlightsGrid: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: isMobile ? '16px' : '28px',
+      display: 'grid',
+      gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)',
+      gap: isMobile ? '14px' : '18px',
       width: '100%'
-    },
-    highlightRow: {
-      display: 'flex',
-      flexDirection: isMobile ? 'column' : 'row',
-      gap: isMobile ? '16px' : '28px'
     },
     highlightItem: {
       display: 'flex',
       alignItems: 'center',
-      background: 'linear-gradient(135deg, #FFF4F0, #ffffff)',
-      padding: isMobile ? '12px 16px' : '14px 20px',
-      borderRadius: isMobile ? '8px' : '10px',
-      borderLeft: '4px solid #F06123',
+      justifyContent: 'flex-start',
+      backgroundColor: '#ffffff',
+      padding: isMobile ? '14px 20px' : '16px 24px',
+      borderRadius: '10px',
+      border: '1px solid #edf2f7',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
       cursor: 'pointer',
-      transition: 'all 0.3s ease',
-      flex: '1',
-      minWidth: isMobile ? 'auto' : '300px',
-      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
-    },
-    highlightItemOrange: {
-      borderLeft: '4px solid #FF8803'
-    },
-    highlightDot: {
-      width: isMobile ? '7px' : '8px',
-      height: isMobile ? '7px' : '8px',
-      borderRadius: '50%',
-      backgroundColor: '#F06123',
-      marginRight: isMobile ? '10px' : '12px',
-      flexShrink: '0'
+      transition: 'all 0.3s ease'
     },
     highlightText: {
-      color: '#374151',
+      color: '#4A5568',
       fontSize: isMobile ? '14px' : '15px',
       fontWeight: '500',
-      flex: '1',
-      lineHeight: '1.5'
+      textAlign: 'left',
+      lineHeight: '1.4'
     },
     image: {
       width: '100%',
       height: 'auto',
+      maxHeight: '480px',
       objectFit: 'cover',
       borderRadius: isMobile ? '12px' : '16px',
       boxShadow: '0 10px 30px rgba(0, 0, 0, 0.15)',
@@ -174,23 +186,11 @@ export default function ServiceDetailSection({ service }) {
       backgroundColor: '#FFF4F0',
       border: '1px solid #F06123'
     },
-    serviceItemInactive: {
-      backgroundColor: 'transparent',
-      border: '1px solid transparent'
-    },
-    serviceIcon: {
-      width: '20px',
-      height: '20px',
-      borderRadius: '10px',
-      objectFit: 'fill'
-    },
     serviceText: {
       fontSize: isMobile ? '15px' : '16px',
       flex: '1',
-      color: '#000000'
-    },
-    serviceTextInactive: {
-      color: '#000000'
+      color: '#000000',
+      fontWeight: '500'
     },
     emergencyCard: {
       display: 'flex',
@@ -213,7 +213,8 @@ export default function ServiceDetailSection({ service }) {
     emergencyText: {
       color: '#000000',
       fontSize: isMobile ? '15px' : '16px',
-      margin: '0'
+      margin: '0',
+      lineHeight: '1.5'
     },
     emergencyButton: {
       backgroundColor: '#F06123',
@@ -226,7 +227,11 @@ export default function ServiceDetailSection({ service }) {
       cursor: 'pointer',
       textAlign: 'center',
       boxShadow: '0px 4px 6px rgba(240, 97, 35, 0.25)',
-      transition: 'all 0.3s ease'
+      transition: 'all 0.3s ease',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '8px'
     },
     certificationCard: {
       display: 'flex',
@@ -249,7 +254,8 @@ export default function ServiceDetailSection({ service }) {
       alignItems: 'center',
       justifyContent: 'center',
       marginBottom: '8px',
-      boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)'
+      boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+      color: '#ffffff'
     },
     certTitle: {
       color: '#383A3C',
@@ -261,85 +267,24 @@ export default function ServiceDetailSection({ service }) {
       color: '#000000',
       fontSize: isMobile ? '15px' : '16px',
       textAlign: 'center',
-      margin: '0'
+      margin: '0',
+      lineHeight: '1.5'
     }
   };
 
   const leftColumnVariants = {
     hidden: { opacity: 0, x: -50 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: {
-        duration: 0.7,
-        ease: "easeOut"
-      }
-    }
+    visible: { opacity: 1, x: 0, transition: { duration: 0.7, ease: "easeOut" } }
   };
 
   const rightColumnVariants = {
     hidden: { opacity: 0, x: 50 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: {
-        duration: 0.7,
-        ease: "easeOut"
-      }
-    }
+    visible: { opacity: 1, x: 0, transition: { duration: 0.7, ease: "easeOut" } }
   };
 
-  const highlightVariants = {
-    hidden: { opacity: 0, y: 30, scale: 0.95 },
-    visible: (i) => ({
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: {
-        duration: 0.5,
-        delay: 0.3 + (i * 0.1),
-        ease: "easeOut"
-      }
-    })
-  };
-
-  const imageVariants = {
-    hidden: { opacity: 0, scale: 0.9 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: {
-        duration: 0.7,
-        delay: 0.4,
-        ease: "easeOut"
-      }
-    }
-  };
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: (i) => ({
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.6,
-        delay: 0.2 + (i * 0.15),
-        ease: "easeOut"
-      }
-    })
-  };
-
-  // Lighter animation for mobile
   const mobileVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.4,
-        ease: "easeOut"
-      }
-    }
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } }
   };
 
   return (
@@ -354,13 +299,15 @@ export default function ServiceDetailSection({ service }) {
         <div style={styles.contentSection}>
           {/* Title Section */}
           <div style={styles.titleWrapper}>
-            <h2 style={styles.title}>{service?.title || ''}</h2>
+            <h2 style={styles.title}>
+              {service?.criticalPowerTitle || service?.title || "Powering Industry Since 2005"}
+            </h2>
             <motion.div 
               style={styles.accentBar}
               initial={{ width: 0 }}
               animate={isInView ? { width: '77px' } : { width: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-            ></motion.div>
+            />
           </div>
 
           {/* Description */}
@@ -370,172 +317,108 @@ export default function ServiceDetailSection({ service }) {
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ duration: isMobile ? 0.4 : 0.6, delay: isMobile ? 0 : 0.4 }}
           >
-            {service?.criticalPowerDescription || ''}
+            {service?.criticalPowerDescription || service?.description || "We are a full-service industrial battery maintenance facility with 20+ years of experience specializing in preventive care, troubleshooting, and lifecycle management of high-reliability battery systems."}
           </motion.p>
 
-          {highlights.length > 0 ? (
-            <motion.h3 
-              style={styles.keyHighlightsTitle}
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-              transition={{ duration: isMobile ? 0.4 : 0.6, delay: isMobile ? 0 : 0.5 }}
-            >
-              Key Highlights
-            </motion.h3>
-          ) : null}
+          <motion.h3 
+            style={styles.keyHighlightsTitle}
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+            transition={{ duration: isMobile ? 0.4 : 0.6, delay: isMobile ? 0 : 0.5 }}
+          >
+            Key Highlights
+          </motion.h3>
         </div>
 
-        {/* Highlights Grid */}
-        {highlights.length > 0 ? (
-          <div style={styles.highlightsGrid}>
-            {highlights.map((highlight, index) => (
-              <motion.div
-                key={`${highlight}-${index}`}
-                style={styles.highlightItem}
-                custom={index}
-                initial="hidden"
-                animate={isInView ? "visible" : "hidden"}
-                variants={isMobile ? mobileVariants : highlightVariants}
-                whileHover={{
-                  scale: 1.03,
-                  boxShadow: '0 8px 20px rgba(240, 97, 35, 0.25)',
-                  transition: { duration: 0.3 }
-                }}
-              >
-                <div style={styles.highlightDot}></div>
-                <span style={styles.highlightText}>{highlight}</span>
-              </motion.div>
-            ))}
-          </div>
-        ) : null}
+        {/* Highlights Grid (Clean white pill card grid matching screenshot exactly) */}
+        <div style={styles.highlightsGrid}>
+          {rawHighlights.map((highlight, index) => (
+            <motion.div
+              key={`${highlight}-${index}`}
+              style={styles.highlightItem}
+              whileHover={{
+                y: -2,
+                boxShadow: '0 6px 16px rgba(0, 0, 0, 0.08)',
+                transition: { duration: 0.2 }
+              }}
+            >
+              <span style={styles.highlightText}>{highlight}</span>
+            </motion.div>
+          ))}
+        </div>
 
-        {/* Image */}
-        {service?.imageUrl ? (
+        {/* Hero / Detail Image */}
+        {(service?.detailImageUrl || service?.imageUrl) && (
           <motion.img
-            src={service.imageUrl}
-            alt={service.title || 'Service image'}
+            src={service.detailImageUrl || service.imageUrl}
+            alt={service?.title || 'Service image'}
             style={styles.image}
-            initial="hidden"
-            animate={isInView ? "visible" : "hidden"}
-            variants={isMobile ? mobileVariants : imageVariants}
-            whileHover={{
-              scale: 1.02,
-              boxShadow: '0 15px 40px rgba(0, 0, 0, 0.2)',
-              transition: { duration: 0.3 }
-            }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
           />
-        ) : null}
+        )}
       </motion.div>
 
-      {/* Right Column */}
+      {/* Right Column (Always renders all 3 side boxes) */}
       <motion.div 
         style={styles.rightColumn}
         initial="hidden"
         animate={isInView ? "visible" : "hidden"}
         variants={isMobile ? mobileVariants : rightColumnVariants}
       >
-        {/* Services Card */}
-        <motion.div 
-          style={styles.servicesCard}
-          custom={0}
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-          variants={isMobile ? mobileVariants : cardVariants}
-          whileHover={{
-            y: -5,
-            boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
-            transition: { duration: 0.3 }
-          }}
-        >
+        {/* Sidebar Box 1: Our Services */}
+        <div style={styles.servicesCard}>
           <div style={styles.servicesHeader}>
             <h3 style={styles.servicesHeaderText}>Our Services</h3>
           </div>
           <div style={styles.servicesList}>
-            {services.map((service, index) => (
+            {rawSidebarServices.map((item, index) => (
               <Link
                 key={index}
-                to={`/service/${service.slug}`}
+                to={`/service/${item.slug}`}
                 style={{ textDecoration: 'none' }}
               >
-                <motion.div
-                  style={service.active ? {...styles.serviceItem, ...styles.serviceItemActive} : styles.serviceItem}
-                  whileHover={!service.active ? {
-                    backgroundColor: '#f9fafb',
-                    x: 5,
-                    transition: { duration: 0.2 }
-                  } : { x: 5, transition: { duration: 0.2 } }}
+                <div
+                  style={item.active ? { ...styles.serviceItem, ...styles.serviceItemActive } : styles.serviceItem}
                 >
-                  <div style={styles.serviceIcon}></div>
-                  <span style={service.active ? {...styles.serviceText, ...styles.serviceTextActive} : styles.serviceText}>
-                    {service.name}
-                  </span>
-                  <ChevronRight size={16} color={service.active ? '#F06123' : '#9ca3af'} />
-                </motion.div>
+                  <span style={styles.serviceText}>{item.name || item.title}</span>
+                  <ChevronRight size={16} color={item.active ? '#F06123' : '#9ca3af'} />
+                </div>
               </Link>
             ))}
           </div>
-        </motion.div>
+        </div>
 
-        {/* Emergency Card */}
-        {service?.emergencyTitle || service?.emergencyDescription ? (
-          <motion.div 
-            style={styles.emergencyCard}
-            custom={1}
-            initial="hidden"
-            animate={isInView ? "visible" : "hidden"}
-            variants={isMobile ? mobileVariants : cardVariants}
-            whileHover={{
-              y: -5,
-              boxShadow: '0 12px 24px rgba(240, 97, 35, 0.2)',
-              transition: { duration: 0.3 }
-            }}
+        {/* Sidebar Box 2: Emergency Card (Always visible) */}
+        <div style={styles.emergencyCard}>
+          <h4 style={styles.emergencyTitle}>
+            {service?.emergencyTitle || "24/7 Emergency Service"}
+          </h4>
+          <p style={styles.emergencyText}>
+            {service?.emergencyDescription || "Need urgent on-site service or critical battery replacement? Our expert technical team is available 24/7."}
+          </p>
+          <button 
+            style={styles.emergencyButton}
+            onClick={() => navigate('/contact')}
           >
-            <h4 style={styles.emergencyTitle}>{service.emergencyTitle}</h4>
-            <p style={styles.emergencyText}>{service.emergencyDescription}</p>
-            <motion.button 
-              style={styles.emergencyButton}
-              whileHover={{
-                backgroundColor: '#E55113',
-                scale: 1.05,
-                transition: { duration: 0.2 }
-              }}
-              whileTap={{ scale: 0.98 }}
-            >
-              Emergency Service
-            </motion.button>
-          </motion.div>
-        ) : null}
+            <PhoneCall size={16} />
+            Emergency Service
+          </button>
+        </div>
 
-        {/* Certification Card */}
-        {service?.certificationTitle || service?.certificationDescription ? (
-          <motion.div 
-            style={styles.certificationCard}
-            custom={2}
-            initial="hidden"
-            animate={isInView ? "visible" : "hidden"}
-            variants={isMobile ? mobileVariants : cardVariants}
-            whileHover={{
-              y: -5,
-              boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
-              transition: { duration: 0.3 }
-            }}
-          >
-            <motion.div 
-              style={styles.certIcon}
-              whileHover={{
-                rotate: 360,
-                scale: 1.1,
-                transition: { duration: 0.6 }
-              }}
-            >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
-                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="white" strokeWidth="2" fill="none"/>
-              </svg>
-            </motion.div>
-            <h4 style={styles.certTitle}>{service.certificationTitle}</h4>
-            <p style={styles.certText}>{service.certificationDescription}</p>
-          </motion.div>
-        ) : null}
+        {/* Sidebar Box 3: Certification Card (Always visible) */}
+        <div style={styles.certificationCard}>
+          <div style={styles.certIcon}>
+            <ShieldCheck size={26} />
+          </div>
+          <h4 style={styles.certTitle}>
+            {service?.certificationTitle || "Australian Standards Compliant"}
+          </h4>
+          <p style={styles.certText}>
+            {service?.certificationDescription || "All maintenance and testing procedures adhere strictly to Australian industrial safety & reliability standards."}
+          </p>
+        </div>
       </motion.div>
     </div>
   );

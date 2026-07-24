@@ -6,7 +6,8 @@ import Footer from "../components/Footer";
 import WhoSection from "../components/WhoSection";
 import WhyChooseUsSection from "../components/WhyChoose";
 import TeamSection from "../components/Team";
-import TestimonialsSection from "../components/Testimonials";
+import TestimonialsSection from "../components/TestiomonialsSection";
+import TestimonialsCards from "../components/Testimonials";
 import CTA from "../components/CTA";
 import aboutHeroImage from '../assets/herosections/about.webp';
 
@@ -22,7 +23,7 @@ export const About = () => {
       <WhoSection />
       <WhyChooseUsSection />
       <TeamSection />
-      <TestimonialsSection />
+      <TestimonialsCards />
       <CTA />
      
       <Footer />

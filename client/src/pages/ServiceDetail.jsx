@@ -33,7 +33,6 @@ export const ServiceDetail = () => {
       <Technical service={service} />
       <RecentProject />
       <Team />
-      <TestimonialsSection />
       <TestimonialsCards />
       <CTASection />
       <IndustriesWeServe />
