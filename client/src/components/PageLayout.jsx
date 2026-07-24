@@ -94,9 +94,20 @@ export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackg
   }));
 
   return (
-    <div className="bg-[#f4f5f7] w-full overflow-x-hidden">
+    <div className="bg-[#f4f5f7] w-full overflow-x-hidden pt-[70px] relative">
+      {/* Desktop Logo (Unclipped Outer Layer) */}
+      <img
+        className="hidden md:block absolute top-[-18px] left-1/2 -translate-x-1/2 w-[140px] h-[140px] md:w-[150px] md:h-[150px] object-contain z-50 pointer-events-none"
+        width="150"
+        height="150"
+        loading="eager"
+        decoding="async"
+        alt="Black Panther Batteries Logo"
+        src={logo}
+      />
+
       {/* Hero Section with Background */}
-      <div className="relative w-full h-[120vh] min-h-[120vh] rounded-b-none overflow-hidden flex flex-col justify-between">
+      <div className="relative w-full h-[100vh] min-h-[100vh] rounded-b-none overflow-hidden flex flex-col justify-between">
         {/* Background Image Layer (behind vector) */}
         {backgroundImage && (
           <div className="absolute inset-0 w-full h-full rounded-b-none">
@@ -119,7 +130,7 @@ export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackg
             height="1024"
           />
           <img
-            className="absolute top-0 md:top-[72px] left-1/2 -translate-x-1/2 w-full h-full object-cover object-center z-10 rounded-t-xl md:rounded-t-2xl rounded-b-none"
+            className="absolute inset-0 w-full h-full object-cover object-top z-10 rounded-b-none"
             width="1920"
             height="1080"
             fetchPriority="high"
@@ -158,19 +169,8 @@ export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackg
           </div>
         </div>
 
-        {/* Desktop Logo */}
-        <img
-          className="hidden md:block absolute -top-6 left-1/2 -translate-x-1/2 w-[150px] h-[150px] object-contain z-50"
-          width="150"
-          height="150"
-          loading="eager"
-          decoding="async"
-          alt="Black Panther Batteries Logo"
-          src={logo}
-        />
-
         {/* Navigation */}
-        <nav className="relative w-full max-w-[1200px] mx-auto px-4 md:px-8 lg:px-8 pt-16 md:pt-24 z-50">
+        <nav className="relative w-full px-4 md:px-8 lg:px-12 xl:px-16 pt-4 md:pt-6 z-50">
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center justify-between">
             {/* Navigation Items - Desktop */}
@@ -517,8 +517,10 @@ export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackg
         )}
 
         {/* Hero Section Content */}
-        <div className="relative z-20 w-full max-w-[1200px] mx-auto px-6 md:px-10 pt-28 md:pt-36 pb-28 md:pb-36 flex items-start flex-1">
-          {heroContent}
+        <div className="relative z-20 w-full px-6 md:px-12 lg:px-16 xl:px-24 flex items-start flex-1 pb-20 md:pb-28 pt-[20px]">
+          <div className="w-full mt-[40px] md:mt-[60px]">
+            {heroContent}
+          </div>
         </div>
       </div>
 
