@@ -50,11 +50,14 @@ export default function Testimonials() {
           <span className="inline-block text-xs font-bold uppercase tracking-[0.2em] mb-2.5 text-[#F06123]">
             Testimonials
           </span>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 leading-tight mb-3 tracking-tight">
-            What Our Customers Say
+          <h2 className="text-[24px] md:text-[33px] font-bold text-[#383A3C] leading-tight mb-3 tracking-tight">
+            Trusted by Industry Leaders
           </h2>
-          <p className="text-sm md:text-base text-slate-500 max-w-lg mx-auto leading-relaxed">
-            Real experiences from businesses and individuals who trust Black Panther Batteries.
+          <p 
+            className="text-[16px] md:text-[19px] font-normal text-[#666666] max-w-xl mx-auto leading-[1.8]"
+            style={{ fontFamily: "'Poppins', sans-serif" }}
+          >
+            See what our clients say about our reliable service and technical expertise.
           </p>
         </div>
 
@@ -166,7 +169,10 @@ function TestimonialCard({ t }) {
         </div>
 
         {/* Testimonial Message */}
-        <p className="text-sm leading-relaxed text-slate-700 italic">
+        <p 
+          className="text-[17px] font-normal leading-[1.8] text-[#666666] italic"
+          style={{ fontFamily: "'Poppins', sans-serif" }}
+        >
           &ldquo;{t.message}&rdquo;
         </p>
       </div>
@@ -193,16 +199,16 @@ function TestimonialCard({ t }) {
               className="w-10 h-10 rounded-full object-cover shrink-0 border border-slate-100"
             />
           ) : (
-            <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0 bg-[#F06123] text-white">
+            <div className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0 bg-[#F06123] text-white">
               {t.name?.[0] || "U"}
             </div>
           )}
           <div>
-            <p className="text-xs sm:text-sm font-bold text-slate-900 m-0 leading-tight">
+            <p className="text-[12px] font-normal text-[#4B5563] m-0 leading-tight">
               {t.name}
             </p>
             {t.company && (
-              <p className="text-[11px] text-slate-500 m-0 mt-0.5">
+              <p className="text-[12px] font-normal text-[#4B5563] m-0 leading-tight">
                 {t.company}
               </p>
             )}

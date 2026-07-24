@@ -1,10 +1,20 @@
 import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useProjectCatalog } from '../hooks/useProjectCatalog';
 import { ArrowRight } from 'lucide-react';
 
+const scaleIn = {
+  hidden: { opacity: 0, scale: 0.8 },
+  visible: { 
+    opacity: 1, 
+    scale: 1,
+    transition: { duration: 0.5, ease: "easeOut" }
+  }
+};
+
 export default function RecentProjects() {
+  const navigate = useNavigate();
   const { activeProjects, isLoading: loading } = useProjectCatalog({ featuredOnHome: true });
   const projects = activeProjects;
   const [activeMobileSlide, setActiveMobileSlide] = useState(0);
@@ -28,37 +38,35 @@ export default function RecentProjects() {
     setActiveMobileSlide(index);
   };
 
-  if (loading) {
-    return (
-      <section className="w-full py-12 bg-white text-center text-slate-500 font-sans">
-        Loading projects...
-      </section>
-    );
-  }
-
-  if (!projects || projects.length === 0) {
-    return null;
-  }
+  if (loading) return null;
+  if (!projects || projects.length === 0) return null;
 
   return (
-    <section className="w-full py-12 md:py-24 bg-white font-sans overflow-hidden select-none">
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-8 md:px-16">
+    <section className="w-full py-12 md:py-20 bg-white font-sans overflow-hidden select-none">
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-8 md:px-16 flex flex-col gap-10">
         
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 md:mb-12 gap-4">
-          <div>
-            <div className="flex items-center gap-3 text-[#F06123] text-xs font-bold uppercase tracking-widest mb-3">
-              <span className="block w-8 h-[2px] bg-[#F06123] opacity-60" />
-              Recent Portfolio
-              <span className="block w-8 h-[2px] bg-[#F06123] opacity-60" />
+        <div className="flex flex-col lg:flex-row justify-between items-start self-stretch gap-6 lg:gap-0">
+          <div className="flex flex-col items-start w-full lg:w-[450px] gap-3">
+            <div className="flex flex-col items-start self-stretch">
+              <span className="text-[#383A3C] text-[24px] sm:text-[28px] lg:text-[33px] font-bold leading-tight">
+                Recent Projects
+              </span>
             </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
-              Recent Projects
-            </h2>
-            <p className="text-sm md:text-base text-slate-500 mt-2 max-w-lg leading-relaxed">
-              See our expertise in action delivering critical battery infrastructure across the country.
-            </p>
+            <span className="text-[#1F2937] text-[16px] sm:text-[18px] lg:text-[19px] font-normal leading-relaxed">
+              See our expertise in action across the country.
+            </span>
           </div>
+
+          <button 
+            className="flex items-center justify-center bg-[#F06123] hover:bg-[#FF8803] text-left w-full sm:w-auto py-3.5 px-6 mt-0 lg:mt-4 gap-2.5 rounded-xl border-0 shadow-md transition-all duration-300 cursor-pointer"
+            onClick={() => navigate('/project')}
+          >
+            <span className="text-white text-[15px] font-bold">
+              View Full Portfolio
+            </span>
+            <ArrowRight className="w-[18px] h-[18px] text-white" />
+          </button>
         </div>
 
         {/* MOBILE SLIDER (< 768px): 1 Card per screen with swipe */}
@@ -71,7 +79,7 @@ export default function RecentProjects() {
           >
             {projects.map((project, index) => (
               <div key={project.id || index} className="w-[85vw] sm:w-[320px] shrink-0 snap-center">
-                <ProjectCard project={project} index={index} />
+                <ProjectCard project={project} index={index} navigate={navigate} />
               </div>
             ))}
           </div>
@@ -93,10 +101,10 @@ export default function RecentProjects() {
           )}
         </div>
 
-        {/* DESKTOP GRID (>= 768px): Grid Layout */}
-        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* DESKTOP GRID (>= 768px): 3-Column Grid */}
+        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project, index) => (
-            <ProjectCard key={project.id || index} project={project} index={index} />
+            <ProjectCard key={project.id || index} project={project} index={index} navigate={navigate} />
           ))}
         </div>
 
@@ -105,47 +113,31 @@ export default function RecentProjects() {
   );
 }
 
-function ProjectCard({ project, index }) {
+function ProjectCard({ project, index, navigate }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      variants={scaleIn}
+      initial="hidden"
+      whileInView="visible"
       viewport={{ once: true, amount: 0.1 }}
-      transition={{ duration: 0.45, delay: index * 0.05 }}
-      className="relative rounded-2xl overflow-hidden h-[340px] w-full cursor-pointer shadow-md hover:shadow-2xl transition-all duration-300 group flex flex-col justify-end p-6 border border-slate-100"
+      whileHover={{ y: -8, scale: 1.03 }}
+      onClick={() => navigate(`/project/${project.slug}`)}
+      className="flex flex-col items-start bg-cover bg-center w-full min-h-[260px] md:min-h-[280px] p-6 rounded-xl overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-[0px_15px_35px_rgba(0,0,0,0.2)] group relative border border-slate-100"
       style={{
         backgroundImage: `url('${project.image}')`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
       }}
     >
-      {/* Dark Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10 transition-opacity group-hover:opacity-95" />
+      {/* Dark Overlay Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10 group-hover:from-black/95 transition-all duration-300" />
 
-      {/* Top Accent Line */}
-      {project.gradient && (
-        <div
-          className="absolute top-0 left-0 right-0 h-1.5 z-20"
-          style={{ background: project.gradient }}
-        />
-      )}
-
-      {/* Content */}
-      <div className="relative z-20 flex flex-col gap-2">
-        <h3 className="text-xl font-extrabold text-[#FF8803] group-hover:text-white transition-colors leading-snug">
+      {/* Card Content */}
+      <div className="text-white text-base w-full mt-auto relative z-20 transform transition-all duration-300 group-hover:translate-y-[-3px]">
+        <span className="text-[#F06123] text-lg sm:text-[19px] font-bold block mb-1">
           {project.title}
-        </h3>
-        <p className="text-xs sm:text-sm text-white/85 line-clamp-2 leading-relaxed">
+        </span>
+        <span className="text-white/90 text-sm sm:text-base font-normal leading-relaxed line-clamp-2">
           {project.description}
-        </p>
-
-        <Link
-          to={`/project/${project.slug}`}
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-white hover:text-[#FF8803] mt-2 transition-colors"
-        >
-          <span>View Details</span>
-          <ArrowRight size={14} />
-        </Link>
+        </span>
       </div>
     </motion.div>
   );

@@ -46,10 +46,10 @@ const TeamSection = ({
 
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-8 md:mb-14">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-800 tracking-tight leading-tight mb-2">
+          <h2 className="text-[24px] md:text-[33px] font-bold text-[#383A3C] tracking-tight leading-tight mb-2">
             {title}
           </h2>
-          <p className="text-sm md:text-base text-slate-500 font-normal leading-relaxed">
+          <p className="text-[16px] md:text-[19px] text-[#6B7280] font-normal leading-relaxed">
             {subtitle}
           </p>
         </div>
@@ -117,10 +117,10 @@ function TeamCard({ member, index }) {
         />
       </div>
       <div className="flex flex-col items-center mt-4 text-center">
-        <h3 className="text-lg sm:text-xl font-bold text-slate-900 group-hover:text-[#F06123] transition-colors">
+        <h3 className="text-[18px] md:text-[21px] font-bold text-[#070B15] group-hover:text-[#F06123] transition-colors">
           {member.name}
         </h3>
-        <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
+        <p className="text-[14px] md:text-[16px] text-[#6B7280] font-normal mt-0.5">
           {member.role}
         </p>
       </div>

@@ -90,16 +90,16 @@ export default function ServicesSection() {
 
         {/* Section Header */}
         <div className="flex flex-col items-center text-center max-w-2xl mx-auto mb-8 md:mb-14">
-          <div className="flex items-center gap-3 text-[#e85a1f] text-xs font-bold uppercase tracking-widest mb-3">
-            <span className="block w-8 h-[2px] bg-[#e85a1f] opacity-60" />
+          <div className="flex items-center gap-3 text-[#F06123] text-xs font-bold uppercase tracking-widest mb-3">
+            <span className="block w-8 h-[2px] bg-[#F06123] opacity-60" />
             Our Services
-            <span className="block w-8 h-[2px] bg-[#e85a1f] opacity-60" />
+            <span className="block w-8 h-[2px] bg-[#F06123] opacity-60" />
           </div>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#181615] tracking-tight leading-tight mb-3">
-            Industrial Battery Services
+          <h2 className="text-[24px] md:text-[33px] font-bold text-[#383A3C] tracking-tight leading-tight mb-3">
+            Comprehensive Battery Solutions
           </h2>
-          <p className="text-sm md:text-base text-slate-600 leading-relaxed">
-            Professional maintenance, testing, and rebuild services engineered for maximum power reliability.
+          <p className="text-[16px] md:text-[19px] font-normal text-[#6B7280] leading-relaxed">
+            From installation to recycling, professional maintenance engineered for maximum power reliability.
           </p>
         </div>
 
@@ -204,10 +204,10 @@ function ServiceCard({ service, index, navigate, getImageUrl, defaultImages }) {
 
       {/* Main Content */}
       <div className="relative z-20 w-full p-6 flex flex-col gap-2">
-        <h3 className="text-xl font-extrabold text-white leading-tight">
+        <h3 className="text-[18px] md:text-[22px] font-bold text-white leading-tight">
           {service.title}
         </h3>
-        <p className="text-xs sm:text-sm text-white/85 line-clamp-2 leading-relaxed">
+        <p className="text-[14px] md:text-[17px] font-normal text-white/85 line-clamp-2 leading-relaxed">
           {service.heroDescription || service.description}
         </p>
 
@@ -226,7 +226,7 @@ function ServiceCard({ service, index, navigate, getImageUrl, defaultImages }) {
         )}
 
         {/* Learn More */}
-        <div className="flex items-center gap-1.5 mt-2 text-xs font-bold text-[#FF8803] group-hover:text-white transition-colors">
+        <div className="flex items-center gap-1.5 mt-2 text-[13px] font-normal text-[#F06123] group-hover:text-white transition-colors">
           <span>Learn More</span>
           <ArrowRight size={14} />
         </div>

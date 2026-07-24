@@ -50,10 +50,10 @@ export default function HomeProductsSection() {
               Our Products
               <span className="block w-8 h-[2px] bg-[#F06123] opacity-60" />
             </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+            <h2 className="text-[24px] md:text-[33px] font-bold text-[#383A3C] tracking-tight leading-tight">
               Industrial Battery Solutions
             </h2>
-            <p className="text-sm md:text-base text-slate-500 mt-2 max-w-lg leading-relaxed">
+            <p className="text-[16px] md:text-[19px] font-normal text-[#6B7280] mt-2 max-w-lg leading-relaxed">
               Premium-grade batteries engineered for critical infrastructure and field operations.
             </p>
           </div>
@@ -165,7 +165,7 @@ function ShowcaseCard({ product, index, isMobile }) {
         </div>
 
         {/* Product Title */}
-        <h3 className="text-base font-extrabold text-white leading-snug line-clamp-2">
+        <h3 className="text-[18px] font-bold text-white leading-snug line-clamp-2">
           {product.displayTitle || product.name}
         </h3>
 

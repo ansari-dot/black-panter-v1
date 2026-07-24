@@ -196,28 +196,30 @@ export default function CTASection() {
       padding: '0 16px'
     },
     title: {
-      fontSize: isMobile ? '32px' : '68px',
+      fontFamily: "'Poppins', sans-serif",
+      fontSize: isMobile ? '30px' : '62px',
       fontWeight: '700',
       margin: '0',
-      lineHeight: '1.1',
-      letterSpacing: isMobile ? '-0.5px' : '-1px',
+      lineHeight: '1.15',
+      letterSpacing: '-0.3px',
       background: 'linear-gradient(135deg, #FFFFFF 0%, #FFE4D6 50%, #F3B38A 100%)',
       WebkitBackgroundClip: 'text',
       WebkitTextFillColor: 'transparent',
       backgroundClip: 'text',
       textAlign: 'center',
-      maxWidth: '700px'
+      maxWidth: '740px'
     },
     subtitleWrapper: {
       padding: '0 16px'
     },
     subtitle: {
-      fontSize: isMobile ? '16px' : '21px',
-      color: 'rgba(255, 255, 255, 0.9)',
+      fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif",
+      fontSize: isMobile ? '16px' : '19px',
+      color: '#FFFFFF',
       lineHeight: '1.6',
       margin: '0',
-      maxWidth: '600px',
-      fontWeight: '500'
+      maxWidth: '620px',
+      fontWeight: '600'
     },
     buttonGroup: {
       display: 'flex',

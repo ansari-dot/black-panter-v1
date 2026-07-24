@@ -96,7 +96,7 @@ export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackg
   return (
     <div className="bg-[#f4f5f7] w-full overflow-x-hidden">
       {/* Hero Section with Background */}
-      <div className="relative w-full min-h-[40vh] rounded-b-none overflow-hidden">
+      <div className="relative w-full min-h-[600px] md:min-h-[720px] lg:min-h-[780px] rounded-b-none overflow-hidden">
         {/* Background Image Layer (behind vector) */}
         {backgroundImage && (
           <div className="absolute inset-0 w-full h-full rounded-b-none">
@@ -517,7 +517,7 @@ export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackg
         )}
 
         {/* Hero Section Content */}
-        <div className="relative z-20 w-full max-w-[1200px] mx-auto px-6 md:px-10 pt-20 md:pt-28 pb-14 md:pb-18 flex items-start min-h-[calc(40vh-150px)] md:min-h-0">
+        <div className="relative z-20 w-full max-w-[1200px] mx-auto px-6 md:px-10 pt-28 md:pt-36 pb-28 md:pb-36 flex items-start min-h-[480px] md:min-h-[560px]">
           {heroContent}
         </div>
       </div>
