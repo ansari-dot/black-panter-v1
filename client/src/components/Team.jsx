@@ -1,131 +1,415 @@
-import React, { useState, useRef } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { useTeamCatalog } from '../hooks/useTeamCatalog';
+import ceoImage from '../assets/team/ceo.webp';
+import asImage from '../assets/team/Ac.webp';
+import adImage from '../assets/team/Ad.webp';
 
-const TeamSection = ({
-  title = 'Meet Our Experts',
-  subtitle = 'Certified engineers and technicians dedicated to your power reliability.',
+const defaultExperts = [
+  {
+    id: 1,
+    name: "Ali Hamdan",
+    title: "Director and Technician",
+    image: ceoImage
+  },
+  {
+    id: 2,
+    name: "Jasmine Hamdan",
+    title: "Accounts Manager",
+    image: asImage
+  },
+  {
+    id: 3,
+    name: "Rania Hamdan",
+    title: "Administration",
+    image: adImage
+  }
+];
+
+const MeetOurExperts = ({
+  title = "Meet Our Experts",
+  subtitle = "Certified engineers and technicians dedicated to your power reliability."
 }) => {
-  const { activeMembers: members, isLoading: loading, isError } = useTeamCatalog();
-  const [activeMobileSlide, setActiveMobileSlide] = useState(0);
-  const mobileSliderRef = useRef(null);
+  const { activeMembers } = useTeamCatalog();
+  const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
+  
+  React.useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
-  const handleMobileScroll = () => {
-    if (!mobileSliderRef.current) return;
-    const scrollLeft = mobileSliderRef.current.scrollLeft;
-    const width = mobileSliderRef.current.offsetWidth;
-    const newIndex = Math.round(scrollLeft / width);
-    setActiveMobileSlide(newIndex);
+  const experts = Array.isArray(activeMembers) && activeMembers.length > 0
+    ? activeMembers.map((m, index) => ({
+        id: m.id || m._id || index + 1,
+        name: m.name,
+        title: m.role || m.title || 'Expert Technician',
+        image: m.image || defaultExperts[index % defaultExperts.length].image
+      }))
+    : defaultExperts;
+
+  // Animation variants
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15,
+        delayChildren: 0.1
+      }
+    }
   };
 
-  const scrollToMobileSlide = (index) => {
-    if (!mobileSliderRef.current) return;
-    const width = mobileSliderRef.current.offsetWidth;
-    mobileSliderRef.current.scrollTo({
-      left: index * width,
-      behavior: 'smooth',
-    });
-    setActiveMobileSlide(index);
+  const headerVariants = {
+    initial: { y: -50, opacity: 0 },
+    animate: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.8,
+        ease: "easeOut"
+      }
+    }
   };
 
-  if (loading) {
-    return (
-      <section className="w-full py-12 bg-[#f9fafb] text-center text-slate-500 font-sans">
-        Loading team members...
-      </section>
-    );
-  }
+  const cardVariants = {
+    initial: { y: 60, opacity: 0, scale: 0.9 },
+    animate: {
+      y: 0,
+      opacity: 1,
+      scale: 1,
+      transition: {
+        duration: 0.6,
+        ease: "easeOut"
+      }
+    }
+  };
 
-  if (!members || members.length === 0) {
-    return null;
-  }
+  const floatingVariants = {
+    animate: {
+      y: [0, -6, 0],
+      transition: {
+        duration: 4,
+        repeat: Infinity,
+        repeatType: "reverse",
+        ease: "easeInOut"
+      }
+    }
+  };
+
+  const mobileVariants = {
+    initial: { opacity: 0, y: 20 },
+    animate: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.4,
+        ease: "easeOut"
+      }
+    }
+  };
+
+  // Styles
+  const sectionStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    alignSelf: 'stretch',
+    backgroundColor: '#f9fafb',
+    padding: '80px 0',
+    marginBottom: '80px',
+    gap: '50px',
+    width: '100%',
+    boxSizing: 'border-box'
+  };
+
+  const headerContainerStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '14px',
+    padding: '0 16px',
+    maxWidth: '100%'
+  };
+
+  const titleWrapperStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start'
+  };
+
+  const titleStyle = {
+    color: '#383A3C',
+    fontSize: '33px',
+    fontWeight: '700',
+    textAlign: 'center',
+    fontFamily: 'Poppins, sans-serif',
+    margin: 0,
+    lineHeight: '1.3'
+  };
+
+  const subtitleStyle = {
+    color: '#6b7280',
+    fontSize: '19px',
+    textAlign: 'center',
+    fontFamily: 'Inter, sans-serif',
+    margin: 0,
+    lineHeight: '1.6'
+  };
+
+  const cardsContainerStyle = {
+    alignSelf: 'stretch',
+    paddingBottom: '1px'
+  };
+
+  const gridStyle = {
+    display: 'grid',
+    alignSelf: 'stretch',
+    padding: '0 16px',
+    gap: '24px',
+    width: '100%',
+    boxSizing: 'border-box'
+  };
+
+  const expertCardStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    cursor: 'pointer',
+    width: '100%',
+    maxWidth: '100%',
+    margin: '0 auto'
+  };
+
+  const imageWrapperStyle = {
+    backgroundColor: '#f3f4f6',
+    borderRadius: '24px',
+    overflow: 'hidden',
+    width: '100%',
+    maxWidth: '320px',
+    height: '380px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 0 0 rgba(0, 0, 0, 0)'
+  };
+
+  const imageStyle = {
+    width: '100%',
+    height: '380px',
+    objectFit: 'cover',
+    objectPosition: 'center',
+    transition: 'all 0.5s ease',
+    display: 'block'
+  };
+
+  const infoContainerStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginTop: '24px',
+    width: '100%',
+    maxWidth: '320px'
+  };
+
+  const nameStyle = {
+    color: '#070B15',
+    fontSize: '20px',
+    fontWeight: '700',
+    marginBottom: '4px',
+    fontFamily: 'Poppins, sans-serif',
+    transition: 'color 0.3s ease',
+    margin: '0 0 4px 0'
+  };
+
+  const positionStyle = {
+    color: '#6b7280',
+    fontSize: '16px',
+    fontWeight: '400',
+    fontFamily: 'Inter, sans-serif',
+    margin: 0,
+    textAlign: 'center'
+  };
+
+  const mediaQueryStyles = `
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
+    
+    .experts-grid {
+      grid-template-columns: 1fr !important;
+      padding: 0 16px !important;
+      gap: 24px !important;
+    }
+    
+    @media (min-width: 768px) {
+      .experts-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        padding: 0 32px !important;
+        gap: 32px !important;
+      }
+    }
+    
+    @media (min-width: 1024px) {
+      .experts-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        padding: 0 48px !important;
+        gap: 40px !important;
+      }
+    }
+    
+    .expert-card:hover .expert-image-wrapper {
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    .expert-card:hover .expert-image {
+      transform: scale(1.05);
+    }
+    
+    .expert-card:hover .expert-name {
+      color: #F06123;
+    }
+    
+    @media (max-width: 1024px) {
+      .expert-title {
+        font-size: 33px !important;
+      }
+      .expert-subtitle {
+        font-size: 19px !important;
+      }
+    }
+    
+    @media (max-width: 640px) {
+      .expert-title {
+        font-size: 24px !important;
+      }
+      .expert-subtitle {
+        font-size: 16px !important;
+      }
+      .expert-image-wrapper {
+        height: 450px !important;
+        max-width: 100% !important;
+        border-radius: 24px !important;
+      }
+      .expert-image {
+        height: 450px !important;
+        object-fit: cover !important;
+        background-color: #f3f4f6 !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .expert-title {
+        font-size: 20px !important;
+      }
+      .expert-subtitle {
+        font-size: 15px !important;
+      }
+      .expert-image-wrapper {
+        height: 450px !important;
+        max-width: 100% !important;
+        border-radius: 24px !important;
+      }
+      .expert-image {
+        height: 450px !important;
+        object-fit: cover !important;
+        background-color: #f3f4f6 !important;
+      }
+      .expert-name {
+        font-size: 18px !important;
+      }
+      .expert-position {
+        font-size: 14px !important;
+      }
+    }
+  `;
 
   return (
-    <section className="w-full py-12 md:py-24 bg-[#f9fafb] font-sans overflow-hidden select-none">
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-8 md:px-16">
-
-        {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-8 md:mb-14">
-          <h2 className="text-[24px] md:text-[33px] font-bold text-[#383A3C] tracking-tight leading-tight mb-2">
-            {title}
-          </h2>
-          <p className="text-[16px] md:text-[19px] text-[#6B7280] font-normal leading-relaxed">
+    <>
+      <style>{mediaQueryStyles}</style>
+      
+      <motion.div 
+        style={sectionStyle}
+        initial="hidden"
+        animate="visible"
+        variants={staggerContainer}
+      >
+        <motion.div 
+          style={headerContainerStyle}
+          variants={isMobile ? mobileVariants : headerVariants}
+          initial="initial"
+          whileInView="animate"
+          viewport={{ once: false, amount: 0.3 }}
+        >
+          <motion.div style={titleWrapperStyle}>
+            <motion.span className="expert-title" style={titleStyle}>
+              {title}
+            </motion.span>
+          </motion.div>
+          <motion.span className="expert-subtitle" style={subtitleStyle}>
             {subtitle}
-          </p>
-        </div>
-
-        {/* MOBILE SLIDER (< 768px): 1 Card per screen with swipe */}
-        <div className="block md:hidden">
-          <div
-            ref={mobileSliderRef}
-            onScroll={handleMobileScroll}
-            className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-none py-2 -mx-4 px-5 scroll-smooth"
-            style={{ WebkitOverflowScrolling: 'touch' }}
-          >
-            {members.map((member, index) => (
-              <div key={member.id || index} className="w-[85vw] sm:w-[320px] shrink-0 snap-center">
-                <TeamCard member={member} index={index} />
-              </div>
+          </motion.span>
+        </motion.div>
+        
+        <div style={cardsContainerStyle}>
+          <div className="experts-grid" style={gridStyle}>
+            {experts.map((expert, index) => (
+              <motion.div
+                key={expert.id}
+                className="expert-card"
+                style={expertCardStyle}
+                variants={isMobile ? mobileVariants : cardVariants}
+                initial="initial"
+                whileInView="animate"
+                viewport={{ once: false, amount: 0.3 }}
+                whileHover={{ 
+                  y: -8,
+                  scale: 1.02,
+                  transition: { duration: 0.3 }
+                }}
+              >
+                <motion.div 
+                  className="expert-image-wrapper" 
+                  style={imageWrapperStyle}
+                  variants={floatingVariants}
+                  animate="animate"
+                >
+                  <img
+                    src={expert.image}
+                    alt={expert.name}
+                    className="expert-image"
+                    style={imageStyle}
+                    width="320"
+                    height="380"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </motion.div>
+                <motion.div style={infoContainerStyle}>
+                  <motion.h3 
+                    className="expert-name" 
+                    style={nameStyle}
+                    whileHover={{ color: '#F06123' }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {expert.name}
+                  </motion.h3>
+                  <motion.p 
+                    className="expert-position" 
+                    style={positionStyle}
+                  >
+                    {expert.title}
+                  </motion.p>
+                </motion.div>
+              </motion.div>
             ))}
           </div>
-
-          {/* Mobile Dot Indicators */}
-          {members.length > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-6">
-              {members.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => scrollToMobileSlide(i)}
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    activeMobileSlide === i ? 'w-6 bg-[#F06123]' : 'w-2 bg-slate-300'
-                  }`}
-                  aria-label={`Go to slide ${i + 1}`}
-                />
-              ))}
-            </div>
-          )}
         </div>
-
-        {/* DESKTOP GRID (>= 768px): 3-Column Grid */}
-        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {members.map((member, index) => (
-            <TeamCard key={member.id || index} member={member} index={index} />
-          ))}
-        </div>
-
-      </div>
-    </section>
+      </motion.div>
+    </>
   );
 };
 
-function TeamCard({ member, index }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.1 }}
-      transition={{ duration: 0.45, delay: index * 0.05 }}
-      className="flex flex-col items-center group cursor-pointer w-full"
-    >
-      <div className="w-full h-[360px] rounded-2xl overflow-hidden bg-slate-200 shadow-md group-hover:shadow-xl transition-all duration-300">
-        <img
-          src={member.image}
-          alt={member.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          loading="lazy"
-          decoding="async"
-        />
-      </div>
-      <div className="flex flex-col items-center mt-4 text-center">
-        <h3 className="text-[18px] md:text-[21px] font-bold text-[#070B15] group-hover:text-[#F06123] transition-colors">
-          {member.name}
-        </h3>
-        <p className="text-[14px] md:text-[16px] text-[#6B7280] font-normal mt-0.5">
-          {member.role}
-        </p>
-      </div>
-    </motion.div>
-  );
-}
-
-export default TeamSection;
+export default MeetOurExperts;
