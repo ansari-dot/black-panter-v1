@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  FileText, Mail, Save, Printer
+  FileText, Mail, Save, Printer, Lock
 } from 'lucide-react';
 import { TTab } from '../types';
 import { QuotePDFPreview, QuoteDataState } from '../components/QuotePDFPreview';
@@ -23,6 +23,12 @@ interface EmailTemplate {
 
 function EmailTemplateEditor() {
   const [activeTemplateId, setActiveTemplateId] = useState('quotation_send');
+  
+  const [toastMsg, setToastMsg] = useState('');
+  const showLockedToast = () => {
+    setToastMsg('Feature locked.');
+    setTimeout(() => setToastMsg(''), 3000);
+  };
   const sectionCard: React.CSSProperties = { border: '1px solid #e2e2e2', borderRadius: 10, padding: 20, backgroundColor: '#fff' };
 
   const [templates, setTemplates] = useState<EmailTemplate[]>([
@@ -111,16 +117,21 @@ Black Panther Batteries Team`
           {templates.map(t => (
             <button
               key={t.id}
-              onClick={() => setActiveTemplateId(t.id)}
+              onClick={() => { /* setActiveTemplateId(t.id) */ showLockedToast(); }}
+              title="Feature locked"
               style={{
-                padding: '8px 16px', fontSize: 12, fontWeight: 500, cursor: 'pointer',
-                border: activeTemplateId === t.id ? `2px solid ${PRIMARY}` : '1px solid #e2e2e2',
+                padding: '8px 16px', fontSize: 12, fontWeight: 500, cursor: 'not-allowed',
+                border: '1px solid #d1d5db',
                 borderRadius: 6,
-                backgroundColor: activeTemplateId === t.id ? '#fff5f0' : '#fff',
-                color: activeTemplateId === t.id ? PRIMARY : '#1a1a1a',
+                backgroundColor: '#f3f4f6',
+                color: '#9ca3af',
                 transition: 'all 0.2s',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
               }}
             >
+              <Lock size={13} strokeWidth={2.5} />
               {t.label}
             </button>
           ))}
@@ -183,6 +194,20 @@ Black Panther Batteries Team`
           </div>
         </div>
       </div>
+      
+      {toastMsg && (
+        <div style={{
+          position: 'fixed', bottom: 30, right: 30, zIndex: 9999,
+          backgroundColor: '#e84b10', color: '#fff', padding: '14px 24px',
+          borderRadius: 8, boxShadow: '0 10px 30px rgba(232,75,16,0.3)',
+          display: 'flex', alignItems: 'center', gap: 10,
+          fontWeight: 600, fontSize: 14,
+          animation: 'slideUp 0.3s ease-out'
+        }}>
+          <Lock size={18} strokeWidth={2.5} />
+          <span>{toastMsg}</span>
+        </div>
+      )}
     </div>
   );
 }

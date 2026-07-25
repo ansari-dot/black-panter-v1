@@ -21,14 +21,56 @@ const Footer = () => {
     }
   };
 
+  const floatingVariants = {
+    animate: {
+      y: [0, -10, 0],
+      transition: {
+        duration: 4,
+        repeat: Infinity,
+        repeatType: "reverse",
+        ease: "easeInOut"
+      }
+    }
+  };
+
   // Styles
   const footerStyle = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     width: '100%',
-    backgroundColor: '#4a4a4a',
+    background: 'linear-gradient(135deg, #2a2a2a 0%, #3d3d3d 50%, #8B492C 100%)',
+    position: 'relative',
+    overflow: 'hidden',
     boxSizing: 'border-box'
+  };
+
+  const backgroundCircle1 = {
+    position: 'absolute',
+    top: '40px',
+    right: '40px',
+    width: '384px',
+    height: '384px',
+    backgroundColor: '#F06123',
+    borderRadius: '50%',
+    opacity: '0.15',
+    filter: 'blur(80px)',
+    pointerEvents: 'none',
+    zIndex: 0
+  };
+
+  const backgroundCircle2 = {
+    position: 'absolute',
+    bottom: '100px',
+    left: '40px',
+    width: '320px',
+    height: '320px',
+    backgroundColor: '#FF8803',
+    borderRadius: '50%',
+    opacity: '0.15',
+    filter: 'blur(80px)',
+    pointerEvents: 'none',
+    zIndex: 0
   };
 
   const mainContentStyle = {
@@ -41,7 +83,9 @@ const Footer = () => {
     margin: '0 auto',
     padding: '60px 80px',
     gap: '60px',
-    boxSizing: 'border-box'
+    boxSizing: 'border-box',
+    position: 'relative',
+    zIndex: 1
   };
 
   const brandSectionStyle = {
@@ -153,7 +197,9 @@ const Footer = () => {
   const bottomBarStyle = {
     width: '100%',
     borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-    backgroundColor: '#3d3d3d'
+    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+    position: 'relative',
+    zIndex: 1
   };
 
   const copyrightContainerStyle = {
@@ -256,6 +302,18 @@ const Footer = () => {
         viewport={{ once: true, amount: 0.1 }}
         variants={staggerContainer}
       >
+        {/* Background Animated Circles */}
+        <motion.div
+          style={backgroundCircle1}
+          variants={floatingVariants}
+          animate="animate"
+        ></motion.div>
+        <motion.div
+          style={backgroundCircle2}
+          variants={floatingVariants}
+          animate="animate"
+        ></motion.div>
+
         <div className="footer-main-content" style={mainContentStyle}>
           {/* Brand Section */}
           <motion.div 

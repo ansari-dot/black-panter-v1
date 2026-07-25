@@ -42,7 +42,7 @@ export default function Testimonials() {
   if (!testimonials.length) return null;
 
   return (
-    <section className="w-full py-12 md:py-16 bg-[#F8F9FA] font-sans overflow-hidden select-none">
+    <section className="w-full py-12 md:py-16 bg-[#F1F3F5] font-sans overflow-hidden select-none">
       <div className="max-w-[1280px] mx-auto px-4 sm:px-8 md:px-16">
         
         {/* Unified Header */}
@@ -96,7 +96,7 @@ export default function Testimonials() {
 
         {/* DESKTOP SLIDER (>= 768px): 3 Cards per view */}
         <div className="hidden md:block">
-          <div className="relative overflow-hidden">
+          <div className="relative overflow-hidden py-8 -my-8 px-4 -mx-4">
             <div
               className="flex gap-6 transition-transform duration-500 ease-out"
               style={{

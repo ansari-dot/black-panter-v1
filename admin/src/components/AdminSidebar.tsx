@@ -212,7 +212,6 @@ export default function AdminSidebar({ currentTab, setCurrentTab, onLogout }: Ad
           </button>
           {(['inventory','products','categories','warehouses'] as const).includes(currentTab as any) && (
             <div style={{ marginLeft: 40, marginTop: 2, marginBottom: 4, display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {/* Temporarily hidden Overview navitem
               <button
                 onClick={() => setCurrentTab('inventory')}
                 className="text-left cursor-pointer rounded flex items-center gap-2"
@@ -220,7 +219,6 @@ export default function AdminSidebar({ currentTab, setCurrentTab, onLogout }: Ad
               >
                 Overview
               </button>
-              */}
               <button
                 onClick={() => setCurrentTab('products')}
                 className="text-left cursor-pointer rounded flex items-center gap-2"
@@ -235,7 +233,6 @@ export default function AdminSidebar({ currentTab, setCurrentTab, onLogout }: Ad
               >
                 Categories
               </button>
-              {/* Temporarily hidden Warehouses navitem
               <button
                 onClick={() => setCurrentTab('warehouses')}
                 className="text-left cursor-pointer rounded flex items-center gap-2"
@@ -243,7 +240,6 @@ export default function AdminSidebar({ currentTab, setCurrentTab, onLogout }: Ad
               >
                 Warehouses
               </button>
-              */}
             </div>
           )}
         </div>

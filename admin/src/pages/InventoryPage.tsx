@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import {
   Box, ArrowDownToLine, ArrowUpFromLine, Plus, Search, ChevronDown,
   Package, Archive, TriangleAlert, CircleAlert, DollarSign,
-  Pencil, X, ChevronLeft, ChevronRight, Check, AlertCircle,
+  Pencil, X, ChevronLeft, ChevronRight, Check, AlertCircle, Lock, CheckCircle,
 } from 'lucide-react';
 import { TProduct, TStockMovement, TWarehouse } from '../types';
 
@@ -406,6 +406,12 @@ export default function InventoryPage({ products, movements, warehouses, onStock
   const [page, setPage] = useState(1);
   const perPage = 8;
 
+  const [toastMsg, setToastMsg] = useState('');
+  const showLockedToast = () => {
+    setToastMsg('Feature locked.');
+    setTimeout(() => setToastMsg(''), 3000);
+  };
+
   // Derived categories from real products
   const categories = useMemo(() => {
     const cats = Array.from(new Set(products.map((p) => p.category).filter(Boolean)));
@@ -487,17 +493,19 @@ export default function InventoryPage({ products, movements, warehouses, onStock
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <button
-            onClick={() => openStockModal('in')}
-            style={{ display: 'flex', alignItems: 'center', gap: 8, border: '1px solid #16a34a', backgroundColor: '#f0fdf4', color: '#16a34a', fontSize: 13, fontWeight: 600, padding: '9px 16px', borderRadius: 8, cursor: 'pointer' }}
+            onClick={() => { /* openStockModal('in') */ showLockedToast(); }}
+            style={{ display: 'flex', alignItems: 'center', gap: 8, border: '1px solid #d1d5db', backgroundColor: '#f3f4f6', color: '#9ca3af', fontSize: 13, fontWeight: 600, padding: '9px 16px', borderRadius: 8, cursor: 'not-allowed' }}
+            title="Feature locked"
           >
-            <ArrowDownToLine size={15} strokeWidth={2.5} />
+            <Lock size={15} strokeWidth={2.5} />
             Stock In
           </button>
           <button
-            onClick={() => openStockModal('out')}
-            style={{ display: 'flex', alignItems: 'center', gap: 8, border: '1px solid #dc2626', backgroundColor: '#fff5f5', color: '#dc2626', fontSize: 13, fontWeight: 600, padding: '9px 16px', borderRadius: 8, cursor: 'pointer' }}
+            onClick={() => { /* openStockModal('out') */ showLockedToast(); }}
+            style={{ display: 'flex', alignItems: 'center', gap: 8, border: '1px solid #d1d5db', backgroundColor: '#f3f4f6', color: '#9ca3af', fontSize: 13, fontWeight: 600, padding: '9px 16px', borderRadius: 8, cursor: 'not-allowed' }}
+            title="Feature locked"
           >
-            <ArrowUpFromLine size={15} strokeWidth={2.5} />
+            <Lock size={15} strokeWidth={2.5} />
             Stock Out
           </button>
           <button
@@ -643,18 +651,18 @@ export default function InventoryPage({ products, movements, warehouses, onStock
                 <td style={{ padding: '12px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <button
-                      onClick={() => openStockModal('in', item.id)}
-                      title="Stock In"
-                      style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid #dcfce7', backgroundColor: '#f0fdf4', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                      onClick={() => { /* openStockModal('in', item.id) */ showLockedToast(); }}
+                      title="Feature locked"
+                      style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid #d1d5db', backgroundColor: '#f3f4f6', color: '#9ca3af', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'not-allowed' }}
                     >
-                      <ArrowDownToLine size={13} strokeWidth={2.5} />
+                      <Lock size={13} strokeWidth={2.5} />
                     </button>
                     <button
-                      onClick={() => openStockModal('out', item.id)}
-                      title="Stock Out"
-                      style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid #fee2e2', backgroundColor: '#fff5f5', color: '#dc2626', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                      onClick={() => { /* openStockModal('out', item.id) */ showLockedToast(); }}
+                      title="Feature locked"
+                      style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid #d1d5db', backgroundColor: '#f3f4f6', color: '#9ca3af', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'not-allowed' }}
                     >
-                      <ArrowUpFromLine size={13} strokeWidth={2.5} />
+                      <Lock size={13} strokeWidth={2.5} />
                     </button>
                     <button
                       onClick={() => setConfigProduct(item)}
@@ -717,8 +725,9 @@ export default function InventoryPage({ products, movements, warehouses, onStock
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
             {[...outOfStockItems, ...lowStockItems].slice(0, 6).length === 0 ? (
-              <div style={{ padding: '24px 0', textAlign: 'center', color: '#888', fontSize: 13 }}>
-                ✅ All products are well-stocked!
+              <div style={{ padding: '24px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: '#888', fontSize: 13 }}>
+                <CheckCircle size={16} color="#16a34a" strokeWidth={2.5} />
+                All products are well-stocked!
               </div>
             ) : [...outOfStockItems, ...lowStockItems].slice(0, 6).map((p) => (
               <div key={p.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid #f0f0f0' }}>
@@ -780,6 +789,20 @@ export default function InventoryPage({ products, movements, warehouses, onStock
         </div>
 
       </div>
+
+      {toastMsg && (
+        <div style={{
+          position: 'fixed', bottom: 30, right: 30, zIndex: 9999,
+          backgroundColor: '#e84b10', color: '#fff', padding: '14px 24px',
+          borderRadius: 8, boxShadow: '0 10px 30px rgba(232,75,16,0.3)',
+          display: 'flex', alignItems: 'center', gap: 10,
+          fontWeight: 600, fontSize: 14,
+          animation: 'slideUp 0.3s ease-out'
+        }}>
+          <Lock size={18} strokeWidth={2.5} />
+          <span>{toastMsg}</span>
+        </div>
+      )}
     </div>
   );
 }

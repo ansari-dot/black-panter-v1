@@ -120,7 +120,6 @@ const MeetOurExperts = ({
     alignSelf: 'stretch',
     backgroundColor: '#f9fafb',
     padding: '80px 0',
-    marginBottom: '80px',
     gap: '50px',
     width: '100%',
     boxSizing: 'border-box'

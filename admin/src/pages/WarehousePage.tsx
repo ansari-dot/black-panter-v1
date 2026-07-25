@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Warehouse, Plus, X, Pencil, Trash2, MapPin, Phone, Mail,
-  User, Search, Building2, CheckCircle, XCircle, AlertCircle, Check,
+  User, Search, Building2, CheckCircle, XCircle, AlertCircle, Check, Lock,
 } from 'lucide-react';
 import { TWarehouse, TStockMovement } from '../types';
 import { ArrowDownToLine, ArrowUpFromLine } from 'lucide-react';
@@ -238,6 +238,12 @@ export default function WarehousePage({ warehouses, movements, onAdd, onUpdate, 
   const [search, setSearch] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
+  const [toastMsg, setToastMsg] = useState('');
+  const showLockedToast = () => {
+    setToastMsg('Feature locked.');
+    setTimeout(() => setToastMsg(''), 3000);
+  };
+
   const filtered = warehouses.filter((w) => {
     if (!search) return true;
     const q = search.toLowerCase();
@@ -286,10 +292,11 @@ export default function WarehousePage({ warehouses, movements, onAdd, onUpdate, 
           </div>
         </div>
         <button
-          onClick={() => { setEditTarget(null); setShowForm(true); }}
-          style={{ display: 'flex', alignItems: 'center', gap: 8, backgroundColor: '#e84b10', color: '#fff', fontSize: 13, fontWeight: 600, padding: '10px 18px', borderRadius: 8, cursor: 'pointer', border: 'none' }}
+          onClick={() => { /* setEditTarget(null); setShowForm(true); */ showLockedToast(); }}
+          title="Feature locked"
+          style={{ display: 'flex', alignItems: 'center', gap: 8, backgroundColor: '#f3f4f6', color: '#9ca3af', border: '1px solid #d1d5db', fontSize: 13, fontWeight: 600, padding: '10px 18px', borderRadius: 8, cursor: 'not-allowed' }}
         >
-          <Plus size={15} strokeWidth={2.5} />
+          <Lock size={15} strokeWidth={2.5} />
           Add Warehouse
         </button>
       </div>
@@ -340,10 +347,11 @@ export default function WarehousePage({ warehouses, movements, onAdd, onUpdate, 
             </div>
             {warehouses.length === 0 && (
               <button
-                onClick={() => setShowForm(true)}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, backgroundColor: '#e84b10', color: '#fff', fontSize: 13, fontWeight: 600, padding: '10px 20px', borderRadius: 8, cursor: 'pointer', border: 'none' }}
+                onClick={() => { /* setShowForm(true) */ showLockedToast(); }}
+                title="Feature locked"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, backgroundColor: '#f3f4f6', color: '#9ca3af', border: '1px solid #d1d5db', fontSize: 13, fontWeight: 600, padding: '10px 20px', borderRadius: 8, cursor: 'not-allowed' }}
               >
-                <Plus size={15} /> Add First Warehouse
+                <Lock size={15} /> Add First Warehouse
               </button>
             )}
           </div>
@@ -482,6 +490,20 @@ export default function WarehousePage({ warehouses, movements, onAdd, onUpdate, 
           </div>
         )}
       </div>
+      
+      {toastMsg && (
+        <div style={{
+          position: 'fixed', bottom: 30, right: 30, zIndex: 9999,
+          backgroundColor: '#e84b10', color: '#fff', padding: '14px 24px',
+          borderRadius: 8, boxShadow: '0 10px 30px rgba(232,75,16,0.3)',
+          display: 'flex', alignItems: 'center', gap: 10,
+          fontWeight: 600, fontSize: 14,
+          animation: 'slideUp 0.3s ease-out'
+        }}>
+          <Lock size={18} strokeWidth={2.5} />
+          <span>{toastMsg}</span>
+        </div>
+      )}
     </div>
   );
 }

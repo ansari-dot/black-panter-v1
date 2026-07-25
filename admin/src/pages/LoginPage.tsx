@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Lock, Eye, EyeOff, ShieldAlert, ArrowRight, CheckCircle2, KeyRound, RefreshCw, Box, Settings, Users, ShieldCheck } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ShieldAlert, ArrowRight, CheckCircle2, KeyRound, RefreshCw, Box, Wrench, Settings, Users, ShieldCheck } from 'lucide-react';
 import logoImg from '../../../client/src/assets/logo.webp';
 import bgImg from '../../assets/admin.png';
 
@@ -62,8 +62,8 @@ export default function LoginPage({ onLoginSuccess, productsCount, activeService
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          email: email.trim(), 
+        body: JSON.stringify({
+          email: email.trim(),
           password,
           ...(requiresOtp ? { otp: otp.trim() } : {})
         }),
@@ -132,23 +132,25 @@ export default function LoginPage({ onLoginSuccess, productsCount, activeService
   };
 
   return (
-    <div 
-      className="min-h-screen w-full flex font-sans overflow-hidden select-none bg-cover bg-center bg-no-repeat"
+    <div
+      className="min-h-screen w-full flex font-sans overflow-hidden select-none bg-cover bg-center bg-no-repeat relative"
       style={{ backgroundImage: `url(${bgImg})` }}
     >
-      
+      {/* Dark Gradient Overlay for the Lion/Panther Background */}
+      <div className="absolute inset-0 w-full lg:w-2/3 bg-gradient-to-r from-black/80 via-black/40 to-transparent pointer-events-none z-0" />
+
       {/* LEFT SECTION - TEXT & STATS OVERLAY */}
       <div className="hidden lg:flex w-1/2 relative flex-col justify-between p-12 z-10">
-        
+
         {/* Top Header Logo */}
-        <div className="flex items-center gap-3 relative z-20">
+        <div className="flex items-start gap-3 relative z-20">
           <img src={logoImg} alt="Black Panther Batteries" className="w-12 h-12 object-contain" />
-          <div>
-            <h2 className="font-bold text-white text-base tracking-wider leading-tight uppercase font-headings">
-              BLACK PANTHER BATTERIES
+          <div className="flex flex-col">
+            <h2 className="font-extrabold text-white text-base tracking-widest leading-tight uppercase">
+              BLACK PANTHER<br />BATTERIES
             </h2>
-            <span className="text-[11px] font-semibold text-[#F06123] tracking-widest uppercase">
-              ADMIN PORTAL
+            <span className="text-[10px] font-medium text-gray-400 tracking-widest uppercase mt-0.5">
+              POWER UNLEASHED
             </span>
           </div>
         </div>
@@ -159,39 +161,39 @@ export default function LoginPage({ onLoginSuccess, productsCount, activeService
             Manage your <br />
             <span className="text-[#F06123]">battery business</span>
           </h1>
-          <p className="text-gray-300 text-sm max-w-sm mb-10 leading-relaxed font-normal drop-shadow">
-            Products, services, team, and client inquiries — all in one place.
+          <p className="text-gray-400 text-sm max-w-xs mb-12 leading-relaxed font-normal drop-shadow">
+            Products, services, team, and client<br />inquiries, all in one place.
           </p>
 
           {/* Stats Items */}
-          <div className="flex flex-col gap-4 z-20">
-            <div className="flex items-center gap-4 bg-[#0F1626]/80 border border-slate-800/80 backdrop-blur-md px-5 py-3.5 rounded-2xl w-56 shadow-lg">
-              <div className="w-10 h-10 rounded-xl bg-[#F06123]/10 border border-[#F06123]/30 flex items-center justify-center text-[#F06123]">
+          <div className="flex flex-col gap-6 z-20 mt-4">
+            <div className="flex items-center gap-4 bg-transparent border-b border-white/10 pb-4 w-64">
+              <div className="w-10 h-10 rounded-xl border border-[#F06123]/30 flex items-center justify-center text-[#F06123]">
                 <Box size={20} />
               </div>
               <div>
                 <div className="text-lg font-extrabold text-white">0+</div>
-                <div className="text-xs text-gray-400 font-medium">Products</div>
+                <div className="text-sm text-gray-400 font-medium">Products</div>
               </div>
             </div>
 
-            <div className="flex items-center gap-4 bg-[#0F1626]/80 border border-slate-800/80 backdrop-blur-md px-5 py-3.5 rounded-2xl w-56 shadow-lg">
-              <div className="w-10 h-10 rounded-xl bg-[#F06123]/10 border border-[#F06123]/30 flex items-center justify-center text-[#F06123]">
-                <Settings size={20} />
+            <div className="flex items-center gap-4 bg-transparent border-b border-white/10 pb-4 w-64">
+              <div className="w-10 h-10 rounded-xl border border-[#F06123]/30 flex items-center justify-center text-[#F06123]">
+                <Wrench size={20} />
               </div>
               <div>
                 <div className="text-lg font-extrabold text-white">5</div>
-                <div className="text-xs text-gray-400 font-medium">Active Services</div>
+                <div className="text-sm text-gray-400 font-medium">Active Services</div>
               </div>
             </div>
 
-            <div className="flex items-center gap-4 bg-[#0F1626]/80 border border-slate-800/80 backdrop-blur-md px-5 py-3.5 rounded-2xl w-56 shadow-lg">
-              <div className="w-10 h-10 rounded-xl bg-[#F06123]/10 border border-[#F06123]/30 flex items-center justify-center text-[#F06123]">
+            <div className="flex items-center gap-4 bg-transparent border-b border-white/10 pb-4 w-64">
+              <div className="w-10 h-10 rounded-xl border border-[#F06123]/30 flex items-center justify-center text-[#F06123]">
                 <Users size={20} />
               </div>
               <div>
                 <div className="text-lg font-extrabold text-white">500+</div>
-                <div className="text-xs text-gray-400 font-medium">Clients Served</div>
+                <div className="text-sm text-gray-400 font-medium">Clients Served</div>
               </div>
             </div>
           </div>
@@ -206,7 +208,7 @@ export default function LoginPage({ onLoginSuccess, productsCount, activeService
       {/* RIGHT SECTION - FORM PANEL */}
       {/* On desktop, the background is transparent because the image already has the white angled shape. On mobile, we use a solid white background. */}
       <div className="w-full lg:w-1/2 bg-white lg:bg-transparent flex flex-col justify-between p-6 sm:p-12 md:p-16 relative z-20">
-        
+
         {/* Top Spacer or Mobile Header */}
         <div className="w-full flex items-center justify-between lg:justify-end mb-8 relative z-20">
           <div className="flex lg:hidden items-center gap-3">
@@ -218,71 +220,69 @@ export default function LoginPage({ onLoginSuccess, productsCount, activeService
         </div>
 
         {/* Center Login Form Container */}
-        <div className="w-full max-w-md mx-auto my-auto relative z-20">
-          
+        <div className="w-full max-w-md mx-auto lg:translate-x-10 xl:translate-x-16 my-auto relative z-20">
+
           {/* Main Logo Header */}
-          <div className="flex flex-col items-center text-center mb-8">
-            <img src={logoImg} alt="Black Panther Logo" className="w-20 h-20 object-contain mb-3 drop-shadow-md" />
-            <h2 className="text-xl font-black text-[#0F172A] tracking-wider uppercase">
+          <div className="flex flex-col items-center text-center mb-10">
+            <img src={logoImg} alt="Black Panther Logo" className="w-24 h-24 object-contain mb-4 drop-shadow-md" />
+            <h2 className="text-[22px] leading-tight font-black text-slate-600 tracking-wider uppercase">
               BLACK PANTHER
             </h2>
-            <h3 className="text-lg font-black text-[#0F172A] tracking-wider uppercase mb-1">
+            <h3 className="text-[22px] leading-tight font-black text-slate-600 tracking-wider uppercase mb-1">
               BATTERIES
             </h3>
-            <span className="text-[11px] font-bold tracking-[0.25em] text-[#64748B] uppercase">
+            <span className="text-[10px] font-bold tracking-[0.2em] text-slate-400 uppercase mt-1">
               POWER UNLEASHED
             </span>
           </div>
 
           {/* Form Welcome Header */}
-          <div className="mb-6">
-            <h3 className="text-2xl font-black text-[#0F172A] tracking-tight mb-1">
+          <div className="mb-8">
+            <h3 className="text-3xl font-bold text-slate-900 tracking-tight mb-2">
               Welcome <span className="text-[#F06123]">back</span>
             </h3>
-            <p className="text-sm font-medium text-slate-500">
+            <p className="text-[15px] font-medium text-slate-500">
               {requiresOtp ? 'Enter 6-digit verification code' : 'Sign in to your admin account'}
             </p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-5">
-            
+
             {/* Email Field */}
-            <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-slate-700">Email</label>
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-slate-800">Email</label>
               <div className="relative flex items-center">
-                <Mail className="absolute left-3.5 w-4 h-4 text-slate-400" />
                 <input
                   required
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="admin@example.com"
-                  className="w-full pl-10 pr-4 py-3 text-sm text-slate-800 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#F06123] focus:ring-2 focus:ring-[#F06123]/15 transition-all shadow-sm font-medium placeholder:text-slate-400"
+                  className="w-full px-4 py-3.5 text-sm text-slate-800 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#F06123] focus:ring-1 focus:ring-[#F06123] transition-all shadow-sm font-medium placeholder:text-slate-400"
                 />
               </div>
             </div>
 
             {/* Password Field */}
-            <div className="space-y-1.5">
+            <div className="space-y-2 mt-2">
               <div className="flex items-center justify-between">
-                <label className="block text-xs font-bold text-slate-700">Password</label>
+                <label className="block text-sm font-bold text-slate-800">Password</label>
                 <button
                   type="button"
-                  className="text-xs font-semibold text-[#F06123] hover:underline"
+                  className="text-xs font-bold text-slate-600 hover:text-slate-900 transition-colors"
                   onClick={() => alert('Password must be at least 8 characters long and contain uppercase, lowercase, numbers, and special characters.')}
                 >
-                  Password rules?
+                  Forgot rules?
                 </button>
               </div>
               <div className="relative flex items-center">
-                <Lock className="absolute left-3.5 w-4 h-4 text-slate-400" />
                 <input
                   required
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your strong password"
-                  className="w-full pl-10 pr-10 py-3 text-sm text-slate-800 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#F06123] focus:ring-2 focus:ring-[#F06123]/15 transition-all shadow-sm font-mono placeholder:text-slate-400"
+                  className="w-full pl-4 pr-10 py-3.5 text-sm text-slate-800 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#F06123] focus:ring-1 focus:ring-[#F06123] transition-all shadow-sm font-medium placeholder:text-slate-400"
                 />
                 <button
                   type="button"
@@ -361,26 +361,23 @@ export default function LoginPage({ onLoginSuccess, productsCount, activeService
             <button
               type="submit"
               disabled={isSubmitting || successAnimation}
-              className="w-full py-3.5 rounded-xl text-sm font-bold text-white shadow-lg shadow-[#F06123]/25 flex items-center justify-center gap-2 transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
-              style={{
-                background: successAnimation ? '#10B981' : 'linear-gradient(to right, #F06123, #FF8803)'
-              }}
+              className="w-full py-4 mt-4 rounded-xl text-sm font-bold text-white shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] cursor-pointer bg-[#F06123] hover:bg-[#E05214]"
             >
               {successAnimation ? (
-                <><CheckCircle2 className="w-5 h-5" /> Access Granted</>
+                'Access Granted'
               ) : isSubmitting ? (
-                <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Verifying...</>
+                'Verifying...'
               ) : requiresOtp ? (
-                <>Verify OTP & Open Dashboard <ArrowRight className="w-4 h-4" /></>
+                'Verify OTP & Open Dashboard'
               ) : (
-                <>Sign In <ArrowRight className="w-4 h-4" /></>
+                'Sign In'
               )}
             </button>
           </form>
 
           {/* Footer Tagline */}
-          <div className="flex items-center justify-center gap-2 mt-8 text-xs text-slate-400 font-medium">
-            <ShieldCheck size={15} className="text-emerald-500" />
+          <div className="flex items-center justify-center gap-1.5 mt-8 text-[11px] text-slate-400 font-medium">
+            <CheckCircle2 size={13} className="text-[#F06123]" />
             <span>2-Step Security Enforced • Black Panther Corp.</span>
           </div>
         </div>

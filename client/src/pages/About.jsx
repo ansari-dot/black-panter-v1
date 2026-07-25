@@ -9,6 +9,7 @@ import TeamSection from "../components/Team";
 import TestimonialsSection from "../components/TestiomonialsSection";
 import TestimonialsCards from "../components/Testimonials";
 import CTA from "../components/CTA";
+import IndustryServe from "../components/IndustryServe";
 import aboutHeroImage from '../assets/herosections/about.webp';
 
 export const About = () => {
@@ -25,7 +26,7 @@ export const About = () => {
       <TeamSection />
       <TestimonialsCards />
       <CTA />
-     
+      <IndustryServe />
       <Footer />
     </PageLayout>
   );

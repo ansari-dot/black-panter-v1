@@ -34,11 +34,34 @@ export default function HomeProductsSection() {
     setActiveSlide(index);
   };
 
+  const floatingVariants = {
+    animate: {
+      y: [0, -10, 0],
+      transition: {
+        duration: 4,
+        repeat: Infinity,
+        repeatType: "reverse",
+        ease: "easeInOut"
+      }
+    }
+  };
+
   return (
-    <section className="relative bg-white py-12 md:py-24 px-4 sm:px-8 md:px-16 overflow-hidden font-sans select-none">
-      {/* Ambient blobs */}
-      <div className="absolute w-64 h-64 bg-[#fcede4] rounded-full top-10 right-10 z-0 pointer-events-none blur-xl opacity-60" />
-      <div className="absolute w-48 h-48 bg-[#efe6dc] rounded-full bottom-10 left-10 z-0 pointer-events-none blur-xl opacity-60" />
+    <section 
+      className="relative py-12 md:py-24 px-4 sm:px-8 md:px-16 overflow-hidden font-sans select-none"
+      style={{ background: 'linear-gradient(135deg, #2a2a2a 0%, #3d3d3d 50%, #8B492C 100%)' }}
+    >
+      {/* Background Animated Circles */}
+      <motion.div
+        className="absolute top-[40px] right-[40px] w-[384px] h-[384px] bg-[#F06123] rounded-full opacity-[0.15] blur-[80px] pointer-events-none z-0"
+        variants={floatingVariants}
+        animate="animate"
+      ></motion.div>
+      <motion.div
+        className="absolute bottom-[40px] left-[40px] w-[320px] h-[320px] bg-[#FF8803] rounded-full opacity-[0.15] blur-[80px] pointer-events-none z-0"
+        variants={floatingVariants}
+        animate="animate"
+      ></motion.div>
 
       <div className="max-w-[1280px] mx-auto relative z-10">
 
@@ -50,10 +73,10 @@ export default function HomeProductsSection() {
               Our Products
               <span className="block w-8 h-[2px] bg-[#F06123] opacity-60" />
             </div>
-            <h2 className="text-[24px] md:text-[33px] font-bold text-[#383A3C] tracking-tight leading-tight">
+            <h2 className="text-[24px] md:text-[33px] font-bold text-white tracking-tight leading-tight drop-shadow-md">
               Industrial Battery Solutions
             </h2>
-            <p className="text-[16px] md:text-[19px] font-normal text-[#6B7280] mt-2 max-w-lg leading-relaxed">
+            <p className="text-[16px] md:text-[19px] font-medium text-gray-300 mt-2 max-w-lg leading-relaxed">
               Premium-grade batteries engineered for critical infrastructure and field operations.
             </p>
           </div>
