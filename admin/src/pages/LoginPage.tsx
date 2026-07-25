@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Lock, Eye, EyeOff, ShieldAlert, ArrowRight, CheckCircle2, KeyRound, RefreshCw, Box, Settings, Users, ShieldCheck } from 'lucide-react';
 import logoImg from '../../../client/src/assets/logo.webp';
+import bgImg from '../../assets/admin.png';
 
 interface LoginPageProps {
   onLoginSuccess: (user: { id: string; name: string; email: string; role: string }) => void;
@@ -131,15 +132,14 @@ export default function LoginPage({ onLoginSuccess, productsCount, activeService
   };
 
   return (
-    <div className="min-h-screen w-full flex bg-[#070B15] font-sans overflow-hidden select-none relative">
+    <div 
+      className="min-h-screen w-full flex font-sans overflow-hidden select-none bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: `url(${bgImg})` }}
+    >
       
-      {/* LEFT SECTION - DARK BRANDING PANEL WITH PANTHER & LIGHTNING VISUAL */}
-      <div className="hidden lg:flex w-1/2 relative bg-[#070B15] flex-col justify-between p-12 overflow-hidden z-10">
+      {/* LEFT SECTION - TEXT & STATS OVERLAY */}
+      <div className="hidden lg:flex w-1/2 relative flex-col justify-between p-12 z-10">
         
-        {/* Background Glowing Ambient Orbs */}
-        <div className="absolute top-1/4 left-1/3 w-96 h-96 bg-[#F06123]/15 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-10 left-10 w-80 h-80 bg-[#FF8803]/10 rounded-full blur-[100px] pointer-events-none" />
-
         {/* Top Header Logo */}
         <div className="flex items-center gap-3 relative z-20">
           <img src={logoImg} alt="Black Panther Batteries" className="w-12 h-12 object-contain" />
@@ -155,98 +155,58 @@ export default function LoginPage({ onLoginSuccess, productsCount, activeService
 
         {/* Center Hero Content & Stats Grid */}
         <div className="relative z-20 my-auto py-8">
-          <h1 className="text-4xl font-extrabold text-white leading-tight mb-3 tracking-tight">
+          <h1 className="text-4xl font-extrabold text-white leading-tight mb-3 tracking-tight drop-shadow-md">
             Manage your <br />
             <span className="text-[#F06123]">battery business</span>
           </h1>
-          <p className="text-slate-400 text-sm max-w-sm mb-10 leading-relaxed font-normal">
+          <p className="text-gray-300 text-sm max-w-sm mb-10 leading-relaxed font-normal drop-shadow">
             Products, services, team, and client inquiries — all in one place.
           </p>
 
-          {/* Left Side Graphic Visuals + Stats Cards Container */}
-          <div className="flex items-center gap-8 relative">
-            {/* Stats Items */}
-            <div className="flex flex-col gap-4 z-20">
-              <div className="flex items-center gap-4 bg-[#0F1626]/80 border border-slate-800/80 backdrop-blur-md px-5 py-3.5 rounded-2xl w-56 shadow-lg">
-                <div className="w-10 h-10 rounded-xl bg-[#F06123]/10 border border-[#F06123]/30 flex items-center justify-center text-[#F06123]">
-                  <Box size={20} />
-                </div>
-                <div>
-                  <div className="text-lg font-extrabold text-white">{productsCount}+</div>
-                  <div className="text-xs text-slate-400 font-medium">Products</div>
-                </div>
+          {/* Stats Items */}
+          <div className="flex flex-col gap-4 z-20">
+            <div className="flex items-center gap-4 bg-[#0F1626]/80 border border-slate-800/80 backdrop-blur-md px-5 py-3.5 rounded-2xl w-56 shadow-lg">
+              <div className="w-10 h-10 rounded-xl bg-[#F06123]/10 border border-[#F06123]/30 flex items-center justify-center text-[#F06123]">
+                <Box size={20} />
               </div>
-
-              <div className="flex items-center gap-4 bg-[#0F1626]/80 border border-slate-800/80 backdrop-blur-md px-5 py-3.5 rounded-2xl w-56 shadow-lg">
-                <div className="w-10 h-10 rounded-xl bg-[#F06123]/10 border border-[#F06123]/30 flex items-center justify-center text-[#F06123]">
-                  <Settings size={20} />
-                </div>
-                <div>
-                  <div className="text-lg font-extrabold text-white">{activeServicesCount}</div>
-                  <div className="text-xs text-slate-400 font-medium">Active Services</div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4 bg-[#0F1626]/80 border border-slate-800/80 backdrop-blur-md px-5 py-3.5 rounded-2xl w-56 shadow-lg">
-                <div className="w-10 h-10 rounded-xl bg-[#F06123]/10 border border-[#F06123]/30 flex items-center justify-center text-[#F06123]">
-                  <Users size={20} />
-                </div>
-                <div>
-                  <div className="text-lg font-extrabold text-white">{clientsCount}+</div>
-                  <div className="text-xs text-slate-400 font-medium">Clients Served</div>
-                </div>
+              <div>
+                <div className="text-lg font-extrabold text-white">0+</div>
+                <div className="text-xs text-gray-400 font-medium">Products</div>
               </div>
             </div>
 
-            {/* Panther Battery Graphic SVG Art */}
-            <div className="relative w-64 h-64 flex items-center justify-center">
-              {/* Subtle Glowing Panther Outline & Lightning */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-[#F06123]/20 via-transparent to-[#FF8803]/10 rounded-full blur-2xl animate-pulse" />
-              <div className="relative z-10 w-full h-full flex flex-col items-center justify-center">
-                <div className="w-48 h-40 bg-[#0B101D] border border-[#F06123]/40 rounded-2xl p-4 shadow-2xl flex flex-col items-center justify-center relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 w-16 h-16 bg-[#F06123]/10 rounded-full blur-xl" />
-                  <img src={logoImg} alt="Battery Logo" className="w-16 h-16 object-contain mb-2 drop-shadow-[0_0_15px_rgba(240,97,35,0.6)]" />
-                  <div className="text-xs font-bold text-white tracking-widest text-center">BLACK PANTHER</div>
-                  <div className="text-[10px] text-[#F06123] font-bold tracking-wider text-center">POWER UNLEASHED</div>
-                </div>
+            <div className="flex items-center gap-4 bg-[#0F1626]/80 border border-slate-800/80 backdrop-blur-md px-5 py-3.5 rounded-2xl w-56 shadow-lg">
+              <div className="w-10 h-10 rounded-xl bg-[#F06123]/10 border border-[#F06123]/30 flex items-center justify-center text-[#F06123]">
+                <Settings size={20} />
+              </div>
+              <div>
+                <div className="text-lg font-extrabold text-white">5</div>
+                <div className="text-xs text-gray-400 font-medium">Active Services</div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 bg-[#0F1626]/80 border border-slate-800/80 backdrop-blur-md px-5 py-3.5 rounded-2xl w-56 shadow-lg">
+              <div className="w-10 h-10 rounded-xl bg-[#F06123]/10 border border-[#F06123]/30 flex items-center justify-center text-[#F06123]">
+                <Users size={20} />
+              </div>
+              <div>
+                <div className="text-lg font-extrabold text-white">500+</div>
+                <div className="text-xs text-gray-400 font-medium">Clients Served</div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="text-xs text-slate-500 font-medium relative z-20">
+        <div className="text-xs text-gray-400 font-medium relative z-20 drop-shadow">
           © {new Date().getFullYear()} Black Panther Corp.
         </div>
       </div>
 
-      {/* ANGLED SEPARATOR CHEVRON LINE */}
-      <div 
-        className="hidden lg:block absolute inset-y-0 left-1/2 -ml-16 w-32 z-30 pointer-events-none"
-        style={{
-          background: 'linear-gradient(135deg, #070B15 50%, #F8F9FA 50%)',
-          clipPath: 'polygon(0 0, 100% 0, 40% 50%, 100% 100%, 0 100%, 0% 50%)',
-          boxShadow: '10px 0 30px rgba(0,0,0,0.5)'
-        }}
-      />
-      {/* Orange Accent Chevron Stroke */}
-      <svg className="hidden lg:block absolute inset-y-0 left-1/2 -ml-2 w-12 h-full z-40 pointer-events-none" viewBox="0 0 100 1000" preserveAspectRatio="none">
-        <path d="M 0 0 L 100 500 L 0 1000" fill="none" stroke="#F06123" strokeWidth="8" />
-        <path d="M 10 0 L 110 500 L 10 1000" fill="none" stroke="#ffffff" strokeWidth="6" opacity="0.9" />
-      </svg>
-
-      {/* RIGHT SECTION - LIGHT FORM PANEL */}
-      <div className="w-full lg:w-1/2 bg-[#F8F9FA] flex flex-col justify-between p-6 sm:p-12 md:p-16 relative z-20">
+      {/* RIGHT SECTION - FORM PANEL */}
+      {/* On desktop, the background is transparent because the image already has the white angled shape. On mobile, we use a solid white background. */}
+      <div className="w-full lg:w-1/2 bg-white lg:bg-transparent flex flex-col justify-between p-6 sm:p-12 md:p-16 relative z-20">
         
-        {/* Subtle Dot Matrix Pattern */}
-        <div 
-          className="absolute inset-0 opacity-25 pointer-events-none"
-          style={{
-            backgroundImage: `radial-gradient(#CBD5E1 1px, transparent 1px)`,
-            backgroundSize: '24px 24px'
-          }}
-        />
-
         {/* Top Spacer or Mobile Header */}
         <div className="w-full flex items-center justify-between lg:justify-end mb-8 relative z-20">
           <div className="flex lg:hidden items-center gap-3">
