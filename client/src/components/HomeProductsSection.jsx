@@ -13,7 +13,7 @@ export default function HomeProductsSection() {
   useEffect(() => {
     productsApi.getAll({ featuredOnHome: true, status: 'Active', limit: 8 })
       .then(res => setProducts(res.data || []))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const handleScroll = () => {
@@ -47,7 +47,7 @@ export default function HomeProductsSection() {
   };
 
   return (
-    <section 
+    <section
       className="relative py-12 md:py-24 px-4 sm:px-8 md:px-16 overflow-hidden font-sans select-none"
       style={{ background: 'linear-gradient(135deg, #2a2a2a 0%, #3d3d3d 50%, #8B492C 100%)' }}
     >
@@ -156,11 +156,10 @@ function ShowcaseCard({ product, index, isMobile }) {
       />
 
       {/* Dark Overlay Gradient */}
-      <div className={`absolute inset-0 transition-opacity duration-300 ${
-        hovered || isMobile
+      <div className={`absolute inset-0 transition-opacity duration-300 ${hovered || isMobile
           ? 'bg-gradient-to-t from-black/95 via-black/40 to-black/10'
           : 'bg-gradient-to-t from-black/85 via-black/30 to-black/5'
-      }`} />
+        }`} />
 
       {/* Top Badges */}
       <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between z-10">
@@ -175,9 +174,8 @@ function ShowcaseCard({ product, index, isMobile }) {
       </div>
 
       {/* Bottom Content Area */}
-      <div className={`absolute bottom-0 left-0 right-0 p-5 flex flex-col gap-2 z-10 transition-transform duration-300 ${
-        hovered || isMobile ? 'translate-y-0' : 'translate-y-2'
-      }`}>
+      <div className={`absolute bottom-0 left-0 right-0 p-5 flex flex-col gap-2 z-10 transition-transform duration-300 ${hovered || isMobile ? 'translate-y-0' : 'translate-y-2'
+        }`}>
         {/* Rating Stars */}
         <div className="flex items-center gap-1">
           {[1, 2, 3, 4].map(i => <FaStar key={i} className="text-[11px] text-[#F06123]" />)}
@@ -205,9 +203,8 @@ function ShowcaseCard({ product, index, isMobile }) {
         </div>
 
         {/* Action Buttons (Always visible on mobile, hover visible on desktop) */}
-        <div className={`grid grid-cols-2 gap-2 mt-1 transition-all duration-300 ${
-          isMobile || hovered ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-2 pointer-events-none'
-        }`}>
+        <div className={`grid grid-cols-2 gap-2 mt-1 transition-all duration-300 ${isMobile || hovered ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-2 pointer-events-none'
+          }`}>
           <a
             href={whatsappUrl}
             target="_blank"

@@ -74,9 +74,19 @@ export default function RecentProjects() {
           <div
             ref={mobileSliderRef}
             onScroll={handleMobileScroll}
-            className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-none py-2 -mx-4 px-5 scroll-smooth"
-            style={{ WebkitOverflowScrolling: 'touch' }}
+            className="flex gap-4 overflow-x-auto snap-x snap-mandatory py-2 -mx-4 px-5 scroll-smooth"
+            style={{ 
+              WebkitOverflowScrolling: 'touch', 
+              scrollbarWidth: 'none', 
+              msOverflowStyle: 'none' 
+            }}
           >
+            {/* Inline style block to handle webkit scrollbar for this specific component if global utility is missing */}
+            <style dangerouslySetInnerHTML={{__html: `
+              div::-webkit-scrollbar {
+                display: none;
+              }
+            `}} />
             {projects.map((project, index) => (
               <div key={project.id || index} className="w-[85vw] sm:w-[320px] shrink-0 snap-center">
                 <ProjectCard project={project} index={index} navigate={navigate} isMobile={true} />
