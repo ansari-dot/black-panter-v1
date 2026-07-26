@@ -43,15 +43,8 @@ const cardVariants = {
 };
 
 const mobileCardVariants = {
-  initial: { opacity: 0, y: 20 },
-  animate: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.4,
-      ease: "easeOut"
-    }
-  }
+  initial: { opacity: 1, y: 0 },
+  animate: { opacity: 1, y: 0 }
 };
 
 const floatingVariants = {
@@ -410,7 +403,7 @@ function ServiceCardItem({ service, index, navigate, styles, isMobile }) {
       variants={isMobile ? mobileCardVariants : cardVariants}
       initial="initial"
       whileInView="animate"
-      viewport={{ once: false, amount: 0.3 }}
+      viewport={{ once: true, amount: 0.1 }}
       onClick={() => navigate(`/service/${service.slug}`)}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'translateY(-10px) scale(1.03)';

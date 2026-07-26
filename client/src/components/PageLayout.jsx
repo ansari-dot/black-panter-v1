@@ -94,7 +94,7 @@ export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackg
   }));
 
   return (
-    <div className="bg-[#f4f5f7] w-full overflow-x-hidden pt-[70px] relative">
+    <div className="bg-[#f4f5f7] w-full overflow-x-hidden pt-0 md:pt-[70px] relative">
       {/* Desktop Logo (Unclipped Outer Layer) */}
       <img
         className="hidden md:block absolute top-[-18px] left-1/2 -translate-x-1/2 w-[140px] h-[140px] md:w-[150px] md:h-[150px] object-contain z-50 pointer-events-none"
@@ -107,7 +107,7 @@ export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackg
       />
 
       {/* Hero Section with Background */}
-      <div className="relative w-full h-[100vh] min-h-[100vh] rounded-b-none overflow-hidden flex flex-col justify-between">
+      <div className="relative w-full h-auto min-h-[65vh] md:h-[100vh] md:min-h-[100vh] rounded-b-none overflow-hidden flex flex-col justify-between pb-8 md:pb-0">
         {/* Background Image Layer (behind vector) */}
         {backgroundImage && (
           <div className="absolute inset-0 w-full h-full rounded-b-none">
@@ -130,7 +130,7 @@ export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackg
             height="1024"
           />
           <img
-            className="absolute inset-0 w-full h-full object-cover object-top z-10 rounded-b-none"
+            className="absolute inset-0 w-full h-full object-cover object-[85%_top] sm:object-[80%_top] md:object-top z-10 rounded-b-none"
             width="1920"
             height="1080"
             fetchPriority="high"
@@ -146,9 +146,9 @@ export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackg
           <div className="flex items-center justify-between px-4 py-3">
             {/* Mobile Logo */}
             <img
-              className="w-[100px] h-[100px] object-contain pointer-events-none"
-              width="100"
-              height="100"
+              className="w-16 h-16 object-contain pointer-events-none"
+              width="64"
+              height="64"
               loading="eager"
               decoding="async"
               alt="Black Panther Batteries Logo"
@@ -517,8 +517,8 @@ export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackg
         )}
 
         {/* Hero Section Content */}
-        <div className="relative z-20 w-full px-6 md:px-12 lg:px-16 xl:px-24 flex items-start flex-1 pb-20 md:pb-28 pt-[20px]">
-          <div className="w-full mt-[40px] md:mt-[60px]">
+        <div className="relative z-20 w-full px-6 md:px-12 lg:px-16 xl:px-24 flex items-start flex-1 pb-20 md:pb-28 pt-[40px] md:pt-[20px]">
+          <div className="w-full mt-[100px] md:mt-[60px]">
             {heroContent}
           </div>
         </div>

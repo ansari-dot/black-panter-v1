@@ -41,7 +41,7 @@ export const HeroSection = ({
       {/* Main Heading */}
       <div className="flex flex-col items-start gap-3 md:gap-6 w-full">
         <h1 
-          className="text-3xl md:text-[3.5rem] lg:text-[3.85rem] font-black leading-[1.06] tracking-tight max-w-[600px]"
+          className="text-lg sm:text-xl md:text-5xl lg:text-6xl font-black leading-snug tracking-tight w-full max-w-[600px]"
           style={{
             background: 'linear-gradient(135deg, #FFFFFF 0%, #FFE4D6 55%, #F3B38A 100%)',
             WebkitBackgroundClip: 'text',
@@ -56,7 +56,7 @@ export const HeroSection = ({
         </h1>
 
         {/* Description */}
-        <p className="text-white text-sm md:text-[1rem] leading-relaxed max-w-[560px] text-white/88">
+        <p className="text-white text-xs sm:text-sm md:text-lg leading-relaxed w-full max-w-[560px] text-white/88">
           {description}
         </p>
       </div>

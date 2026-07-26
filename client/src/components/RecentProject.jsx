@@ -79,7 +79,7 @@ export default function RecentProjects() {
           >
             {projects.map((project, index) => (
               <div key={project.id || index} className="w-[85vw] sm:w-[320px] shrink-0 snap-center">
-                <ProjectCard project={project} index={index} navigate={navigate} />
+                <ProjectCard project={project} index={index} navigate={navigate} isMobile={true} />
               </div>
             ))}
           </div>
@@ -104,7 +104,7 @@ export default function RecentProjects() {
         {/* DESKTOP GRID (>= 768px): 3-Column Grid */}
         <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project, index) => (
-            <ProjectCard key={project.id || index} project={project} index={index} navigate={navigate} />
+            <ProjectCard key={project.id || index} project={project} index={index} navigate={navigate} isMobile={false} />
           ))}
         </div>
 
@@ -113,12 +113,12 @@ export default function RecentProjects() {
   );
 }
 
-function ProjectCard({ project, index, navigate }) {
+function ProjectCard({ project, index, navigate, isMobile }) {
   return (
     <motion.div
       variants={scaleIn}
-      initial="hidden"
-      whileInView="visible"
+      initial={isMobile ? { opacity: 1, scale: 1 } : "hidden"}
+      whileInView={isMobile ? { opacity: 1, scale: 1 } : "visible"}
       viewport={{ once: true, amount: 0.1 }}
       whileHover={{ y: -8, scale: 1.03 }}
       onClick={() => navigate(`/project/${project.slug}`)}

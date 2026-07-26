@@ -35,7 +35,7 @@ export const HeroSection = ({
       {/* Main Heading */}
       <div className="flex flex-col items-start gap-3 md:gap-6 w-full">
         <h1 
-          className="text-[30px] sm:text-[36px] md:text-[48px] xl:text-[58px] font-bold leading-[1.15] tracking-[-0.3px]"
+          className="text-lg sm:text-xl md:text-5xl xl:text-6xl font-bold leading-tight tracking-tight"
           style={{
             fontFamily: "'Poppins', sans-serif",
             fontWeight: 700,
@@ -56,7 +56,7 @@ export const HeroSection = ({
 
         {/* Subtitle */}
         <p 
-          className="text-[#FFFFFF] text-[16px] md:text-[19px] font-semibold leading-relaxed max-w-[600px]"
+          className="text-[#FFFFFF] text-xs sm:text-sm md:text-lg font-semibold leading-relaxed max-w-[600px]"
           style={{
             fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif"
           }}

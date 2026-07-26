@@ -38,7 +38,7 @@ export const HeroSection = ({
       {/* Main Heading */}
       <div className="flex flex-col items-start gap-3 md:gap-6 w-full">
         <h1 
-          className="text-[30px] sm:text-[36px] md:text-[48px] xl:text-[58px] font-bold leading-[1.15] tracking-[-0.3px] max-w-[620px]"
+          className="text-lg sm:text-xl md:text-5xl xl:text-6xl font-bold leading-snug tracking-tight w-full max-w-[620px]"
           style={{
             fontFamily: "'Poppins', sans-serif",
             fontWeight: 700,
@@ -55,7 +55,7 @@ export const HeroSection = ({
 
         {/* Subtitle */}
         <p 
-          className="text-white text-[17px] md:text-[19px] font-semibold leading-[1.65] max-w-[580px]"
+          className="text-white text-xs sm:text-sm md:text-lg font-semibold leading-relaxed w-full max-w-[580px]"
           style={{ fontFamily: "'Inter', sans-serif" }}
         >
           {description}
