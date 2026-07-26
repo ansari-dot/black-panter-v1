@@ -1,5 +1,5 @@
 import { useState, FormEvent, ChangeEvent, useRef } from 'react';
-import { Search, Plus, Trash2, Pencil, X, ChevronLeft, ChevronRight, Upload, Loader2 } from 'lucide-react';
+import { Search, Plus, Trash2, Pencil, X, ChevronLeft, ChevronRight, Upload, Loader2, Lock } from 'lucide-react';
 import { TProject } from '../types';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -45,6 +45,12 @@ export default function ProjectsManager({ projects, onAddProject, onUpdateProjec
   const [imgPreview, setImgPreview] = useState('');
   const imgRef = useRef<HTMLInputElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
+  
+  const [toastMsg, setToastMsg] = useState('');
+  const showLockedToast = () => {
+    setToastMsg('Feature locked.');
+    setTimeout(() => setToastMsg(''), 3000);
+  };
 
   const filtered = projects.filter((p) => {
     const q = search.toLowerCase();
@@ -170,9 +176,10 @@ export default function ProjectsManager({ projects, onAddProject, onUpdateProjec
               </button>
             ))}
           </div>
-          <button onClick={openAdd}
-            style={{ display: 'flex', alignItems: 'center', gap: 6, backgroundColor: '#e84b10', color: '#fff', fontSize: 13, fontWeight: 500, padding: '8px 16px', borderRadius: 8, border: 'none', cursor: 'pointer' }}>
-            <Plus size={15} strokeWidth={2.5} /> Add Project
+          <button onClick={() => showLockedToast()}
+            title="Feature locked"
+            style={{ display: 'flex', alignItems: 'center', gap: 6, backgroundColor: '#f3f4f6', color: '#9ca3af', fontSize: 13, fontWeight: 500, padding: '8px 16px', borderRadius: 8, border: '1px solid #d1d5db', cursor: 'not-allowed' }}>
+            <Lock size={15} strokeWidth={2.5} /> Add Project
           </button>
         </div>
       </div>
@@ -213,15 +220,16 @@ export default function ProjectsManager({ projects, onAddProject, onUpdateProjec
             <div style={{ fontSize: 13, color: '#888', textAlign: 'center' }}>{proj.displayOrder ?? '—'}</div>
             {/* Status + actions */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <button onClick={() => onUpdateStatus(proj.id, proj.status === 'Active' ? 'Inactive' : 'Active')} title="Click to toggle"
-                style={{ fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 4, border: 'none', cursor: 'pointer', backgroundColor: proj.status === 'Active' ? '#dcfce7' : '#f5f5f5', color: proj.status === 'Active' ? '#16a34a' : '#888' }}>
+              <button onClick={() => showLockedToast()} title="Feature locked"
+                style={{ fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 4, border: 'none', cursor: 'not-allowed', backgroundColor: '#f3f4f6', color: '#9ca3af' }}>
+                <Lock size={12} strokeWidth={2.5} style={{ marginRight: 4, display: 'inline' }}/>
                 {proj.status}
               </button>
-              <button onClick={() => openEdit(proj)} title="Edit" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888', padding: 3 }}>
-                <Pencil size={14} strokeWidth={2.2} />
+              <button onClick={() => showLockedToast()} title="Feature locked" style={{ background: 'none', border: 'none', cursor: 'not-allowed', color: '#9ca3af', padding: 3 }}>
+                <Lock size={14} strokeWidth={2.2} />
               </button>
-              <button onClick={() => onDeleteProject(proj.id)} title="Delete" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888', padding: 3 }}>
-                <Trash2 size={14} strokeWidth={2.2} />
+              <button onClick={() => showLockedToast()} title="Feature locked" style={{ background: 'none', border: 'none', cursor: 'not-allowed', color: '#9ca3af', padding: 3 }}>
+                <Lock size={14} strokeWidth={2.2} />
               </button>
             </div>
           </div>
@@ -352,6 +360,20 @@ export default function ProjectsManager({ projects, onAddProject, onUpdateProjec
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {toastMsg && (
+        <div style={{
+          position: 'fixed', bottom: 30, right: 30, zIndex: 9999,
+          backgroundColor: '#e84b10', color: '#fff', padding: '14px 24px',
+          borderRadius: 8, boxShadow: '0 10px 30px rgba(232,75,16,0.3)',
+          display: 'flex', alignItems: 'center', gap: 10,
+          fontWeight: 600, fontSize: 14,
+          animation: 'slideUp 0.3s ease-out'
+        }}>
+          <Lock size={18} strokeWidth={2.5} />
+          <span>{toastMsg}</span>
         </div>
       )}
     </div>

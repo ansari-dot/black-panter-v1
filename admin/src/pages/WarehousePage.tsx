@@ -462,27 +462,27 @@ export default function WarehousePage({ warehouses, movements, onAdd, onUpdate, 
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
                   {/* Toggle status */}
                   <button
-                    onClick={() => onUpdateStatus(w.id, w.status === 'Active' ? 'Inactive' : 'Active')}
-                    title={w.status === 'Active' ? 'Deactivate' : 'Activate'}
-                    style={{ width: 32, height: 32, borderRadius: 7, border: `1px solid ${w.status === 'Active' ? '#e8e8e8' : '#dcfce7'}`, backgroundColor: w.status === 'Active' ? '#fff' : '#f0fdf4', color: w.status === 'Active' ? '#888' : '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                    onClick={() => showLockedToast()}
+                    title="Feature locked"
+                    style={{ width: 32, height: 32, borderRadius: 7, border: '1px solid #d1d5db', backgroundColor: '#f3f4f6', color: '#9ca3af', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'not-allowed' }}
                   >
-                    {w.status === 'Active' ? <XCircle size={15} strokeWidth={2.3} /> : <CheckCircle size={15} strokeWidth={2.3} />}
+                    <Lock size={15} strokeWidth={2.5} />
                   </button>
                   {/* Edit */}
                   <button
-                    onClick={() => setEditTarget(w)}
-                    title="Edit"
-                    style={{ width: 32, height: 32, borderRadius: 7, border: '1px solid #e8e8e8', backgroundColor: '#fff', color: '#555', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                    onClick={() => showLockedToast()}
+                    title="Feature locked"
+                    style={{ width: 32, height: 32, borderRadius: 7, border: '1px solid #d1d5db', backgroundColor: '#f3f4f6', color: '#9ca3af', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'not-allowed' }}
                   >
-                    <Pencil size={15} strokeWidth={2.3} />
+                    <Lock size={15} strokeWidth={2.5} />
                   </button>
                   {/* Delete */}
                   <button
-                    onClick={() => setDeleteTarget(w)}
-                    title="Delete"
-                    style={{ width: 32, height: 32, borderRadius: 7, border: '1px solid #fee2e2', backgroundColor: '#fff5f5', color: '#dc2626', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                    onClick={() => showLockedToast()}
+                    title="Feature locked"
+                    style={{ width: 32, height: 32, borderRadius: 7, border: '1px solid #d1d5db', backgroundColor: '#f3f4f6', color: '#9ca3af', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'not-allowed' }}
                   >
-                    <Trash2 size={15} strokeWidth={2.3} />
+                    <Lock size={15} strokeWidth={2.5} />
                   </button>
                 </div>
               </div>

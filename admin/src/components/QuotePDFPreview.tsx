@@ -795,6 +795,47 @@ export const QuotePDFPreview: React.FC<QuotePDFPreviewProps> = ({
 
   return (
     <>
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media print {
+          @page {
+            size: A4 portrait;
+            margin: 0;
+          }
+          body {
+            margin: 0;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          body * {
+            visibility: hidden;
+          }
+          #quote-printable-area, #quote-printable-area * {
+            visibility: visible;
+          }
+          #quote-printable-area {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-shadow: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border-radius: 0 !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          .no-print {
+            display: none !important;
+          }
+        }
+
+        @media screen {
+          .print-only {
+            display: none !important;
+          }
+        }
+      `}} />
       <div id="quote-printable-area" className={className} dangerouslySetInnerHTML={{ __html: emailHtml }} />
       {false && (
         <div id="quote-printable-area-old" className={className}>

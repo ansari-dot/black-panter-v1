@@ -213,11 +213,11 @@ export default function AdminSidebar({ currentTab, setCurrentTab, onLogout }: Ad
           {(['inventory', 'products', 'categories', 'warehouses'] as const).includes(currentTab as any) && (
             <div style={{ marginLeft: 40, marginTop: 2, marginBottom: 4, display: 'flex', flexDirection: 'column', gap: 2 }}>
               <button
-                disabled
-                className="text-left cursor-not-allowed rounded flex items-center gap-2 opacity-50"
-                style={{ padding: '6px 12px', fontSize: 12, color: '#888888', fontWeight: 400, background: 'transparent', border: 'none' }}
+                onClick={() => setCurrentTab('inventory')}
+                className="text-left cursor-pointer rounded flex items-center gap-2"
+                style={{ padding: '6px 12px', fontSize: 12, color: currentTab === 'inventory' ? '#e84b10' : '#888888', fontWeight: currentTab === 'inventory' ? 600 : 400, background: 'transparent', border: 'none' }}
               >
-                Overview <Lock size={12} strokeWidth={2.5} />
+                Overview
               </button>
               <button
                 onClick={() => setCurrentTab('products')}
@@ -234,11 +234,11 @@ export default function AdminSidebar({ currentTab, setCurrentTab, onLogout }: Ad
                 Categories
               </button>
               <button
-                disabled
-                className="text-left cursor-not-allowed rounded flex items-center gap-2 opacity-50"
-                style={{ padding: '6px 12px', fontSize: 12, color: '#888888', fontWeight: 400, background: 'transparent', border: 'none' }}
+                onClick={() => setCurrentTab('warehouses')}
+                className="text-left cursor-pointer rounded flex items-center gap-2"
+                style={{ padding: '6px 12px', fontSize: 12, color: currentTab === 'warehouses' ? '#e84b10' : '#888888', fontWeight: currentTab === 'warehouses' ? 600 : 400, background: 'transparent', border: 'none' }}
               >
-                Warehouses <Lock size={12} strokeWidth={2.5} />
+                Warehouses
               </button>
             </div>
           )}
@@ -247,7 +247,7 @@ export default function AdminSidebar({ currentTab, setCurrentTab, onLogout }: Ad
         {/* Render rest of NAV_ITEMS */}
         {NAV_ITEMS.map(({ id, label, icon: Icon }) => {
           const active = currentTab === id;
-          const isLocked = id === 'projects';
+          const isLocked = false;
           return (
             <button
               key={id}

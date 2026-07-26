@@ -509,10 +509,11 @@ export default function InventoryPage({ products, movements, warehouses, onStock
             Stock Out
           </button>
           <button
-            onClick={onAddProductClick}
-            style={{ display: 'flex', alignItems: 'center', gap: 8, backgroundColor: '#e84b10', color: '#ffffff', fontSize: 13, fontWeight: 600, padding: '9px 16px', borderRadius: 8, cursor: 'pointer', border: 'none' }}
+            onClick={() => showLockedToast()}
+            style={{ display: 'flex', alignItems: 'center', gap: 8, border: '1px solid #d1d5db', backgroundColor: '#f3f4f6', color: '#9ca3af', fontSize: 13, fontWeight: 600, padding: '9px 16px', borderRadius: 8, cursor: 'not-allowed' }}
+            title="Feature locked"
           >
-            <Plus size={15} strokeWidth={2.5} />
+            <Lock size={15} strokeWidth={2.5} />
             Add Product
           </button>
         </div>
@@ -665,11 +666,11 @@ export default function InventoryPage({ products, movements, warehouses, onStock
                       <Lock size={13} strokeWidth={2.5} />
                     </button>
                     <button
-                      onClick={() => setConfigProduct(item)}
-                      title="Edit Config"
-                      style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid #e8e8e8', backgroundColor: '#fff', color: '#888', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                      onClick={() => showLockedToast()}
+                      title="Feature locked"
+                      style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid #d1d5db', backgroundColor: '#f3f4f6', color: '#9ca3af', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'not-allowed' }}
                     >
-                      <Pencil size={13} strokeWidth={2.5} />
+                      <Lock size={13} strokeWidth={2.5} />
                     </button>
                   </div>
                 </td>
