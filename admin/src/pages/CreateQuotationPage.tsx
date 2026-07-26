@@ -3,7 +3,7 @@ import {
   FileText, Calendar, ChevronDown, User, BatteryCharging,
   Eye, ArrowRight, ArrowLeft, FileDown, X, Plus, Check,
   ListChecks, Pencil, Upload, GripVertical, Trash2,
-  Package, Users, Wrench, PlusCircle, Send, Landmark, Shield, Printer
+  Package, Users, Wrench, PlusCircle, Send, Landmark, Shield, Printer, Lock
 } from 'lucide-react';
 import { TTab, TInquiry, TQuotation } from '../types';
 import { QuotePDFPreview } from '../components/QuotePDFPreview';
@@ -1238,8 +1238,8 @@ export default function CreateQuotationPage({
                   <button onClick={() => handleSave('Draft')} style={{ border: '1px solid #e2e2e2', borderRadius: 6, padding: '10px 24px', fontSize: 13, fontWeight: 500, color: '#1a1a1a', backgroundColor: '#fff', cursor: 'pointer' }}>
                     Save as Draft
                   </button>
-                  <button onClick={() => handleSave('Sent Email')} style={{ borderRadius: 6, padding: '10px 24px', fontSize: 13, fontWeight: 600, color: '#fff', backgroundColor: PRIMARY, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <Send size={15} strokeWidth={2.4} /> Send Quotation
+                  <button disabled style={{ borderRadius: 6, padding: '10px 24px', fontSize: 13, fontWeight: 600, color: '#fff', backgroundColor: PRIMARY, border: 'none', cursor: 'not-allowed', display: 'flex', alignItems: 'center', gap: 8, opacity: 0.6 }}>
+                    <Lock size={15} strokeWidth={2.4} /> Send Quotation
                   </button>
                 </div>
               </div>

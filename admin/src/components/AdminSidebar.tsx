@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   LayoutDashboard, Zap, Battery, Mail, Users, Star, Settings,
-  GalleryHorizontalEnd, LogOut, FolderKanban, LayoutTemplate, ChevronDown, Archive, Home, Warehouse, FileText,
+  GalleryHorizontalEnd, LogOut, FolderKanban, LayoutTemplate, ChevronDown, Archive, Home, Warehouse, FileText, Lock,
 } from 'lucide-react';
 import { TTab } from '../types';
 import logoImg from '../../assets/logo.jpeg';
@@ -15,13 +15,13 @@ interface AdminSidebarProps {
 const DASHBOARD_ITEM = { id: 'dashboard' as TTab, label: 'Dashboard', icon: LayoutDashboard };
 
 const NAV_ITEMS: { id: TTab; label: string; icon: React.ElementType }[] = [
-  { id: 'services',     label: 'Services',     icon: Zap },
-  { id: 'projects',     label: 'Projects',     icon: FolderKanban },
-  { id: 'inquiries',    label: 'Inquiries',    icon: Mail },
-  { id: 'team',         label: 'Team',         icon: Users },
+  { id: 'services', label: 'Services', icon: Zap },
+  { id: 'projects', label: 'Projects', icon: FolderKanban },
+  { id: 'inquiries', label: 'Inquiries', icon: Mail },
+  { id: 'team', label: 'Team', icon: Users },
   { id: 'testimonials', label: 'Testimonials', icon: Star },
-  { id: 'partners',     label: 'Partners',     icon: GalleryHorizontalEnd },
-  { id: 'settings',     label: 'Settings',     icon: Settings },
+  { id: 'partners', label: 'Partners', icon: GalleryHorizontalEnd },
+  { id: 'settings', label: 'Settings', icon: Settings },
 ];
 
 export default function AdminSidebar({ currentTab, setCurrentTab, onLogout }: AdminSidebarProps) {
@@ -98,7 +98,7 @@ export default function AdminSidebar({ currentTab, setCurrentTab, onLogout }: Ad
 
         {/* Quotations with sub-menu */}
         {(() => {
-          const quotActive = ['quotations','createQuotation','quotationTemplates'].includes(currentTab);
+          const quotActive = ['quotations', 'createQuotation', 'quotationTemplates'].includes(currentTab);
           const QUOT_SUBS: { id: TTab; label: string }[] = [
             { id: 'quotations', label: 'All Quotations' },
             { id: 'createQuotation', label: 'Create Quotation' },
@@ -142,7 +142,7 @@ export default function AdminSidebar({ currentTab, setCurrentTab, onLogout }: Ad
 
         {/* Home Page with sub-menu */}
         {(() => {
-          const homeActive = ['homepageProducts','homepageServices','homepageProjects'].includes(currentTab);
+          const homeActive = ['homepageProducts', 'homepageServices', 'homepageProjects'].includes(currentTab);
           const HOME_SUBS: { id: TTab; label: string }[] = [
             { id: 'homepageProducts', label: 'Products' },
             { id: 'homepageServices', label: 'Services' },
@@ -192,32 +192,32 @@ export default function AdminSidebar({ currentTab, setCurrentTab, onLogout }: Ad
             style={{
               padding: '10px 16px',
               fontSize: 12,
-              fontWeight: ['inventory','products','categories','warehouses'].includes(currentTab) ? 600 : 400,
-              color: ['inventory','products','categories','warehouses'].includes(currentTab) ? '#ffffff' : '#888888',
-              backgroundColor: ['inventory','products','categories','warehouses'].includes(currentTab) ? 'rgba(232,75,16,0.2)' : 'transparent',
-              borderLeft: ['inventory','products','categories','warehouses'].includes(currentTab) ? '2px solid #e84b10' : '2px solid transparent',
+              fontWeight: ['inventory', 'products', 'categories', 'warehouses'].includes(currentTab) ? 600 : 400,
+              color: ['inventory', 'products', 'categories', 'warehouses'].includes(currentTab) ? '#ffffff' : '#888888',
+              backgroundColor: ['inventory', 'products', 'categories', 'warehouses'].includes(currentTab) ? 'rgba(232,75,16,0.2)' : 'transparent',
+              borderLeft: ['inventory', 'products', 'categories', 'warehouses'].includes(currentTab) ? '2px solid #e84b10' : '2px solid transparent',
             }}
           >
-            <Archive size={16} strokeWidth={['inventory','products','categories','warehouses'].includes(currentTab) ? 2.5 : 2} />
+            <Archive size={16} strokeWidth={['inventory', 'products', 'categories', 'warehouses'].includes(currentTab) ? 2.5 : 2} />
             <span className="flex-1">Inventory</span>
             <ChevronDown
               size={14}
               strokeWidth={2.5}
               style={{
-                color: ['inventory','products','categories','warehouses'].includes(currentTab) ? '#e84b10' : '#888',
-                transform: ['inventory','products','categories','warehouses'].includes(currentTab) ? 'rotate(180deg)' : 'rotate(0deg)',
+                color: ['inventory', 'products', 'categories', 'warehouses'].includes(currentTab) ? '#e84b10' : '#888',
+                transform: ['inventory', 'products', 'categories', 'warehouses'].includes(currentTab) ? 'rotate(180deg)' : 'rotate(0deg)',
                 transition: 'transform 0.2s',
               }}
             />
           </button>
-          {(['inventory','products','categories','warehouses'] as const).includes(currentTab as any) && (
+          {(['inventory', 'products', 'categories', 'warehouses'] as const).includes(currentTab as any) && (
             <div style={{ marginLeft: 40, marginTop: 2, marginBottom: 4, display: 'flex', flexDirection: 'column', gap: 2 }}>
               <button
-                onClick={() => setCurrentTab('inventory')}
-                className="text-left cursor-pointer rounded flex items-center gap-2"
-                style={{ padding: '6px 12px', fontSize: 12, color: currentTab === 'inventory' ? '#e84b10' : '#888888', fontWeight: currentTab === 'inventory' ? 600 : 400, background: 'transparent', border: 'none' }}
+                disabled
+                className="text-left cursor-not-allowed rounded flex items-center gap-2 opacity-50"
+                style={{ padding: '6px 12px', fontSize: 12, color: '#888888', fontWeight: 400, background: 'transparent', border: 'none' }}
               >
-                Overview
+                Overview <Lock size={12} strokeWidth={2.5} />
               </button>
               <button
                 onClick={() => setCurrentTab('products')}
@@ -234,11 +234,11 @@ export default function AdminSidebar({ currentTab, setCurrentTab, onLogout }: Ad
                 Categories
               </button>
               <button
-                onClick={() => setCurrentTab('warehouses')}
-                className="text-left cursor-pointer rounded flex items-center gap-2"
-                style={{ padding: '6px 12px', fontSize: 12, color: currentTab === 'warehouses' ? '#e84b10' : '#888888', fontWeight: currentTab === 'warehouses' ? 600 : 400, background: 'transparent', border: 'none' }}
+                disabled
+                className="text-left cursor-not-allowed rounded flex items-center gap-2 opacity-50"
+                style={{ padding: '6px 12px', fontSize: 12, color: '#888888', fontWeight: 400, background: 'transparent', border: 'none' }}
               >
-                Warehouses
+                Warehouses <Lock size={12} strokeWidth={2.5} />
               </button>
             </div>
           )}
@@ -247,11 +247,15 @@ export default function AdminSidebar({ currentTab, setCurrentTab, onLogout }: Ad
         {/* Render rest of NAV_ITEMS */}
         {NAV_ITEMS.map(({ id, label, icon: Icon }) => {
           const active = currentTab === id;
+          const isLocked = id === 'projects';
           return (
             <button
               key={id}
-              onClick={() => setCurrentTab(id)}
-              className="flex items-center gap-3 w-full text-left cursor-pointer transition-colors"
+              disabled={isLocked}
+              onClick={() => {
+                if (!isLocked) setCurrentTab(id);
+              }}
+              className={`flex items-center gap-3 w-full text-left transition-colors ${isLocked ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
               style={{
                 padding: '10px 16px', fontSize: 12,
                 fontWeight: active ? 600 : 400,
@@ -262,8 +266,12 @@ export default function AdminSidebar({ currentTab, setCurrentTab, onLogout }: Ad
             >
               <Icon size={16} strokeWidth={active ? 2.5 : 2} />
               <span className="flex-1">{label}</span>
-              {(id === 'products' || id === 'services' || id === 'projects') && !active && (
-                <ChevronDown size={14} strokeWidth={2.5} style={{ color: '#888' }} />
+              {isLocked ? (
+                <Lock size={14} strokeWidth={2.5} style={{ color: '#888' }} />
+              ) : (
+                (id === 'products' || id === 'services' || id === 'projects') && !active && (
+                  <ChevronDown size={14} strokeWidth={2.5} style={{ color: '#888' }} />
+                )
               )}
             </button>
           );
