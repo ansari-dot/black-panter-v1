@@ -42,20 +42,22 @@ const defaultOrigins = [
 const envOrigins = process.env.CLIENT_URLS ? process.env.CLIENT_URLS.split(',').map((u) => u.trim()) : [];
 const allowedOrigins = Array.from(new Set([...defaultOrigins, ...envOrigins]));
 
-app.use(cors({
-    origin: (origin, cb) => {
-        if (!origin) return cb(null, true);
-        const cleanOrigin = origin.trim().replace(/\/$/, '');
-        if (allowedOrigins.includes(cleanOrigin) || allowedOrigins.includes('*')) {
-            return cb(null, true);
-        }
-        console.error(`CORS blocked for origin: "${origin}", cleanOrigin: "${cleanOrigin}"`);
-        // Just reflect the origin to allow it, or fallback to a default to prevent network error
-        // since we want to avoid 500s. We'll reflect it for now to fix the strict blocking issue.
-        return cb(null, true); 
-    },
-    credentials: true,
-}));
+app.use((req, res, next) => {
+    const origin = req.headers.origin;
+    if (origin) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    } else {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+    }
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE, PATCH');
+    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, DNT, User-Agent');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+
+    if (req.method === 'OPTIONS') {
+        return res.status(204).end();
+    }
+    next();
+});
 app.use(express.json());
 app.use(cookieParser());
 app.use('/uploads', express.static('uploads'));
