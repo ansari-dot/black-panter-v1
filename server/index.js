@@ -29,35 +29,20 @@ database.connect()
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const defaultOrigins = [
-  'http://localhost:5173',
-  'http://localhost:2000',
-  'https://www.blackpanther-batteries.com',
-  'https://blackpanther-batteries.com',
-  'https://admin.blackpanther-batteries.com',
-  'http://www.blackpanther-batteries.com',
-  'http://blackpanther-batteries.com',
-  'http://admin.blackpanther-batteries.com'
+const allowedOrigins = [
+    'https://www.blackpanther-batteries.com',
+    'https://admin.blackpanther-batteries.com'
 ];
-const envOrigins = process.env.CLIENT_URLS ? process.env.CLIENT_URLS.split(',').map((u) => u.trim()) : [];
-const allowedOrigins = Array.from(new Set([...defaultOrigins, ...envOrigins]));
 
-app.use((req, res, next) => {
-    const origin = req.headers.origin;
-    if (origin) {
-        res.setHeader('Access-Control-Allow-Origin', origin);
-    } else {
-        res.setHeader('Access-Control-Allow-Origin', '*');
-    }
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE, PATCH');
-    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, DNT, User-Agent');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-
-    if (req.method === 'OPTIONS') {
-        return res.status(204).end();
-    }
-    next();
-});
+app.use(cors({
+    origin: (origin, cb) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            return cb(null, true);
+        }
+        return cb(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+}));
 app.use(express.json());
 app.use(cookieParser());
 app.use('/uploads', express.static('uploads'));
