@@ -4,7 +4,7 @@ import User from '../models/User.js';
 import Wishlist from '../models/Wishlist.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import { sendOtpEmail, sendSetupEmail, sendResetPasswordOtpEmail } from '../utils/emailService.js';
-
+import Notification from '../models/Notification.js';
 const cookieOptions = () => ({
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
@@ -57,6 +57,15 @@ export const register = asyncHandler(async (req, res) => {
 
   try {
     await sendSetupEmail({ to: user.email, token: setupToken, name: user.name });
+    
+    // Dispatch Admin Notification
+    await Notification.create({
+      type: 'NEW_USER',
+      title: 'New User Registration',
+      message: `${user.name} (${user.email}) has registered.`,
+      link: '/admin/settings', // Assuming users might be managed here in the future
+    });
+
     res.status(201).json({ message: 'Registration successful! Please check your email to set your password.' });
   } catch (err) {
     console.error('Failed to send setup email:', err);

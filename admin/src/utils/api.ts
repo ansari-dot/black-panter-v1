@@ -61,4 +61,11 @@ export const api = {
     request<T>(endpoint, { ...options, method: 'DELETE' }),
 };
 
+export const notificationsApi = {
+  get: () => api.get<any[]>('/api/notifications'),
+  markAsRead: (id: string) => api.put(`/api/notifications/${id}/read`),
+  markAllAsRead: () => api.put('/api/notifications/mark-all-read'),
+  clearAll: () => api.delete('/api/notifications/clear'),
+};
+
 export default api;

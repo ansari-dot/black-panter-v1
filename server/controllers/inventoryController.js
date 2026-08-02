@@ -1,5 +1,6 @@
 import Product from '../models/Product.js';
 import StockMovement from '../models/StockMovement.js';
+import Notification from '../models/Notification.js';
 import asyncHandler from '../utils/asyncHandler.js';
 
 // ─── GET /api/inventory ───────────────────────────────────────────────────────
@@ -84,6 +85,15 @@ export const addMovement = asyncHandler(async (req, res) => {
   let newStockStatus = 'In Stock';
   if (stockAfter === 0)                    newStockStatus = 'Out of Stock';
   else if (stockAfter < product.minStock)  newStockStatus = 'Low Stock';
+
+  if (newStockStatus === 'Low Stock' || newStockStatus === 'Out of Stock') {
+    await Notification.create({
+      type: 'LOW_STOCK',
+      title: `Stock Alert: ${product.name}`,
+      message: `${product.name} is now ${newStockStatus} (${stockAfter} remaining)`,
+      link: '/admin/products'
+    });
+  }
 
   // Save movement (with warehouse)
   const movement = await StockMovement.create({

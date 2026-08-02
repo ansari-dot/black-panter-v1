@@ -2,8 +2,10 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import { createServer } from 'http';
 import database from './config/db.js';
 import errorHandler from './middleware/errorHandler.js';
+import { initSocket } from './socket.js';
 
 import authRoutes from './routes/authRoutes.js';
 import productRoutes from './routes/productRoutes.js';
@@ -23,7 +25,7 @@ import settingRoutes from './routes/settingRoutes.js';
 import cartRoutes from './routes/cartRoutes.js';
 import wishlistRoutes from './routes/wishlistRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
-
+import notificationRoutes from './routes/notificationRoutes.js';
 database.connect()
     .catch((err) => {
         console.error(err);
@@ -71,8 +73,17 @@ app.use('/api/warehouses', warehouseRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/quotations', quotationRoutes);
 app.use('/api/settings', settingRoutes);
+app.use('/api/notifications', notificationRoutes);
 
+const server = createServer(app);
+
+initSocket(server, {
+    cors: {
+        origin: allowedOrigins,
+        credentials: true
+    }
+});
 
 app.use(errorHandler);
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

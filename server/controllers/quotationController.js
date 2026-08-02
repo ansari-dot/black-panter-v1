@@ -3,6 +3,7 @@ import Inquiry from '../models/Inquiry.js';
 import { sendQuotationEmail } from '../utils/emailService.js';
 import { generateQuotationEmailHTML } from '../utils/emailTemplate.js';
 import asyncHandler from '../utils/asyncHandler.js';
+import Notification from '../models/Notification.js';
 
 const normalizePayload = (p = {}) => ({
   quoteNo: p.quoteNo || '',
@@ -79,7 +80,16 @@ export const create = asyncHandler(async (req, res) => {
       subject: req.body.emailDetails.subject || `Quotation ${item.quoteNo}`,
       html,
       text: req.body.emailDetails.body || ''
-    }).catch(err => console.error('[Email] Failed to send quotation email:', err.message));
+    })
+    .then(() => {
+      return Notification.create({
+        type: 'QUOTATION_SENT',
+        title: 'Quotation Sent',
+        message: `Quotation ${item.quoteNo} was sent to ${item.client.email}`,
+        link: `/admin/quotations`,
+      });
+    })
+    .catch(err => console.error('[Email] Failed to send quotation email:', err.message));
   }
 
   res.status(201).json(item);
@@ -98,7 +108,16 @@ export const update = asyncHandler(async (req, res) => {
       subject: req.body.emailDetails.subject || `Quotation ${item.quoteNo}`,
       html,
       text: req.body.emailDetails.body || ''
-    }).catch(err => console.error('[Email] Failed to send quotation email:', err.message));
+    })
+    .then(() => {
+      return Notification.create({
+        type: 'QUOTATION_SENT',
+        title: 'Quotation Sent',
+        message: `Quotation ${item.quoteNo} was sent to ${item.client.email}`,
+        link: `/admin/quotations`,
+      });
+    })
+    .catch(err => console.error('[Email] Failed to send quotation email:', err.message));
   }
 
   res.json(item);

@@ -16,7 +16,14 @@ export const generateQuotationEmailHTML = (q, adminMessage = '') => {
         return `${u.protocol}//api.${u.hostname.replace(/^www\./, '')}`;
       } catch { return 'http://localhost:3000'; }
     })();
-  const logoUrl = `${serverBase}/uploads/logo.jpeg`;
+
+  // Email clients cannot load images from localhost. If running locally, use a public placeholder.
+  // When deployed to production, this will automatically use your real logo URL.
+  const isLocalhost = serverBase.includes('localhost');
+  const logoUrl = isLocalhost
+    ? 'https://placehold.co/400x120/1a1a1a/ffffff?text=Black+Panther+Batteries'
+    : `${serverBase}/uploads/logo.jpeg`;
+
 
   const discountVal = q.discountValue || 0;
   const discountAmount = q.discountType === 'percentage' ? (subtotal * discountVal / 100) : discountVal;

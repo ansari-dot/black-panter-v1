@@ -1,7 +1,7 @@
 import Inquiry from '../models/Inquiry.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import { sendInquiryReplyEmail } from '../utils/emailService.js';
-
+import Notification from '../models/Notification.js';
 const formatStatus = (status = '') => {
     const normalized = String(status).toLowerCase();
     if (normalized === 'read') return 'Read';
@@ -62,6 +62,14 @@ export const create = asyncHandler(async (req, res) => {
         quoteDetails: req.body.quoteDetails || {},
     };
     const item = await Inquiry.create(payload);
+    
+    await Notification.create({
+      type: 'NEW_INQUIRY',
+      title: 'New Inquiry Received',
+      message: `${req.body.name} submitted a new inquiry/quote request.`,
+      link: '/admin/inquiries'
+    });
+
     res.status(201).json(formatInquiry(item));
 });
 

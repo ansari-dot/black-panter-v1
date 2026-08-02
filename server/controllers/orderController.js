@@ -1,5 +1,6 @@
 import Order from '../models/Order.js';
 import Cart from '../models/Cart.js';
+import Notification from '../models/Notification.js';
 import asyncHandler from '../utils/asyncHandler.js';
 
 // @desc    Create new order (Pending Payment)
@@ -20,6 +21,14 @@ export const createOrder = asyncHandler(async (req, res) => {
   });
 
   const createdOrder = await order.save();
+  
+  await Notification.create({
+    type: 'NEW_ORDER',
+    title: 'New Product Order',
+    message: `A new order has been placed for ${totalAmount} AUD`,
+    link: `/admin/orders`, // Or wherever orders are viewed
+  });
+
   res.status(201).json(createdOrder);
 });
 
