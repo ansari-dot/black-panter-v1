@@ -120,6 +120,7 @@ export const ProductDetailPage = () => {
   const { addToCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const [showToast, setShowToast] = useState(false);
+  const [relatedProducts, setRelatedProducts] = useState([]);
 
   const productId = product?._id || product?.id;
   const isWishlisted = isInWishlist(productId);
@@ -156,6 +157,14 @@ export const ProductDetailPage = () => {
     };
     if (slug) fetchProduct();
   }, [slug]);
+
+  // Fetch related products once main product is loaded
+  useEffect(() => {
+    if (!product?._id) return;
+    productsApi.getRelated(product._id)
+      .then(setRelatedProducts)
+      .catch(() => {});
+  }, [product?._id]);
 
   if (loading) {
     return (
@@ -201,14 +210,6 @@ export const ProductDetailPage = () => {
   
   const defaultHighlights = ["Maintenance Free", "Fast Engine Starting", "High Cold Cranking Power", "Vibration Resistant", "Leak Proof Design", "Suitable for Modern Vehicles"];
   const badges = product.highlights?.length ? product.highlights : defaultHighlights;
-
-  // Dummy related products
-  const relatedProducts = [
-    { title: "Black Panther AGM 46B24L", price: 189.00, oldPrice: 219.00, img: resolvedImg, tag: "AGM" },
-    { title: "Black Panther AGM 75D23L", price: 279.00, oldPrice: 319.00, img: resolvedImg, tag: "AGM" },
-    { title: "Black Panther SMF 55B24L", price: 149.00, oldPrice: 179.00, img: resolvedImg, tag: "SMF" },
-    { title: "Black Panther EFB 55D23L", price: 219.00, oldPrice: 249.00, img: resolvedImg, tag: "EFB" },
-  ];
 
   return (
     <PageLayout
@@ -572,31 +573,47 @@ export const ProductDetailPage = () => {
           </div>
           
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {relatedProducts.map((prod, idx) => (
-              <div key={idx} className="bg-surface border border-border rounded-xl overflow-hidden flex flex-col group">
-                <div className="p-4 relative">
-                  <div className="flex justify-between items-center mb-2 relative z-10">
-                    <span className="bg-tag-bg text-tag-text text-xs font-bold px-2 py-0.5 rounded">{prod.tag}</span>
-                    <button className="bg-primary text-white text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <IconCart /> Add to Cart
-                    </button>
+            {relatedProducts.length === 0 ? (
+              <p className="text-sm text-muted-foreground col-span-4">No related products found.</p>
+            ) : (
+              relatedProducts.map((prod) => {
+                const prodImg = resolveImageUrl(prod.imageUrl);
+                const prodSlug = prod.slug || prod._id;
+                const tag = prod.highlights?.[0] || prod.category || '';
+                return (
+                  <div key={prod._id} className="bg-surface border border-border rounded-xl overflow-hidden flex flex-col group">
+                    <div className="p-4 relative">
+                      <div className="flex justify-between items-center mb-2 relative z-10">
+                        {tag && <span className="bg-tag-bg text-tag-text text-xs font-bold px-2 py-0.5 rounded">{tag}</span>}
+                        <button
+                          onClick={() => { addToCart(prod, 1); setShowToast(true); setTimeout(() => setShowToast(false), 3000); }}
+                          className="bg-primary text-white text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity ml-auto"
+                        >
+                          <IconCart /> Add to Cart
+                        </button>
+                      </div>
+                      <div className="h-40 flex items-center justify-center py-4">
+                        <img src={prodImg} alt={prod.name} className="max-h-full object-contain" />
+                      </div>
+                    </div>
+                    <div className="p-5 border-t border-border flex flex-col flex-1">
+                      <h3 className="text-sm font-bold text-foreground mb-2 flex-1">{prod.name}</h3>
+                      <div className="flex items-baseline gap-2 mb-3">
+                        {prod.price != null && (
+                          <span className="text-lg font-bold text-foreground">${Number(prod.price).toFixed(2)}</span>
+                        )}
+                        {prod.oldPrice != null && (
+                          <span className="text-xs text-muted-foreground line-through">${Number(prod.oldPrice).toFixed(2)}</span>
+                        )}
+                      </div>
+                      <Link to={`/product/${prodSlug}`} className="text-xs font-semibold text-primary hover:underline">
+                        View details &rarr;
+                      </Link>
+                    </div>
                   </div>
-                  <div className="h-40 flex items-center justify-center py-4">
-                    <img src={prod.img} alt={prod.title} className="max-h-full object-contain" />
-                  </div>
-                </div>
-                <div className="p-5 border-t border-border flex flex-col flex-1">
-                  <h3 className="text-sm font-bold text-foreground mb-2 flex-1">{prod.title}</h3>
-                  <div className="flex items-baseline gap-2 mb-3">
-                    <span className="text-lg font-bold text-foreground">${prod.price.toFixed(2)}</span>
-                    <span className="text-xs text-muted-foreground line-through">${prod.oldPrice.toFixed(2)}</span>
-                  </div>
-                  <Link to="/product" className="text-xs font-semibold text-primary hover:underline">
-                    View details &rarr;
-                  </Link>
-                </div>
-              </div>
-            ))}
+                );
+              })
+            )}
           </div>
         </div>
       </div>

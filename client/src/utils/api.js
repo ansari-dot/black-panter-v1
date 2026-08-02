@@ -38,8 +38,8 @@ export const productsApi = {
   /** GET /api/products/slug/:slug */
   getBySlug: (slug) => request(`/api/products/slug/${slug}`),
 
-  /** GET /api/products/:id */
-  getById: (id) => request(`/api/products/${id}`),
+  /** GET /api/products/:id/related */
+  getRelated: (id) => request(`/api/products/${id}/related`),
 };
 
 // ─── Services ─────────────────────────────────────────────────────────────────

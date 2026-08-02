@@ -134,3 +134,20 @@ export const remove = asyncHandler(async (req, res) => {
   res.json({ message: 'Deleted' });
 });
 
+export const getRelated = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const current = await Product.findById(id).select('category');
+  if (!current) return res.status(404).json({ message: 'Not found' });
+
+  const items = await Product.find({
+    _id: { $ne: id },
+    category: current.category,
+    status: 'Active',
+  })
+    .select('name slug price oldPrice imageUrl stockStatus highlights')
+    .sort({ displayOrder: 1, createdAt: -1 })
+    .limit(4);
+
+  res.json(items);
+});
+
