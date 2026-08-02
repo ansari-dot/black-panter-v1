@@ -645,7 +645,7 @@ export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackg
 
         {/* Hero Section Content */}
         <div className="relative z-20 w-full px-6 md:px-12 lg:px-16 xl:px-24 flex items-start flex-1 pb-20 md:pb-28 pt-[40px] md:pt-[20px]">
-          <div className="w-full mt-[100px] md:mt-[60px]">
+          <div className="w-full mt-[70px] md:mt-[30px]">
             {heroContent}
           </div>
         </div>
