@@ -321,7 +321,7 @@ export default function ComprehensiveBatterySolutions() {
           variants={isMobile ? mobileCardVariants : headerVariants}
           initial="initial"
           whileInView="animate"
-          viewport={{ once: false, amount: 0.3 }}
+          viewport={{ once: true, amount: 0.3 }}
         >
           <motion.div style={styles.labelWrapper}>
             <motion.div style={styles.line} />

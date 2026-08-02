@@ -200,7 +200,7 @@ export const generateQuotationEmailHTML = (q: any, adminMessage = '') => {
 <body>
   <div class="wrapper">
     <div class="header">
-      <h1>BLACK PANTHER BATTERIES</h1>
+      <img src="${logoImg}" alt="Black Panther Batteries" style="height:72px; width:auto; display:block; margin:0 auto 10px;" />
       <div style="font-size:12px; color:#aaa; margin-top:4px;">Power &amp; Maintenance Solutions</div>
     </div>
     

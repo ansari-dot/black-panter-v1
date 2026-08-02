@@ -7,7 +7,7 @@ import { useServiceCatalog } from '../hooks/useServiceCatalog';
 export default function ServiceDetailSection({ service }) {
   const sectionRef = useRef(null);
   const navigate = useNavigate();
-  const isInView = useInView(sectionRef, { once: false, amount: 0.15 });
+  const isInView = useInView(sectionRef, { once: true, amount: 0.15 });
   const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
   const { services: catalogServices } = useServiceCatalog();
 

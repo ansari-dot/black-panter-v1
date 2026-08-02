@@ -16,7 +16,7 @@ const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const ContactSection = () => {
   const sectionRef = useRef(null);
-  const isInView = useInView(sectionRef, { once: false, amount: 0.2 });
+  const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
   const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
 
   React.useEffect(() => {

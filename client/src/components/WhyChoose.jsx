@@ -4,7 +4,7 @@ import { motion, useInView } from 'framer-motion';
 
 export default function WhyChooseUsSection() {
   const sectionRef = useRef(null);
-  const isInView = useInView(sectionRef, { once: false, amount: 0.2 });
+  const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
   const [hoveredCard, setHoveredCard] = React.useState(null);
   const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
   
@@ -181,7 +181,7 @@ export default function WhyChooseUsSection() {
   };
 
   const headerVariants = {
-    hidden: { opacity: 0, y: -30 },
+    hidden: { opacity: 0, y: 30 },
     visible: {
       opacity: 1,
       y: 0,

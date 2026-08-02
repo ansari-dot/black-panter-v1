@@ -30,6 +30,11 @@ const productSchema = new mongoose.Schema({
   // Product attributes
   highlights: [{ type: String }],
   technicalProcedures: [technicalProcedureSchema],
+  technicalSpecs: [{
+    label: { type: String, required: true },
+    value: { type: String, required: true }
+  }],
+  compatibleVehicles: [{ type: String }],
 
   // Specs
   capacity: { type: String },
@@ -40,6 +45,8 @@ const productSchema = new mongoose.Schema({
   dimensions: { type: String },
   weight: { type: String },
   operatingTemp: { type: String },
+  cells: { type: String },
+  manufacturer: { type: String },
 
   // Meta
   warrantyMonths: { type: Number, default: 60 },
@@ -51,8 +58,6 @@ const productSchema = new mongoose.Schema({
   // Certifications
   certifications: [{ type: String }],
 
-  // WhatsApp
-  whatsappMessage: { type: String },
 
   // Inventory
   currentStock: { type: Number, default: 0, min: 0 },
@@ -77,19 +82,5 @@ productSchema.index({ rating: -1 });
 productSchema.index({ category: 1, status: 1, displayOrder: 1, createdAt: -1 });
 productSchema.index({ featuredOnHome: 1, status: 1, displayOrder: 1, createdAt: -1 });
 
-
-// Auto-generate whatsappMessage if not provided
-productSchema.pre('save', async function () {
-  if (!this.whatsappMessage) {
-    this.whatsappMessage = `Hello, I would like to buy the ${this.name}. Please share the details.`;
-  }
-});
-
-productSchema.pre('findOneAndUpdate', async function () {
-  const update = this.getUpdate();
-  if (update && !update.whatsappMessage && update.name) {
-    update.whatsappMessage = `Hello, I would like to buy the ${update.name}. Please share the details.`;
-  }
-});
 
 export default mongoose.model('Product', productSchema);

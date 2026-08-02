@@ -8,6 +8,10 @@ export const normalizeTeamMember = (member) => ({
   bio: member.bio || '',
   displayOrder: member.displayOrder || 0,
   status: member.status || 'Active',
+  linkedin: member.linkedin || '',
+  facebook: member.facebook || '',
+  instagram: member.instagram || '',
+  twitter: member.twitter || '',
 });
 
 export const normalizeTeamCatalog = (records = []) =>

@@ -17,3 +17,16 @@ export const adminOnly = (req, res, next) => {
   if (req.user?.role !== 'admin') return res.status(403).json({ message: 'Admin only' });
   next();
 };
+
+export const optionalProtect = async (req, res, next) => {
+  try {
+    const token = req.cookies?.token;
+    if (token) {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = await User.findById(decoded.id).select('-password');
+    }
+  } catch (err) {
+    // optional token error ignored
+  }
+  next();
+};

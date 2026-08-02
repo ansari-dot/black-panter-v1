@@ -45,13 +45,13 @@ export const update = asyncHandler(async (req, res) => {
     status:  req.body.status,
   };
   if (req.file) data.image = `/uploads/${req.file.filename}`;
-  const item = await Testimonial.findByIdAndUpdate(req.params.id, data, { new: true });
+  const item = await Testimonial.findByIdAndUpdate(req.params.id, data, { returnDocument: 'after' });
   if (!item) return res.status(404).json({ message: 'Not found' });
   res.json(item);
 });
 
 export const updateStatus = asyncHandler(async (req, res) => {
-  const item = await Testimonial.findByIdAndUpdate(req.params.id, { status: req.body.status }, { new: true });
+  const item = await Testimonial.findByIdAndUpdate(req.params.id, { status: req.body.status }, { returnDocument: 'after' });
   if (!item) return res.status(404).json({ message: 'Not found' });
   res.json(item);
 });

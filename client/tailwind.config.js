@@ -7,24 +7,33 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: '#f8f7f5',
-        foreground: '#1d1f24',
-        border: '#e8e3de',
-        input: '#f3f0ed',
+        background: '#f5f5f3',
+        foreground: '#111111',
+        border: '#e2e2e0',
+        input: '#f0f0ee',
         primary: {
-          DEFAULT: '#f06123',
+          DEFAULT: '#277eff',
           foreground: '#ffffff',
         },
         secondary: '#fff3ed',
         muted: {
-          DEFAULT: '#ece7e2',
+          DEFAULT: '#e8e8e6',
           foreground: '#888888',
         },
         card: '#ffffff',
         dark: {
           DEFAULT: '#f0ece8',
           foreground: '#1d1f24',
-        }
+        },
+        accent: '#c8860a',
+        surface: '#ffffff',
+        green: {
+          DEFAULT: '#22c55e',
+          foreground: '#ffffff',
+        },
+        'tag-bg': '#f5f0e8',
+        'tag-text': '#9a6b1e',
+        stars: '#f5a623'
       },
       fontFamily: {
         sans: ['"Plus Jakarta Sans"', 'sans-serif'],

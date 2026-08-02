@@ -4,10 +4,12 @@ import { Link } from 'react-router-dom';
 import { FaFacebookF, FaLinkedinIn, FaInstagram, FaPhone, FaEnvelope, FaMapMarkerAlt, FaClock } from 'react-icons/fa';
 import logo from '../assets/logo.webp';
 import { useServiceCatalog } from '../hooks/useServiceCatalog';
+import { useSettings } from '../hooks/useSettings';
 
 const Footer = () => {
   const { activeServices } = useServiceCatalog();
   const footerServices = activeServices.slice(0, 5);
+  const { socialFacebook, socialLinkedin, socialInstagram } = useSettings();
 
   // Animation variants
   const staggerContainer = {
@@ -338,7 +340,7 @@ const Footer = () => {
             {/* Social Media Icons */}
             <div style={socialContainerStyle}>
               <motion.a 
-                href="https://facebook.com"
+                href={socialFacebook || 'https://facebook.com'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="footer-social-link"
@@ -350,7 +352,7 @@ const Footer = () => {
                 <FaFacebookF style={socialIconStyle} />
               </motion.a>
               <motion.a 
-                href="https://linkedin.com"
+                href={socialLinkedin || 'https://linkedin.com'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="footer-social-link"
@@ -362,7 +364,7 @@ const Footer = () => {
                 <FaLinkedinIn style={socialIconStyle} />
               </motion.a>
               <motion.a 
-                href="https://instagram.com"
+                href={socialInstagram || 'https://instagram.com'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="footer-social-link"
@@ -449,7 +451,7 @@ const Footer = () => {
             transition={{ duration: 0.6, delay: 0.3 }}
           >
             <p style={copyrightStyle}>
-              © 2024 Black Panther Batteries. All rights reserved.
+              © 2026 Black Panther Batteries. All rights reserved.
             </p>
           </motion.div>
         </div>

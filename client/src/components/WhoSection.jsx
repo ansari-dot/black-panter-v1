@@ -3,7 +3,7 @@ import { motion, useInView } from 'framer-motion';
 import about from '../assets/about.webp'
 export default function WhoWeAreSection() {
   const sectionRef = useRef(null);
-  const isInView = useInView(sectionRef, { once: false, amount: 0.2 });
+  const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
   const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
   
   React.useEffect(() => {

@@ -6,7 +6,7 @@
 import { useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../store';
-import { fetchDashboardData, setSystemStatus, addLog } from '../store/dashboardSlice';
+import { fetchDashboardData, setSystemStatus, addLog, updateInquiryLocal, removeInquiryLocal } from '../store/dashboardSlice';
 import { 
   TInquiry, TService, TProduct, TTeamMember, TEquipmentItem, TPartnerItem, 
   TProject, TWarehouse, TCategory, TQuotation 
@@ -131,22 +131,22 @@ export function useDashboardData() {
 
   // INQUIRIES ACTIONS
   const markInquiryRead = useCallback(async (id: string) => {
-    await api.patch(`/api/inquiries/${id}`, { status: 'read' });
+    dispatch(updateInquiryLocal({ id, status: 'read' }));
+    api.patch(`/api/inquiries/${id}`, { status: 'read' }).catch(() => {});
     addSystemLog('info', `Inquiry ${id} viewed and marked as read.`, 'Inquiry Dispatcher');
-    dispatch(fetchDashboardData());
   }, [dispatch, addSystemLog]);
 
   const replyToInquiry = useCallback(async (id: string, replyText: string) => {
     const replyDate = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    dispatch(updateInquiryLocal({ id, status: 'replied', replyText, replyDate }));
     await api.patch(`/api/inquiries/${id}`, { status: 'replied', replyText, replyDate });
     addSystemLog('success', `Reply dispatched successfully to inquiry: ${id}`, 'Email Gateway');
-    dispatch(fetchDashboardData());
   }, [dispatch, addSystemLog]);
 
   const deleteInquiry = useCallback(async (id: string) => {
+    dispatch(removeInquiryLocal(id));
     await api.delete(`/api/inquiries/${id}`);
     addSystemLog('warning', `Inquiry ${id} permanently discarded.`, 'Inquiry Dispatcher');
-    dispatch(fetchDashboardData());
   }, [dispatch, addSystemLog]);
 
   // SERVICES ACTIONS
@@ -262,9 +262,15 @@ export function useDashboardData() {
   }, [dispatch, state.systemStatus, addSystemLog]);
 
   // TEAM ACTIONS
-  const addTeamMember = useCallback(async (name: string, role: string, email: string, status: 'Active' | 'On Leave', image?: string) => {
-    await api.post('/api/team', { name, role, email, status, image });
-    addSystemLog('success', `Team Member registered: "${name}" (${role})`, 'Personnel Directory');
+  const addTeamMember = useCallback(async (data: { name: string; role: string; email: string; status: 'Active' | 'On Leave'; image?: string; linkedin?: string; facebook?: string; instagram?: string; twitter?: string }) => {
+    await api.post('/api/team', data);
+    addSystemLog('success', `Team Member registered: "${data.name}" (${data.role})`, 'Personnel Directory');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
+
+  const updateTeamMember = useCallback(async (id: string, data: Partial<TTeamMember>) => {
+    await api.put(`/api/team/${id}`, data);
+    addSystemLog('success', `Team Member updated: "${data.name || id}"`, 'Personnel Directory');
     dispatch(fetchDashboardData());
   }, [dispatch, addSystemLog]);
 
@@ -479,6 +485,7 @@ export function useDashboardData() {
     deleteProduct,
     updateSystemStatusValue,
     addTeamMember,
+    updateTeamMember,
     updateTeamMemberStatus,
     deleteTeamMember,
     addTestimonial,

@@ -1,5 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
+import { useWishlist } from "../context/WishlistContext";
+import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
 
 const CartIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -16,12 +20,33 @@ const StarIcon = ({ filled }) => (
 );
 
 export const ProductCard = ({ product }) => {
+  const { user } = useAuth();
+  const { isInWishlist, toggleWishlist } = useWishlist();
+  const { addToCart } = useCart();
+  const [addedToast, setAddedToast] = React.useState(false);
+  
+  const productId = product._id || product.id;
+  const isWishlisted = isInWishlist(productId);
   const isNew = product.status === 'Active' && (product.rating >= 4.8 || !product.oldPrice);
+
+  const handleWishlistClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleWishlist(productId);
+  };
+
+  const handleAddToCartClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToCart(product, 1);
+    setAddedToast(true);
+    setTimeout(() => setAddedToast(false), 2000);
+  };
 
   return (
     <Link to={`/product/${product.slug}`} className="block group">
       <article
-        className="rounded-2xl overflow-hidden bg-white font-body cursor-pointer transition-all duration-300 group-hover:-translate-y-1"
+        className="rounded-2xl overflow-hidden bg-white font-body cursor-pointer transition-all duration-300 group-hover:-translate-y-1 relative"
         style={{ boxShadow: "0 2px 10px rgba(29,31,36,0.06)", border: "1px solid #ede9e4" }}
         onMouseEnter={e => e.currentTarget.style.boxShadow = "0 8px 30px rgba(29,31,36,0.11)"}
         onMouseLeave={e => e.currentTarget.style.boxShadow = "0 2px 10px rgba(29,31,36,0.06)"}
@@ -35,7 +60,7 @@ export const ProductCard = ({ product }) => {
           />
 
           {/* Badges */}
-          <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+          <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
             {isNew && (
               <span className="text-white text-[10px] font-bold px-2.5 py-1 rounded-full tracking-wide" style={{ backgroundColor: "#f06123" }}>
                 NEW
@@ -48,19 +73,40 @@ export const ProductCard = ({ product }) => {
             )}
           </div>
 
+          {/* Wishlist Heart Button (Only rendered if user is logged in) */}
+          {user && (
+            <button
+              type="button"
+              onClick={handleWishlistClick}
+              className={`absolute top-3 right-3 z-20 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 shadow-md ${
+                isWishlisted
+                  ? "bg-[#F06123] text-white scale-105"
+                  : "bg-white/90 text-gray-600 hover:bg-white hover:text-[#F06123] hover:scale-110"
+              }`}
+              title={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
+            >
+              {isWishlisted ? (
+                <FaHeart className="text-xs text-white" />
+              ) : (
+                <FaRegHeart className="text-xs" />
+              )}
+            </button>
+          )}
+
           {/* Hover overlay */}
           <div
-            className="absolute inset-0 flex items-end justify-center pb-4 opacity-0 group-hover:opacity-100 transition-all duration-300"
+            className="absolute inset-0 flex items-end justify-center pb-4 opacity-0 group-hover:opacity-100 transition-all duration-300 z-10"
             style={{ background: "linear-gradient(to top, rgba(29,31,36,0.6) 0%, rgba(29,31,36,0.0) 55%)" }}
           >
             <button
               type="button"
-              className="flex items-center gap-2 text-white text-xs font-semibold px-5 py-2.5 rounded-full transition-transform duration-200 hover:scale-105"
-              style={{ backgroundColor: "#f06123" }}
-              onClick={(e) => e.preventDefault()}
+              className={`flex items-center gap-2 text-white text-xs font-bold px-5 py-2.5 rounded-full transition-all duration-200 hover:scale-105 shadow-md ${
+                addedToast ? "bg-emerald-600" : "bg-[#f06123]"
+              }`}
+              onClick={handleAddToCartClick}
             >
               <CartIcon />
-              Add to Cart
+              {addedToast ? "Added to Cart!" : "Add to Cart"}
             </button>
           </div>
         </div>

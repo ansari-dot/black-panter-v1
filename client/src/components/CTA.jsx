@@ -27,7 +27,7 @@ export default function CTASection() {
   };
 
   const badgeVariants = {
-    initial: { y: -30, opacity: 0, scale: 0.9 },
+    initial: { y: 30, opacity: 0, scale: 0.9 },
     animate: {
       y: 0,
       opacity: 1,
@@ -40,7 +40,7 @@ export default function CTASection() {
   };
 
   const titleVariants = {
-    initial: { y: -50, opacity: 0 },
+    initial: { y: 50, opacity: 0 },
     animate: {
       y: 0,
       opacity: 1,
@@ -307,7 +307,7 @@ export default function CTASection() {
             variants={isMobile ? mobileVariants : badgeVariants}
             initial="initial"
             whileInView="animate"
-            viewport={{ once: false, amount: 0.3 }}
+            viewport={{ once: true, amount: 0.3 }}
           >
             <motion.span
               style={styles.dot}
@@ -326,7 +326,7 @@ export default function CTASection() {
                 variants={isMobile ? mobileVariants : titleVariants}
                 initial="initial"
                 whileInView="animate"
-                viewport={{ once: false, amount: 0.3 }}
+                viewport={{ once: true, amount: 0.3 }}
               >
                 Need Reliable Battery Performance?
               </motion.h2>
@@ -339,7 +339,7 @@ export default function CTASection() {
                 variants={isMobile ? mobileVariants : subtitleVariants}
                 initial="initial"
                 whileInView="animate"
-                viewport={{ once: false, amount: 0.3 }}
+                viewport={{ once: true, amount: 0.3 }}
               >
                 Speak with our certified technicians for a complete system assessment and customized maintenance plan.
               </motion.p>
@@ -353,7 +353,7 @@ export default function CTASection() {
           variants={isMobile ? mobileVariants : buttonVariants}
           initial="initial"
           whileInView="animate"
-          viewport={{ once: false, amount: 0.3 }}
+          viewport={{ once: true, amount: 0.3 }}
         >
           {/* Primary Button */}
           <motion.button

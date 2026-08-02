@@ -128,15 +128,34 @@ const dashboardSlice = createSlice({
     addLog: (state, action: PayloadAction<TSystemLog>) => {
       state.logs = [action.payload, ...state.logs.slice(0, 19)];
     },
+    updateInquiryLocal: (state, action: PayloadAction<{ id: string; status: string; replyText?: string; replyDate?: string }>) => {
+      const item = state.inquiries.find(i => i.id === action.payload.id || (i as any)._id === action.payload.id);
+      if (item) {
+        if (action.payload.status === 'read' && item.status !== 'Replied') {
+          item.status = 'Read';
+        } else if (action.payload.status === 'replied') {
+          item.status = 'Replied';
+        }
+        if (action.payload.replyText !== undefined) item.replyText = action.payload.replyText;
+        if (action.payload.replyDate !== undefined) item.replyDate = action.payload.replyDate;
+      }
+    },
+    removeInquiryLocal: (state, action: PayloadAction<string>) => {
+      state.inquiries = state.inquiries.filter(i => i.id !== action.payload && (i as any)._id !== action.payload);
+    },
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchDashboardData.pending, (state) => {
-        state.isLoading = true;
+        if (state.inquiries.length === 0 && state.products.length === 0) {
+          state.isLoading = true;
+        }
+        state.isRefetching = true;
         state.isError = false;
       })
       .addCase(fetchDashboardData.fulfilled, (state, action) => {
         state.isLoading = false;
+        state.isRefetching = false;
         state.isError = false;
         state.products = action.payload.products;
         state.services = action.payload.services;
@@ -156,11 +175,12 @@ const dashboardSlice = createSlice({
       })
       .addCase(fetchDashboardData.rejected, (state, action) => {
         state.isLoading = false;
+        state.isRefetching = false;
         state.isError = true;
         state.errorMsg = (action.payload as string) || 'Initialization failed';
       });
   },
 });
 
-export const { setSystemStatus, addLog } = dashboardSlice.actions;
+export const { setSystemStatus, addLog, updateInquiryLocal, removeInquiryLocal } = dashboardSlice.actions;
 export default dashboardSlice.reducer;

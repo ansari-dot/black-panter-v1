@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const registerSchema = z.object({
   name:     z.string().min(2),
   email:    z.string().email(),
-  password: z.string().min(6),
+  password: z.string().min(6).optional(),
 });
 
 export const loginSchema = z.object({
@@ -31,6 +31,11 @@ export const productSchema = z.object({
     description: z.string().min(2),
     icon:        z.string().optional(),
   })).optional(),
+  technicalSpecs: z.array(z.object({
+    label: z.string().min(1),
+    value: z.string().min(1),
+  })).optional(),
+  compatibleVehicles: z.array(z.string()).optional(),
   capacity:       z.string().optional(),
   voltage:        z.string().optional(),
   cycleLife:      z.string().optional(),
@@ -39,13 +44,14 @@ export const productSchema = z.object({
   dimensions:     z.string().optional(),
   weight:         z.string().optional(),
   operatingTemp:  z.string().optional(),
+  cells:          z.string().optional(),
+  manufacturer:   z.string().optional(),
   warrantyMonths: z.coerce.number().int().min(0).optional(),
   shipping:       z.string().optional(),
   stockStatus:    z.enum(['In Stock', 'Low Stock', 'Out of Stock']).optional(),
   rating:         z.coerce.number().min(0).max(5).optional(),
   reviewCount:    z.coerce.number().int().min(0).optional(),
   certifications: z.array(z.string()).optional(),
-  whatsappMessage: z.string().optional(),
   displayOrder:   z.coerce.number().optional(),
   status:         z.enum(['Active', 'Inactive']).optional(),
 });
@@ -79,7 +85,10 @@ export const teamSchema = z.object({
   email:      z.string().email(),
   status:     z.enum(['Active', 'On Leave']).optional(),
   image:      z.string().optional(),
-  linkedin:   z.string().url().optional(),
+  linkedin:   z.string().optional(),
+  facebook:   z.string().optional(),
+  instagram:  z.string().optional(),
+  twitter:    z.string().optional(),
   joinedDate: z.string().optional(),
 });
 

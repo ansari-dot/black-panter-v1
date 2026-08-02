@@ -106,7 +106,7 @@ export const addMovement = asyncHandler(async (req, res) => {
         $inc: { "warehouseStocks.$.stock": qty, currentStock: qty },
         $set: { stockStatus: newStockStatus }
       },
-      { new: true }
+      { returnDocument: 'after' }
     );
     if (!updatedProduct) {
       updatedProduct = await Product.findByIdAndUpdate(
@@ -116,7 +116,7 @@ export const addMovement = asyncHandler(async (req, res) => {
           $inc: { currentStock: qty },
           $set: { stockStatus: newStockStatus }
         },
-        { new: true }
+        { returnDocument: 'after' }
       );
     }
   } else {
@@ -126,7 +126,7 @@ export const addMovement = asyncHandler(async (req, res) => {
         $inc: { "warehouseStocks.$.stock": -qty, currentStock: -qty },
         $set: { stockStatus: newStockStatus }
       },
-      { new: true }
+      { returnDocument: 'after' }
     );
   }
 
@@ -155,7 +155,7 @@ export const updateInventoryConfig = asyncHandler(async (req, res) => {
   const product = await Product.findByIdAndUpdate(
     req.params.productId,
     allowed,
-    { new: true, runValidators: true }
+    { returnDocument: 'after', runValidators: true }
   );
   if (!product) return res.status(404).json({ message: 'Product not found.' });
 

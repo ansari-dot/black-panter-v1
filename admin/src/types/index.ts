@@ -81,6 +81,8 @@ export interface TProduct {
   dimensions?: string;
   weight?: string;
   operatingTemp?: string;
+  cells?: string;
+  manufacturer?: string;
   warrantyMonths?: number;
   shipping?: string;
   stockStatus: 'In Stock' | 'Low Stock' | 'Out of Stock';
@@ -139,6 +141,9 @@ export interface TTeamMember {
   joinedDate: string;
   image?: string;
   linkedin?: string;
+  facebook?: string;
+  instagram?: string;
+  twitter?: string;
 }
 
 export interface TTestimonial {

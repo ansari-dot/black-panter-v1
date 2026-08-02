@@ -366,14 +366,14 @@ const IndustrySection = () => {
           variants={scrollLeftVariants}
           initial="initial"
           whileInView="animate"
-          viewport={{ once: false, amount: 0.3 }}
+          viewport={{ once: true, amount: 0.3 }}
         >
           <motion.h2
             style={styles.heading}
             variants={scrollHeadingVariants}
             initial="initial"
             whileInView="animate"
-            viewport={{ once: false, amount: 0.3 }}
+            viewport={{ once: true, amount: 0.3 }}
           >
             Powering Industry Since 2005
           </motion.h2>
@@ -382,7 +382,7 @@ const IndustrySection = () => {
             variants={scrollHeadingVariants}
             initial="initial"
             whileInView="animate"
-            viewport={{ once: false, amount: 0.3 }}
+            viewport={{ once: true, amount: 0.3 }}
           ></motion.div>
 
           <motion.p style={styles.description}>
@@ -400,7 +400,7 @@ const IndustrySection = () => {
                 variants={scrollBadgeVariants}
                 initial="initial"
                 whileInView="animate"
-                viewport={{ once: false, amount: 0.3 }}
+                viewport={{ once: true, amount: 0.3 }}
                 whileHover={{
                   scale: 1.05,
                   boxShadow: "0 4px 12px rgba(240, 97, 35, 0.2)",
@@ -430,7 +430,7 @@ const IndustrySection = () => {
             variants={scrollBadgeVariants}
             initial="initial"
             whileInView="animate"
-            viewport={{ once: false, amount: 0.3 }}
+            viewport={{ once: true, amount: 0.3 }}
             whileHover={{
               scale: 1.02,
               boxShadow: "0 6px 20px rgba(240, 97, 35, 0.15)",

@@ -1,9 +1,10 @@
 import express from 'express';
-import { getAll, getOne, create, update, remove } from '../controllers/quotationController.js';
+import { getAll, getOne, create, update, remove, getMyQuotations } from '../controllers/quotationController.js';
 import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
 
+router.get('/my-quotations', protect, getMyQuotations);
 router.get('/', protect, getAll);
 router.get('/:id', protect, getOne);
 router.post('/', protect, create);

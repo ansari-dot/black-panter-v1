@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { FaFacebookF, FaLinkedinIn, FaInstagram, FaBars, FaTimes, FaShoppingCart } from "react-icons/fa";
+import { FaFacebookF, FaLinkedinIn, FaInstagram, FaBars, FaTimes, FaShoppingCart, FaUserCircle, FaUser, FaCog, FaBoxOpen, FaFileAlt, FaSignOutAlt, FaHeart, FaMapMarkerAlt } from "react-icons/fa";
 import { IoIosArrowDown } from "react-icons/io";
 import { ScrollToTop } from "./ScrollToTop";
 import logo from '../assets/logo.webp';
 import { useServiceCatalog } from "../hooks/useServiceCatalog";
 import QuoteModal from "./QuoteModal";
 import { getServiceCardIcon } from "../utils/serviceCatalog";
+import { useAuth } from "../context/AuthContext";
+import { useCart } from "../context/CartContext";
+import { useSettings } from "../hooks/useSettings";
 
 const navigationItems = [
   { label: "Home", path: "/" },
@@ -60,15 +63,20 @@ const productDropdownCategories = [
   }
 ];
 
-export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackground, backgroundSlider }) => {
+export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackground, backgroundSlider, smallHeader = false }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { activeServices } = useServiceCatalog();
+  const { socialFacebook, socialLinkedin, socialInstagram } = useSettings();
   const [isServicesOpen, setIsServicesOpen] = useState(false);
   const [isProductsOpen, setIsProductsOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
+  
+  const { user, logout } = useAuth();
+  const { cartCount } = useCart();
 
   const handleGetQuote = () => {
     setIsQuoteModalOpen(true);
@@ -107,7 +115,7 @@ export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackg
       />
 
       {/* Hero Section with Background */}
-      <div className="relative w-full h-auto min-h-[65vh] md:h-[100vh] md:min-h-[100vh] rounded-b-none overflow-hidden flex flex-col justify-between pb-8 md:pb-0">
+      <div className={`relative w-full h-auto rounded-b-none overflow-hidden flex flex-col justify-between pb-8 md:pb-0 ${smallHeader ? 'min-h-[40vh] md:min-h-[45vh]' : 'min-h-[65vh] md:h-[100vh] md:min-h-[100vh]'}`}>
         {/* Background Image Layer (behind vector) */}
         {backgroundImage && (
           <div className="absolute inset-0 w-full h-full rounded-b-none">
@@ -287,7 +295,7 @@ export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackg
               {/* Social Media Icons */}
               <div className="flex items-center gap-2 md:gap-3">
                 <a
-                  href="https://facebook.com"
+                  href={socialFacebook || 'https://facebook.com'}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-[#F06123] flex items-center justify-center hover:bg-[#FF8803] transition-all duration-300"
@@ -296,7 +304,7 @@ export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackg
                   <FaFacebookF className="text-white text-xs md:text-sm" />
                 </a>
                 <a
-                  href="https://linkedin.com"
+                  href={socialLinkedin || 'https://linkedin.com'}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-[#F06123] flex items-center justify-center hover:bg-[#FF8803] transition-all duration-300"
@@ -305,7 +313,7 @@ export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackg
                   <FaLinkedinIn className="text-white text-xs md:text-sm" />
                 </a>
                 <a
-                  href="https://instagram.com"
+                  href={socialInstagram || 'https://instagram.com'}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-[#F06123] flex items-center justify-center hover:bg-[#FF8803] transition-all duration-300"
@@ -313,6 +321,82 @@ export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackg
                 >
                   <FaInstagram className="text-white text-xs md:text-sm" />
                 </a>
+
+                {/* User Account / Login */}
+                {user ? (
+                  <div 
+                    className="relative ml-1 md:ml-2" 
+                    onMouseEnter={() => setIsProfileDropdownOpen(true)}
+                    onMouseLeave={() => setIsProfileDropdownOpen(false)}
+                  >
+                    <div role="button" className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-[#F06123] flex items-center justify-center hover:bg-[#FF8803] transition-all duration-300 cursor-pointer" aria-label="User Profile" title="User Profile">
+                      <FaUser className="text-white text-xs md:text-sm" />
+                    </div>
+                    {isProfileDropdownOpen && (
+                      <div className="absolute left-1/2 -translate-x-1/2 top-full pt-4 w-60 z-50">
+                        <div className="bg-white rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] border border-gray-100 py-2 relative">
+                          {/* Triangle Pointer */}
+                          <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white rotate-45 border-t border-l border-gray-100"></div>
+                          
+                          <div className="px-5 py-3 border-b border-gray-100/80 mb-2 relative bg-white rounded-t-2xl">
+                            <p className="text-sm font-bold text-gray-800 truncate">{user.name}</p>
+                            <p className="text-xs text-gray-500 truncate mt-0.5">{user.email}</p>
+                          </div>
+                          
+                          <div className="px-2 space-y-1 relative bg-white">
+                            <Link to="/settings" className="group flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-600 hover:bg-[#F06123]/10 hover:text-[#F06123] rounded-xl transition-all duration-200">
+                              <FaCog className="text-gray-400 group-hover:text-[#F06123] transition-colors" /> User Settings
+                            </Link>
+                            <Link to="/orders" className="group flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-600 hover:bg-[#F06123]/10 hover:text-[#F06123] rounded-xl transition-all duration-200">
+                              <FaBoxOpen className="text-gray-400 group-hover:text-[#F06123] transition-colors" /> Orders
+                            </Link>
+                            <Link to="/track" className="group flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-600 hover:bg-[#F06123]/10 hover:text-[#F06123] rounded-xl transition-all duration-200">
+                              <FaMapMarkerAlt className="text-gray-400 group-hover:text-[#F06123] transition-colors" /> Track Order
+                            </Link>
+                            <Link to="/wishlist" className="group flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-600 hover:bg-[#F06123]/10 hover:text-[#F06123] rounded-xl transition-all duration-200">
+                              <FaHeart className="text-gray-400 group-hover:text-[#F06123] transition-colors" /> Wishlist
+                            </Link>
+                            <Link to="/quotes" className="group flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-600 hover:bg-[#F06123]/10 hover:text-[#F06123] rounded-xl transition-all duration-200">
+                              <FaFileAlt className="text-gray-400 group-hover:text-[#F06123] transition-colors" /> Quotation
+                            </Link>
+                          </div>
+                          
+                          <div className="px-2 mt-2 pt-2 border-t border-gray-100/80 relative bg-white rounded-b-2xl">
+                            <button 
+                              onClick={() => logout()} 
+                              className="group w-full flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-red-600 hover:bg-red-50 rounded-xl transition-all duration-200"
+                            >
+                              <FaSignOutAlt className="text-red-500 group-hover:scale-110 transition-transform" /> Logout
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <Link
+                    to="/login"
+                    className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-[#F06123] flex items-center justify-center hover:bg-[#FF8803] transition-all duration-300 relative ml-1 md:ml-2"
+                    aria-label="Login"
+                    title="Login"
+                  >
+                    <FaUser className="text-white text-xs md:text-sm" />
+                  </Link>
+                )}
+
+                {/* Cart Icon - Desktop */}
+                <Link
+                  to="/cart"
+                  className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-[#F06123] flex items-center justify-center hover:bg-[#FF8803] transition-all duration-300 relative ml-1 md:ml-2"
+                  aria-label="View Shopping Cart"
+                >
+                  <FaShoppingCart className="text-white text-xs md:text-sm" />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-white">
+                      {cartCount}
+                    </span>
+                  )}
+                </Link>
               </div>
 
               <button
@@ -486,14 +570,56 @@ export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackg
                     <FaLinkedinIn className="text-white text-sm" />
                   </a>
                   <a
-                    href="https://instagram.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-10 h-10 rounded-full bg-[#F06123] flex items-center justify-center hover:bg-[#FF8803] transition-all duration-300 shadow-md"
-                  >
-                    <FaInstagram className="text-white text-sm" />
-                  </a>
-                </div>
+                  href="https://instagram.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-[#F06123] flex items-center justify-center hover:bg-[#FF8803] transition-all duration-300 shadow-md"
+                >
+                  <FaInstagram className="text-white text-sm" />
+                </a>
+              </div>
+
+              {/* Mobile Auth Links */}
+              <div className="border-t border-gray-100 pt-4 mb-6 space-y-3">
+                {user ? (
+                  <>
+                    <div className="px-2 mb-2">
+                      <p className="text-sm font-bold text-gray-800">Hi, {user.name}</p>
+                    </div>
+                    <Link to="/settings" className="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg border border-gray-100" onClick={() => setIsMobileMenuOpen(false)}>
+                      <FaCog className="text-[#F06123]" /> User Settings
+                    </Link>
+                    <Link to="/orders" className="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg border border-gray-100" onClick={() => setIsMobileMenuOpen(false)}>
+                      <FaBoxOpen className="text-[#F06123]" /> Orders
+                    </Link>
+                    <Link to="/track" className="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg border border-gray-100" onClick={() => setIsMobileMenuOpen(false)}>
+                      <FaMapMarkerAlt className="text-[#F06123]" /> Track Order
+                    </Link>
+                    <Link to="/wishlist" className="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg border border-gray-100" onClick={() => setIsMobileMenuOpen(false)}>
+                      <FaHeart className="text-[#F06123]" /> Wishlist
+                    </Link>
+                    <Link to="/quotes" className="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg border border-gray-100" onClick={() => setIsMobileMenuOpen(false)}>
+                      <FaFileAlt className="text-[#F06123]" /> Quotation
+                    </Link>
+                    <button onClick={() => { logout(); setIsMobileMenuOpen(false); }} className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg border border-red-100">
+                      <FaSignOutAlt /> Logout
+                    </button>
+                  </>
+                ) : (
+                  <Link to="/login" className="flex items-center justify-center gap-2 w-full py-3 bg-[#F06123] text-white font-bold rounded-xl" onClick={() => setIsMobileMenuOpen(false)}>
+                    <FaUserCircle size={20} /> Login
+                  </Link>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <Link
+                  to="/cart"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full h-[48px] text-[#F06123] font-bold text-[16px] rounded-[8px] transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-2 border-2 border-[#F06123]"
+                >
+                  <FaShoppingCart /> Cart {cartCount > 0 && `(${cartCount})`}
+                </Link>
 
                 <button
                   className="w-full h-[48px] text-white font-bold text-[16px] rounded-[8px] transition-all duration-300 hover:scale-[1.02]"
@@ -513,6 +639,7 @@ export const PageLayout = ({ children, heroContent, backgroundImage, vectorBackg
                 </button>
               </div>
             </div>
+          </div>
           </>
         )}
 

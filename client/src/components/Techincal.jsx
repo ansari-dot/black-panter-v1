@@ -14,7 +14,7 @@ const defaultProcedures = [
 
 const TechnicalProcedures = ({ service }) => {
   const sectionRef = useRef(null);
-  const isInView = useInView(sectionRef, { once: false, amount: 0.15 });
+  const isInView = useInView(sectionRef, { once: true, amount: 0.15 });
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   React.useEffect(() => {

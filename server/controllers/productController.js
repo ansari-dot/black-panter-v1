@@ -103,7 +103,7 @@ export const update = asyncHandler(async (req, res) => {
     body.stockStatus = newStockStatus;
   }
 
-  const item = await Product.findByIdAndUpdate(req.params.id, body, { new: true, runValidators: true });
+  const item = await Product.findByIdAndUpdate(req.params.id, body, { returnDocument: 'after', runValidators: true });
   if (!item) return res.status(404).json({ message: 'Not found' });
   await item.populate({ path: 'warehouseStocks.warehouse', select: 'name code city' });
   res.json(item);
@@ -113,7 +113,7 @@ export const updateStock = asyncHandler(async (req, res) => {
   const item = await Product.findByIdAndUpdate(
     req.params.id,
     { stockStatus: req.body.stockStatus },
-    { new: true }
+    { returnDocument: 'after' }
   );
   if (!item) return res.status(404).json({ message: 'Not found' });
   res.json(item);
@@ -123,7 +123,7 @@ export const updateFeatured = asyncHandler(async (req, res) => {
   const item = await Product.findByIdAndUpdate(
     req.params.id,
     { featuredOnHome: req.body.featuredOnHome },
-    { new: true }
+    { returnDocument: 'after' }
   );
   if (!item) return res.status(404).json({ message: 'Not found' });
   res.json(item);

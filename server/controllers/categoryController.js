@@ -47,7 +47,7 @@ export const update = asyncHandler(async (req, res) => {
       displayOrder: displayOrder !== undefined ? Number(displayOrder) : undefined,
       status,
     },
-    { new: true, runValidators: true }
+    { returnDocument: 'after', runValidators: true }
   );
   if (!item) return res.status(404).json({ message: 'Category not found.' });
   res.json(item);

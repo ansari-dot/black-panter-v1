@@ -85,6 +85,7 @@ export default function App() {
     deleteProduct,
     updateSystemStatusValue,
     addTeamMember,
+    updateTeamMember,
     updateTeamMemberStatus,
     deleteTeamMember,
     addTestimonial,
@@ -370,6 +371,7 @@ export default function App() {
             <TeamPage
               team={team}
               onAddMember={addTeamMember}
+              onUpdateMember={updateTeamMember}
               onUpdateStatus={updateTeamMemberStatus}
               onDeleteMember={deleteTeamMember}
             />
@@ -502,6 +504,7 @@ export default function App() {
               onAddQuotation={addQuotation}
               onUpdateQuotation={updateQuotation}
               onReplyToInquiry={replyToInquiry}
+              products={products}
             />
           )}
 

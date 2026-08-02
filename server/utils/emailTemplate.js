@@ -5,6 +5,19 @@ export const generateQuotationEmailHTML = (q, adminMessage = '') => {
   const additionalSubtotal = (q.additionalCharges || []).reduce((sum, item) => sum + (item.amount || 0), 0);
   const subtotal = materialsSubtotal + labourSubtotal + equipmentSubtotal + additionalSubtotal;
 
+  // Derive the public server base URL for static assets (logo etc.)
+  const serverBase = process.env.API_URL ||
+    (() => {
+      const first = (process.env.CLIENT_URLS || '').split(',')[0].trim();
+      if (first.includes('localhost')) return `http://localhost:${process.env.PORT || 3000}`;
+      // Production: replace client subdomain/domain with api subdomain
+      try {
+        const u = new URL(first);
+        return `${u.protocol}//api.${u.hostname.replace(/^www\./, '')}`;
+      } catch { return 'http://localhost:3000'; }
+    })();
+  const logoUrl = `${serverBase}/uploads/logo.jpeg`;
+
   const discountVal = q.discountValue || 0;
   const discountAmount = q.discountType === 'percentage' ? (subtotal * discountVal / 100) : discountVal;
   const taxableAmount = Math.max(0, subtotal - discountAmount);
@@ -186,7 +199,7 @@ export const generateQuotationEmailHTML = (q, adminMessage = '') => {
 <body>
   <div class="wrapper">
     <div class="header">
-      <h1>BLACK PANTHER BATTERIES</h1>
+      <img src="${logoUrl}" alt="Black Panther Batteries" style="height:72px; width:auto; display:block; margin:0 auto 10px;" />
       <div style="font-size:12px; color:#aaa; margin-top:4px;">Power &amp; Maintenance Solutions</div>
     </div>
     

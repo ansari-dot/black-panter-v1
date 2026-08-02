@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Linkedin, Facebook, Instagram, Twitter } from 'lucide-react';
 import { useTeamCatalog } from '../hooks/useTeamCatalog';
 import ceoImage from '../assets/team/ceo.webp';
 import asImage from '../assets/team/Ac.webp';
@@ -42,14 +43,27 @@ const MeetOurExperts = ({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const [hoveredId, setHoveredId] = React.useState(null);
+
   const experts = Array.isArray(activeMembers) && activeMembers.length > 0
     ? activeMembers.map((m, index) => ({
         id: m.id || m._id || index + 1,
         name: m.name,
         title: m.role || m.title || 'Expert Technician',
-        image: m.image || defaultExperts[index % defaultExperts.length].image
+        image: m.image || defaultExperts[index % defaultExperts.length].image,
+        linkedin: m.linkedin || '',
+        facebook: m.facebook || '',
+        instagram: m.instagram || '',
+        twitter: m.twitter || '',
       }))
     : defaultExperts;
+
+  const socialMeta = [
+    { key: 'linkedin',  Icon: Linkedin,  color: '#0077B5' },
+    { key: 'facebook',  Icon: Facebook,  color: '#1877F2' },
+    { key: 'instagram', Icon: Instagram, color: '#E4405F' },
+    { key: 'twitter',   Icon: Twitter,   color: '#000000' },
+  ];
 
   // Animation variants
   const staggerContainer = {
@@ -64,7 +78,7 @@ const MeetOurExperts = ({
   };
 
   const headerVariants = {
-    initial: { y: -50, opacity: 0 },
+    initial: { y: 50, opacity: 0 },
     animate: {
       y: 0,
       opacity: 1,
@@ -194,7 +208,8 @@ const MeetOurExperts = ({
     alignItems: 'center',
     justifyContent: 'center',
     transition: 'all 0.3s ease',
-    boxShadow: '0 0 0 rgba(0, 0, 0, 0)'
+    boxShadow: '0 0 0 rgba(0, 0, 0, 0)',
+    position: 'relative',
   };
 
   const imageStyle = {
@@ -340,7 +355,7 @@ const MeetOurExperts = ({
           variants={isMobile ? mobileVariants : headerVariants}
           initial="initial"
           whileInView="animate"
-          viewport={{ once: false, amount: 0.3 }}
+          viewport={{ once: true, amount: 0.3 }}
         >
           <motion.div style={titleWrapperStyle}>
             <motion.span className="expert-title" style={titleStyle}>
@@ -362,7 +377,7 @@ const MeetOurExperts = ({
                 variants={isMobile ? mobileVariants : cardVariants}
                 initial="initial"
                 whileInView="animate"
-                viewport={{ once: false, amount: 0.3 }}
+                viewport={{ once: true, amount: 0.3 }}
                 whileHover={{ 
                   y: -8,
                   scale: 1.02,
@@ -374,6 +389,8 @@ const MeetOurExperts = ({
                   style={imageWrapperStyle}
                   variants={floatingVariants}
                   animate="animate"
+                  onHoverStart={() => setHoveredId(expert.id)}
+                  onHoverEnd={() => setHoveredId(null)}
                 >
                   <img
                     src={expert.image}
@@ -385,6 +402,65 @@ const MeetOurExperts = ({
                     loading="lazy"
                     decoding="async"
                   />
+                  {/* Social overlay — slides up from bottom on image hover */}
+                  {socialMeta.some(({ key }) => expert[key]) && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 30 }}
+                      animate={hoveredId === expert.id
+                        ? { opacity: 1, y: 0 }
+                        : { opacity: 0, y: 30 }}
+                      transition={{ duration: 0.35, ease: 'easeOut' }}
+                      style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        padding: '24px 0 20px',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        gap: '10px',
+                        background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 100%)',
+                        borderRadius: '0 0 24px 24px',
+                        pointerEvents: hoveredId === expert.id ? 'auto' : 'none',
+                      }}
+                    >
+                      {socialMeta.map(({ key, Icon, color }) =>
+                        expert[key] ? (
+                          <a
+                            key={key}
+                            href={expert[key]}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={key}
+                            style={{
+                              width: 34, height: 34,
+                              borderRadius: '50%',
+                              backgroundColor: 'rgba(255,255,255,0.15)',
+                              backdropFilter: 'blur(4px)',
+                              border: '1.5px solid rgba(255,255,255,0.4)',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              color: '#fff',
+                              textDecoration: 'none',
+                              transition: 'background-color 0.2s ease, transform 0.2s ease',
+                              flexShrink: 0,
+                            }}
+                            onMouseEnter={e => {
+                              e.currentTarget.style.backgroundColor = color;
+                              e.currentTarget.style.transform = 'scale(1.15)';
+                              e.currentTarget.style.border = `1.5px solid ${color}`;
+                            }}
+                            onMouseLeave={e => {
+                              e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.15)';
+                              e.currentTarget.style.transform = 'scale(1)';
+                              e.currentTarget.style.border = '1.5px solid rgba(255,255,255,0.4)';
+                            }}
+                          >
+                            <Icon size={15} />
+                          </a>
+                        ) : null
+                      )}
+                    </motion.div>
+                  )}
                 </motion.div>
                 <motion.div style={infoContainerStyle}>
                   <motion.h3 

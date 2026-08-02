@@ -20,6 +20,10 @@ import warehouseRoutes from './routes/warehouseRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
 import quotationRoutes from './routes/quotationRoutes.js';
 import settingRoutes from './routes/settingRoutes.js';
+import cartRoutes from './routes/cartRoutes.js';
+import wishlistRoutes from './routes/wishlistRoutes.js';
+import orderRoutes from './routes/orderRoutes.js';
+
 database.connect()
     .catch((err) => {
         console.error(err);
@@ -31,7 +35,9 @@ const PORT = process.env.PORT || 3000;
 
 const allowedOrigins = [
     'https://www.blackpanther-batteries.com',
-    'https://admin.blackpanther-batteries.com'
+    'https://admin.blackpanther-batteries.com',
+    'http://localhost:2000',
+    'http://localhost:5173'
 ];
 
 app.use(cors({
@@ -54,6 +60,9 @@ app.use('/api/team', teamRoutes);
 app.use('/api/testimonials', testimonialRoutes);
 app.use('/api/inquiries', inquiryRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/cart', cartRoutes);
+app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/orders', orderRoutes);
 app.use('/api/equipment', equipmentRoutes);
 app.use('/api/partners', partnerRoutes);
 app.use('/api/projects', projectRoutes);

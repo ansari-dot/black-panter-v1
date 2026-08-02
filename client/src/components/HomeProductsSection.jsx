@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FaWhatsapp, FaStar, FaArrowRight, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { FaWhatsapp, FaStar, FaArrowRight, FaHeart, FaRegHeart, FaShoppingCart, FaCheck } from "react-icons/fa";
 import { productsApi } from "../utils/api";
+import { useWishlist } from "../context/WishlistContext";
+import { useAuth } from "../context/AuthContext";
+import { useCart } from "../context/CartContext";
 
 export default function HomeProductsSection() {
   const navigate = useNavigate();
@@ -135,7 +138,28 @@ export default function HomeProductsSection() {
 
 function ShowcaseCard({ product, index, isMobile }) {
   const [hovered, setHovered] = useState(false);
-  const whatsappUrl = `https://wa.me/61402277723?text=${encodeURIComponent(product.whatsappMessage || product.name || '')}`;
+  const { user } = useAuth();
+  const { isInWishlist, toggleWishlist } = useWishlist();
+  const { addToCart } = useCart();
+  const [addedToast, setAddedToast] = useState(false);
+
+  const productId = product._id || product.id;
+  const isWishlisted = isInWishlist(productId);
+
+  const handleWishlistClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleWishlist(productId);
+  };
+
+  const handleAddToCart = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToCart(product, 1);
+    setAddedToast(true);
+    setTimeout(() => setAddedToast(false), 2000);
+  };
+
   const slug = product.slug;
 
   return (
@@ -146,6 +170,7 @@ function ShowcaseCard({ product, index, isMobile }) {
       transition={{ duration: 0.4, delay: isMobile ? 0 : index * 0.05 }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      onClick={() => navigate(`/product/${slug}`)}
       className="relative rounded-2xl overflow-hidden h-[380px] w-full cursor-pointer shadow-md hover:shadow-2xl transition-all duration-300 border border-slate-100"
     >
       {/* Background Image */}
@@ -161,15 +186,36 @@ function ShowcaseCard({ product, index, isMobile }) {
           : 'bg-gradient-to-t from-black/85 via-black/30 to-black/5'
         }`} />
 
-      {/* Top Badges */}
-      <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between z-10">
-        <span className="bg-[#F06123] text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm">
-          {product.category || 'Battery'}
-        </span>
-        {product.saleLabel && (
-          <span className="bg-black/60 backdrop-blur-md text-white text-[11px] font-bold px-2.5 py-1 rounded-md">
-            -{product.saleLabel}
+      {/* Top Badges & Wishlist */}
+      <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between z-20">
+        <div className="flex items-center gap-1.5">
+          <span className="bg-[#F06123] text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm">
+            {product.category || 'Battery'}
           </span>
+          {product.saleLabel && (
+            <span className="bg-black/60 backdrop-blur-md text-white text-[11px] font-bold px-2.5 py-1 rounded-md">
+              -{product.saleLabel}
+            </span>
+          )}
+        </div>
+
+        {user && (
+          <button
+            type="button"
+            onClick={handleWishlistClick}
+            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-md ${
+              isWishlisted
+                ? "bg-[#F06123] text-white scale-105"
+                : "bg-black/40 backdrop-blur-md text-white hover:bg-[#F06123] hover:scale-110"
+            }`}
+            title={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
+          >
+            {isWishlisted ? (
+              <FaHeart className="text-xs text-white" />
+            ) : (
+              <FaRegHeart className="text-xs" />
+            )}
+          </button>
         )}
       </div>
 
@@ -202,25 +248,25 @@ function ShowcaseCard({ product, index, isMobile }) {
           )}
         </div>
 
-        {/* Action Buttons (Always visible on mobile, hover visible on desktop) */}
-        <div className={`grid grid-cols-2 gap-2 mt-1 transition-all duration-300 ${isMobile || hovered ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-2 pointer-events-none'
+        {/* Action Buttons */}
+        <div className={`flex flex-col gap-2 mt-1 transition-all duration-300 relative ${isMobile || hovered ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-2 pointer-events-none'
           }`}>
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noreferrer"
-            onClick={e => e.stopPropagation()}
-            className="flex items-center justify-center gap-1.5 bg-[#25d366] hover:bg-[#1fb85a] text-white text-xs font-bold py-2 rounded-lg transition-colors text-center"
+          
+          {addedToast && (
+            <div className="absolute -top-10 left-0 right-0 bg-emerald-600 text-white text-xs font-bold py-1 px-3 rounded-lg text-center shadow-lg animate-fade-in z-30 flex items-center justify-center gap-1.5">
+              <FaCheck className="text-xs" /> Added to Cart!
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            className={`w-full flex items-center justify-center gap-2 text-white text-xs font-bold py-2.5 rounded-xl transition-all shadow-md active:scale-95 ${
+              addedToast ? 'bg-emerald-600' : 'bg-[#F06123] hover:bg-[#FF8803]'
+            }`}
           >
-            <FaWhatsapp className="text-sm" /> Buy
-          </a>
-          <Link
-            to={`/product/${slug}`}
-            onClick={e => e.stopPropagation()}
-            className="flex items-center justify-center gap-1.5 bg-[#F06123] hover:bg-[#FF8803] text-white text-xs font-bold py-2 rounded-lg transition-colors text-center"
-          >
-            Details <FaArrowRight className="text-[10px]" />
-          </Link>
+            <FaShoppingCart className="text-sm" /> {addedToast ? "Added to Cart!" : "Add to Cart"}
+          </button>
         </div>
       </div>
     </motion.div>

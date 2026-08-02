@@ -18,13 +18,13 @@ export const create = asyncHandler(async (req, res) => {
 });
 
 export const update = asyncHandler(async (req, res) => {
-  const item = await Team.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  const item = await Team.findByIdAndUpdate(req.params.id, req.body, { returnDocument: 'after' });
   if (!item) return res.status(404).json({ message: 'Not found' });
   res.json(item);
 });
 
 export const updateStatus = asyncHandler(async (req, res) => {
-  const item = await Team.findByIdAndUpdate(req.params.id, { status: req.body.status }, { new: true });
+  const item = await Team.findByIdAndUpdate(req.params.id, { status: req.body.status }, { returnDocument: 'after' });
   if (!item) return res.status(404).json({ message: 'Not found' });
   res.json(item);
 });

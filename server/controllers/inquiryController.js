@@ -1,5 +1,6 @@
 import Inquiry from '../models/Inquiry.js';
 import asyncHandler from '../utils/asyncHandler.js';
+import { sendInquiryReplyEmail } from '../utils/emailService.js';
 
 const formatStatus = (status = '') => {
     const normalized = String(status).toLowerCase();
@@ -49,6 +50,7 @@ export const getOne = asyncHandler(async (req, res) => {
 
 export const create = asyncHandler(async (req, res) => {
     const payload = {
+        user: req.user ? req.user._id : null,
         name: req.body.name,
         company: req.body.company || '',
         email: req.body.email,
@@ -69,8 +71,24 @@ export const updateStatus = asyncHandler(async (req, res) => {
     if (typeof req.body.replyText === 'string') update.replyText = req.body.replyText;
     if (typeof req.body.replyDate === 'string') update.replyDate = req.body.replyDate;
 
-    const item = await Inquiry.findByIdAndUpdate(req.params.id, update, { new: true, runValidators: true });
+    const item = await Inquiry.findByIdAndUpdate(req.params.id, update, { returnDocument: 'after', runValidators: true });
     if (!item) return res.status(404).json({ message: 'Not found' });
+
+    // Automatically send reply email to the client if replyText is provided
+    if (req.body.replyText && item.email) {
+      try {
+        await sendInquiryReplyEmail({
+          to: item.email,
+          recipientName: item.name,
+          inquirySubject: item.subject || item.service,
+          replyMessage: req.body.replyText
+        });
+        console.log(`[InquiryReply] Email dispatched to ${item.email}`);
+      } catch (emailErr) {
+        console.error('[InquiryReply] Email dispatch error:', emailErr);
+      }
+    }
+
     res.json(formatInquiry(item));
 });
 

@@ -17,7 +17,7 @@ const systemSansFont = "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
 
 const ContactSection = () => {
   const sectionRef = useRef(null);
-  const isInView = useInView(sectionRef, { once: false, amount: 0.2 });
+  const isInView = useInView(sectionRef, { once: true, amount: 0.2 });
   const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
   const { formData, errors, isSubmitting, submitSuccess, handleInputChange, handleSubmit } = useContactForm();
 

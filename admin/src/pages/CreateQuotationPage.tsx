@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
-  FileText, Calendar, ChevronDown, User, BatteryCharging,
+  FileText, Calendar, ChevronDown, ChevronUp, User, BatteryCharging,
   Eye, ArrowRight, ArrowLeft, FileDown, X, Plus, Check,
   ListChecks, Pencil, Upload, GripVertical, Trash2,
   Package, Users, Wrench, PlusCircle, Send, Landmark, Shield, Printer, Lock
 } from 'lucide-react';
-import { TTab, TInquiry, TQuotation } from '../types';
+import { TTab, TInquiry, TQuotation, TProduct } from '../types';
 import { QuotePDFPreview } from '../components/QuotePDFPreview';
 
 interface CreateQuotationPageProps {
@@ -17,6 +17,7 @@ interface CreateQuotationPageProps {
   onAddQuotation: (quotation: Omit<TQuotation, 'id'>) => Promise<TQuotation>;
   onUpdateQuotation: (id: string, quotation: Partial<TQuotation>) => Promise<TQuotation>;
   onReplyToInquiry: (id: string, replyText: string) => Promise<void>;
+  products?: TProduct[];
 }
 
 const PRIMARY = '#f15a22';
@@ -128,9 +129,49 @@ export default function CreateQuotationPage({
   onClearEdit,
   onAddQuotation,
   onUpdateQuotation,
-  onReplyToInquiry
+  onReplyToInquiry,
+  products = [],
 }: CreateQuotationPageProps) {
   const [step, setStep] = useState(0);
+
+  // Battery picker dropdown state
+  const [batteryPickerOpen, setBatteryPickerOpen] = useState(false);
+  const [batterySearch, setBatterySearch] = useState('');
+  const batteryPickerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!batteryPickerOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (batteryPickerRef.current && !batteryPickerRef.current.contains(e.target as Node)) {
+        setBatteryPickerOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [batteryPickerOpen]);
+
+  const batteryProducts = products;
+
+  const filteredBatteryProducts = batterySearch.trim()
+    ? batteryProducts.filter(p =>
+        p.name.toLowerCase().includes(batterySearch.toLowerCase()) ||
+        (p.category || '').toLowerCase().includes(batterySearch.toLowerCase()) ||
+        (p.chemistrType || '').toLowerCase().includes(batterySearch.toLowerCase())
+      )
+    : batteryProducts;
+
+  const applyBatteryFromProduct = (p: TProduct) => {
+    setBatteryType(p.chemistrType || p.category || '');
+    setManufacturer(p.manufacturer || (p.displayTitle ? p.displayTitle.split(' ')[0] : ''));
+    setModel(p.name);
+    setVoltage(p.voltage || '');
+    setCapacity(p.capacity || '');
+    setCells(p.cells || '');
+    setBanks(p.banks || '');
+    setDescription(p.description || '');
+    setBatteryPickerOpen(false);
+    setBatterySearch('');
+  };
 
   // Form State Values
   const [quoteNo, setQuoteNo] = useState('');
@@ -203,6 +244,13 @@ export default function CreateQuotationPage({
   const [subjectLine, setSubjectLine] = useState('');
   const [messageBody, setMessageBody] = useState('');
   const [sendCopyToMe, setSendCopyToMe] = useState(false);
+
+  // Toast
+  const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
+  const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 4000);
+  };
 
   // Prefill hook trigger
   useEffect(() => {
@@ -426,7 +474,7 @@ export default function CreateQuotationPage({
 
     const extendedPayload = {
       ...payload,
-      sendEmail: status === 'Sent Email',
+      sendEmail: status === 'Sent',
       emailDetails: {
         to: recipientEmail,
         subject: subjectLine,
@@ -449,9 +497,14 @@ export default function CreateQuotationPage({
       // Cleanup prefill / edit selections
       onClearPrefill();
       onClearEdit();
-      setCurrentTab('quotations');
+      showToast(
+        status === 'Sent'
+          ? `Quotation ${quoteNo} sent successfully to ${recipientEmail || 'client'}!`
+          : `Quotation ${quoteNo} saved as draft.`
+      );
+      setTimeout(() => setCurrentTab('quotations'), 1500);
     } catch (err: any) {
-      alert(`Error saving quotation: ${err.message}`);
+      showToast(`Failed to ${status === 'Sent' ? 'send' : 'save'} quotation: ${err.message}`, 'error');
     }
   };
 
@@ -626,7 +679,77 @@ export default function CreateQuotationPage({
 
               {/* Battery Information */}
               <div style={{ border: '1px solid #e2e2e2', borderRadius: 10, padding: 20, backgroundColor: '#fff' }}>
-                <SectionHeader icon={BatteryCharging} label="Battery Information" />
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                  <SectionHeader icon={BatteryCharging} label="Battery Information" />
+                  {/* Battery picker from database */}
+                  <div style={{ position: 'relative' }} ref={batteryPickerRef}>
+                    <button
+                      type="button"
+                      onClick={() => { setBatteryPickerOpen(o => !o); setBatterySearch(''); }}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 6,
+                        border: `1px solid ${PRIMARY}`, borderRadius: 6,
+                        padding: '6px 12px', fontSize: 12, fontWeight: 600,
+                        color: PRIMARY, backgroundColor: '#fff5f2',
+                        cursor: 'pointer', whiteSpace: 'nowrap',
+                      }}
+                    >
+                      <BatteryCharging size={13} strokeWidth={2.4} />
+                      Load from Database
+                      {batteryPickerOpen
+                        ? <ChevronUp size={13} strokeWidth={2.4} />
+                        : <ChevronDown size={13} strokeWidth={2.4} />}
+                    </button>
+
+                    {batteryPickerOpen && (
+                      <div style={{
+                        position: 'absolute', top: '100%', right: 0, zIndex: 200,
+                        width: 320, marginTop: 4,
+                        border: '1px solid #e2e2e2', borderRadius: 8,
+                        backgroundColor: '#fff', boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                        overflow: 'hidden',
+                      }}>
+                        <div style={{ padding: '10px 12px', borderBottom: '1px solid #f0f0f0' }}>
+                          <input
+                            autoFocus
+                            type="text"
+                            placeholder="Search batteries..."
+                            value={batterySearch}
+                            onChange={e => setBatterySearch(e.target.value)}
+                            style={{ ...inputStyle, fontSize: 12, padding: '6px 10px' }}
+                          />
+                        </div>
+                        <div style={{ maxHeight: 220, overflowY: 'auto' }}>
+                          {filteredBatteryProducts.length === 0 ? (
+                            <div style={{ padding: '16px 12px', fontSize: 12, color: '#888', textAlign: 'center' }}>
+                              No battery products found
+                            </div>
+                          ) : filteredBatteryProducts.map(p => (
+                            <button
+                              key={p.id}
+                              type="button"
+                              onClick={() => applyBatteryFromProduct(p)}
+                              style={{
+                                width: '100%', textAlign: 'left',
+                                padding: '10px 14px', fontSize: 12,
+                                border: 'none', borderBottom: '1px solid #f5f5f5',
+                                backgroundColor: '#fff', cursor: 'pointer',
+                                display: 'flex', flexDirection: 'column', gap: 2,
+                              }}
+                              onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#fff5f2')}
+                              onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#fff')}
+                            >
+                              <span style={{ fontWeight: 600, color: '#1a1a1a' }}>{p.name}</span>
+                              <span style={{ color: '#888' }}>
+                                {[p.chemistrType, p.voltage ? `${p.voltage}V` : '', p.capacity ? `${p.capacity}Ah` : ''].filter(Boolean).join(' · ')}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16, marginBottom: 16 }}>
                   <div>
                     <FieldLabel>Battery Type</FieldLabel>
@@ -1238,8 +1361,8 @@ export default function CreateQuotationPage({
                   <button onClick={() => handleSave('Draft')} style={{ border: '1px solid #e2e2e2', borderRadius: 6, padding: '10px 24px', fontSize: 13, fontWeight: 500, color: '#1a1a1a', backgroundColor: '#fff', cursor: 'pointer' }}>
                     Save as Draft
                   </button>
-                  <button disabled style={{ borderRadius: 6, padding: '10px 24px', fontSize: 13, fontWeight: 600, color: '#fff', backgroundColor: PRIMARY, border: 'none', cursor: 'not-allowed', display: 'flex', alignItems: 'center', gap: 8, opacity: 0.6 }}>
-                    <Lock size={15} strokeWidth={2.4} /> Send Quotation
+                  <button onClick={() => handleSave('Sent')} style={{ borderRadius: 6, padding: '10px 24px', fontSize: 13, fontWeight: 600, color: '#fff', backgroundColor: PRIMARY, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <Send size={15} strokeWidth={2.4} /> Send Quotation
                   </button>
                 </div>
               </div>
@@ -1320,6 +1443,26 @@ export default function CreateQuotationPage({
 
       {/* Printable PDF Template (Invisible on screen, only visible on print media) */}
       <QuotePDFPreview quoteData={printableQuoteData} equipmentSubtotalOverride={equipmentSubtotal} className="print-only" />
+
+      {/* Toast Notification */}
+      {toast && (
+        <div style={{
+          position: 'fixed', bottom: 28, right: 28, zIndex: 9999,
+          display: 'flex', alignItems: 'center', gap: 10,
+          backgroundColor: toast.type === 'error' ? '#ef4444' : '#22c55e',
+          color: '#fff', borderRadius: 10, padding: '14px 20px',
+          fontSize: 14, fontWeight: 600, boxShadow: '0 4px 20px rgba(0,0,0,0.18)',
+          maxWidth: 380,
+          animation: 'fadeInUp 0.3s ease',
+        }}>
+          {toast.type === 'error'
+            ? <X size={18} strokeWidth={2.5} />
+            : <Check size={18} strokeWidth={2.5} />}
+          <span>{toast.msg}</span>
+        </div>
+      )}
+
+      <style>{`@keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }`}</style>
 
     </div>
   );

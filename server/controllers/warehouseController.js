@@ -32,7 +32,7 @@ export const update = asyncHandler(async (req, res) => {
   const item = await Warehouse.findByIdAndUpdate(
     req.params.id,
     { name, code: code?.toUpperCase(), address, city, state, country, contactPerson, phone, email, status, notes },
-    { new: true, runValidators: true }
+    { returnDocument: 'after', runValidators: true }
   );
   if (!item) return res.status(404).json({ message: 'Warehouse not found.' });
   res.json(item);
@@ -43,7 +43,7 @@ export const updateStatus = asyncHandler(async (req, res) => {
   const item = await Warehouse.findByIdAndUpdate(
     req.params.id,
     { status: req.body.status },
-    { new: true }
+    { returnDocument: 'after' }
   );
   if (!item) return res.status(404).json({ message: 'Warehouse not found.' });
   res.json(item);

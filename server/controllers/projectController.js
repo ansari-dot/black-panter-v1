@@ -62,7 +62,7 @@ export const create = asyncHandler(async (req, res) => {
 
 export const update = asyncHandler(async (req, res) => {
   const payload = normalizePayload(req.body);
-  const item = await Project.findByIdAndUpdate(req.params.id, payload, { new: true, runValidators: true });
+  const item = await Project.findByIdAndUpdate(req.params.id, payload, { returnDocument: 'after', runValidators: true });
   if (!item) return res.status(404).json({ message: 'Not found' });
   res.json(item);
 });
@@ -77,7 +77,7 @@ export const updateFeatured = asyncHandler(async (req, res) => {
   const item = await Project.findByIdAndUpdate(
     req.params.id,
     { featuredOnHome: req.body.featuredOnHome },
-    { new: true }
+    { returnDocument: 'after' }
   );
   if (!item) return res.status(404).json({ message: 'Not found' });
   res.json(item);

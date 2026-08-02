@@ -35,6 +35,8 @@ const normalizeProductRecord = (product) => {
     dimensions: product.dimensions || '',
     weight: product.weight || '',
     operatingTemp: product.operatingTemp || '',
+    cells: product.cells || '',
+    manufacturer: product.manufacturer || '',
     warrantyMonths: product.warrantyMonths || null,
     shipping: product.shipping || '',
     stockStatus: product.stockStatus || 'In Stock',

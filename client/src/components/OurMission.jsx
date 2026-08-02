@@ -4,7 +4,7 @@ import { motion, useInView } from 'framer-motion';
 
 export default function OurMissionSection() {
   const sectionRef = useRef(null);
-  const isInView = useInView(sectionRef, { once: false, amount: 0.3 });
+  const isInView = useInView(sectionRef, { once: true, amount: 0.3 });
   const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
   
   React.useEffect(() => {

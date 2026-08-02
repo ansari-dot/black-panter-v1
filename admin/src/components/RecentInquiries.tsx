@@ -168,25 +168,39 @@ export default function RecentInquiries({ inquiries, onReply, onMarkRead, onDele
                     {inq.status === 'New' && (
                       <button
                         title="Mark as read"
-                        onClick={() => onMarkRead(inq.id)}
-                        style={{ background: 'none', border: '1px solid #e8e8e8', borderRadius: 6, cursor: 'pointer', padding: '5px 7px', display: 'flex', alignItems: 'center', opacity: isHovered ? 1 : 0, transition: 'opacity 0.15s' }}
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); onMarkRead(inq.id); }}
+                        style={{ background: '#f5f5f5', border: '1px solid #e8e8e8', borderRadius: 6, cursor: 'pointer', padding: '5px 7px', display: 'flex', alignItems: 'center' }}
                       >
                         <Eye style={{ width: 13, height: 13, color: '#555' }} />
                       </button>
                     )}
-                    {/* Reply */}
+                    {/* Reply Icon Button */}
                     <button
-                      title="Reply"
-                      onClick={() => isReplyOpen ? setOpenReplyId(null) : openReply(inq)}
-                      style={{ background: isReplyOpen ? '#fff3ee' : 'none', border: '1px solid #e8e8e8', borderRadius: 6, cursor: 'pointer', padding: '5px 7px', display: 'flex', alignItems: 'center', opacity: isHovered || isReplyOpen ? 1 : 0, transition: 'opacity 0.15s' }}
+                      title={isReplyOpen ? "Close Reply" : "Reply to Inquiry"}
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); isReplyOpen ? setOpenReplyId(null) : openReply(inq); }}
+                      style={{ 
+                        background: isReplyOpen ? '#e84b10' : '#fff3ee', 
+                        border: '1px solid #ffd4c4', 
+                        borderRadius: 6, 
+                        cursor: 'pointer', 
+                        padding: '5px 7px', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center',
+                        color: isReplyOpen ? '#fff' : '#e84b10',
+                        transition: 'all 0.15s'
+                      }}
                     >
-                      <Reply style={{ width: 13, height: 13, color: isReplyOpen ? '#e84b10' : '#555' }} />
+                      <Reply style={{ width: 13, height: 13 }} />
                     </button>
                     {/* Delete */}
                     <button
-                      title="Delete"
-                      onClick={() => { if (confirm(`Delete inquiry from ${inq.name}?`)) { onDelete(inq.id); if (openReplyId === inq.id) setOpenReplyId(null); } }}
-                      style={{ background: 'none', border: '1px solid #e8e8e8', borderRadius: 6, cursor: 'pointer', padding: '5px 7px', display: 'flex', alignItems: 'center', opacity: isHovered ? 1 : 0, transition: 'opacity 0.15s' }}
+                      title="Delete Inquiry"
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); if (confirm(`Delete inquiry from ${inq.name}?`)) { onDelete(inq.id); if (openReplyId === inq.id) setOpenReplyId(null); } }}
+                      style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 6, cursor: 'pointer', padding: '5px 7px', display: 'flex', alignItems: 'center' }}
                     >
                       <Trash2 style={{ width: 13, height: 13, color: '#dc2626' }} />
                     </button>
@@ -195,42 +209,63 @@ export default function RecentInquiries({ inquiries, onReply, onMarkRead, onDele
 
                 {/* Inline reply panel */}
                 {isReplyOpen && (
-                  <div style={{ borderBottom: '1px solid #f0f0f0', background: '#fffaf8', padding: '12px 16px 16px 16px' }}>
-                    <div style={{ fontSize: 11, fontWeight: 600, color: '#888', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                      Reply to {inq.name} &lt;{inq.email}&gt;
+                  <div style={{ borderBottom: '1px solid #f0f0f0', background: '#fffaf8', padding: '16px', borderRadius: '0 0 8px 8px' }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a', marginBottom: 8, display: 'flex', itemsCenter: 'center', justifyContent: 'space-between' }}>
+                      <span>Replying to: <strong>{inq.name}</strong> (&lt;{inq.email}&gt;)</span>
+                      <span style={{ fontSize: 11, color: '#888', fontWeight: 500 }}>Subject: {inq.subject || inq.service}</span>
                     </div>
-                    {inq.replyText ? (
-                      <div style={{ fontSize: 12, color: '#16a34a', background: '#dcfce7', padding: '10px 12px', borderRadius: 6, border: '1px solid #bbf7d0' }}>
-                        Already replied: "{inq.replyText}"
+
+                    {/* Inquiry original message preview */}
+                    <div style={{ fontSize: 11, color: '#666', background: '#ffffff', padding: '10px 12px', borderRadius: 6, border: '1px solid #e8e8e8', marginBottom: 12, lineHeight: 1.5 }}>
+                      <strong>Original Message:</strong> "{inq.message}"
+                    </div>
+
+                    {inq.replyText && (
+                      <div style={{ fontSize: 12, color: '#16a34a', background: '#dcfce7', padding: '10px 12px', borderRadius: 6, border: '1px solid #bbf7d0', marginBottom: 12 }}>
+                        <strong>Previous Reply Sent:</strong> "{inq.replyText}" {inq.replyDate ? `(${inq.replyDate})` : ''}
                       </div>
-                    ) : (
-                      <form onSubmit={(e) => handleSendReply(e, inq)} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                        <textarea
-                          required
-                          rows={3}
-                          value={replyInput}
-                          onChange={(e) => setReplyInput(e.target.value)}
-                          placeholder="Type your reply…"
-                          style={{ width: '100%', padding: '8px 10px', fontSize: 12, borderRadius: 6, border: '1px solid #e8e8e8', outline: 'none', background: '#fff', color: '#1a1a1a', resize: 'vertical', lineHeight: 1.5, boxSizing: 'border-box' }}
-                        />
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-                          <button
-                            type="button"
-                            onClick={() => setOpenReplyId(null)}
-                            style={{ padding: '7px 14px', borderRadius: 6, border: '1px solid #e8e8e8', background: '#fff', color: '#555', fontSize: 12, cursor: 'pointer' }}
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            type="submit"
-                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 16px', borderRadius: 6, border: 'none', background: '#e84b10', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
-                          >
-                            <Send style={{ width: 12, height: 12 }} />
-                            Send Reply
-                          </button>
-                        </div>
-                      </form>
                     )}
+
+                    <form 
+                      onSubmit={async (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (!replyInput.trim()) return;
+                        try {
+                          await onReply(inq.id, replyInput.trim());
+                          setReplyInput('');
+                          setOpenReplyId(null);
+                        } catch (err) {
+                          console.error('Failed to dispatch reply:', err);
+                        }
+                      }} 
+                      style={{ display: 'flex', flexDirection: 'column', gap: 10 }}
+                    >
+                      <textarea
+                        required
+                        rows={4}
+                        value={replyInput}
+                        onChange={(e) => setReplyInput(e.target.value)}
+                        placeholder={`Type your email response to ${inq.name} here...`}
+                        style={{ width: '100%', padding: '10px 12px', fontSize: 12, borderRadius: 6, border: '1px solid #ffd4c4', outline: 'none', background: '#fff', color: '#1a1a1a', resize: 'vertical', lineHeight: 1.5, boxSizing: 'border-box' }}
+                      />
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+                        <button
+                          type="button"
+                          onClick={() => setOpenReplyId(null)}
+                          style={{ padding: '7px 14px', borderRadius: 6, border: '1px solid #e8e8e8', background: '#fff', color: '#555', fontSize: 12, cursor: 'pointer', fontWeight: 600 }}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 18px', borderRadius: 6, border: 'none', background: '#e84b10', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', boxShadow: '0 2px 6px rgba(232, 75, 16, 0.25)' }}
+                        >
+                          <Send style={{ width: 12, height: 12 }} />
+                          Send Email Reply
+                        </button>
+                      </div>
+                    </form>
                   </div>
                 )}
               </div>

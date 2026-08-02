@@ -12,7 +12,7 @@ export const create = asyncHandler(async (req, res) => {
 });
 
 export const update = asyncHandler(async (req, res) => {
-  const item = await Partner.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+  const item = await Partner.findByIdAndUpdate(req.params.id, req.body, { returnDocument: 'after', runValidators: true });
   if (!item) return res.status(404).json({ message: 'Not found' });
   res.json(item);
 });

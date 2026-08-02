@@ -23,14 +23,17 @@ const EMPTY_FORM = {
   highlights: '', certifications: '',
   capacity: '', voltage: '', cycleLife: '', chemistrType: '',
   ipRating: '', dimensions: '', weight: '', operatingTemp: '',
+  cells: '', manufacturer: '',
   warrantyMonths: 60, shipping: 'Australia Wide',
   stockStatus: 'In Stock' as const,
   rating: 4.8, reviewCount: 0,
-  whatsappMessage: '', displayOrder: 0,
+  displayOrder: 0,
   status: 'Active' as const,
   // Inventory
   currentStock: 0, minStock: 10, reorderLevel: 15, location: '',
   warehouseStocks: [] as Array<{ warehouse: string; stock: number }>,
+  technicalSpecs: [] as Array<{ label: string; value: string }>,
+  compatibleVehicles: '',
 };
 
 const Label = ({ children }: { children: React.ReactNode }) => (
@@ -136,9 +139,10 @@ export default function ProductsManager({ products, warehouses, categories, onAd
       cycleLife: prod.cycleLife || '', chemistrType: prod.chemistrType || '',
       ipRating: prod.ipRating || '', dimensions: prod.dimensions || '',
       weight: prod.weight || '', operatingTemp: prod.operatingTemp || '',
+      cells: prod.cells || '', manufacturer: prod.manufacturer || '',
       warrantyMonths: prod.warrantyMonths || 60, shipping: prod.shipping || 'Australia Wide',
       stockStatus: prod.stockStatus, rating: prod.rating || 4.8,
-      reviewCount: prod.reviewCount || 0, whatsappMessage: prod.whatsappMessage || '',
+      reviewCount: prod.reviewCount || 0,
       displayOrder: prod.displayOrder || 0, status: prod.status || 'Active',
       // Inventory
       currentStock: prod.currentStock ?? 0,
@@ -149,6 +153,8 @@ export default function ProductsManager({ products, warehouses, categories, onAd
         warehouse: typeof ws.warehouse === 'object' ? (ws.warehouse._id || ws.warehouse.id) : ws.warehouse,
         stock: ws.stock || 0,
       })),
+      technicalSpecs: prod.technicalSpecs || [],
+      compatibleVehicles: (prod.compatibleVehicles || []).join('\n'),
     });
     setShowModal(true);
   };
@@ -181,16 +187,19 @@ export default function ProductsManager({ products, warehouses, categories, onAd
         capacity: form.capacity, voltage: form.voltage, cycleLife: form.cycleLife,
         chemistrType: form.chemistrType, ipRating: form.ipRating,
         dimensions: form.dimensions, weight: form.weight, operatingTemp: form.operatingTemp,
+        cells: form.cells, manufacturer: form.manufacturer,
         warrantyMonths: form.warrantyMonths || undefined,
         shipping: form.shipping,
         stockStatus: form.stockStatus, rating: form.rating, reviewCount: form.reviewCount,
-        whatsappMessage: form.whatsappMessage, displayOrder: form.displayOrder, status: form.status,
+        displayOrder: form.displayOrder, status: form.status,
         // Inventory
         currentStock: editingProduct ? (editingProduct.currentStock ?? 0) : 0,
         minStock: form.minStock,
         reorderLevel: form.reorderLevel,
         location: form.location,
         warehouseStocks: editingProduct ? (editingProduct.warehouseStocks || []) : [],
+        technicalSpecs: form.technicalSpecs.filter(ts => ts.label.trim() && ts.value.trim()),
+        compatibleVehicles: form.compatibleVehicles.split('\n').map(s => s.trim()).filter(Boolean),
       };
       if (editingProduct) {
         await onUpdateProduct(editingProduct.id, payload);
@@ -402,6 +411,27 @@ export default function ProductsManager({ products, warehouses, categories, onAd
                       </div>
                     </div>
                   ) : null}
+                  {prod.compatibleVehicles?.length ? (
+                    <div style={{ gridColumn: '1 / -1' }}>
+                      <div style={{ fontSize: 10, textTransform: 'uppercase', color: '#aaa', fontWeight: 600, marginBottom: 4 }}>Compatible Vehicles</div>
+                      <div className="flex flex-wrap gap-1">
+                        {prod.compatibleVehicles.map((v) => <span key={v} style={{ fontSize: 11, padding: '2px 8px', borderRadius: 9999, backgroundColor: '#f3f4f6', color: '#374151', fontWeight: 500 }}>{v}</span>)}
+                      </div>
+                    </div>
+                  ) : null}
+                  {prod.technicalSpecs?.length ? (
+                    <div style={{ gridColumn: '1 / -1' }}>
+                      <div style={{ fontSize: 10, textTransform: 'uppercase', color: '#aaa', fontWeight: 600, marginBottom: 4 }}>Technical Specs</div>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {prod.technicalSpecs.map((ts, idx) => (
+                          <div key={idx} className="bg-white p-2 rounded border border-gray-200">
+                            <div className="text-[9px] text-gray-500 uppercase">{ts.label}</div>
+                            <div className="text-xs font-semibold text-gray-900">{ts.value}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
               )}
             </div>
@@ -597,11 +627,13 @@ export default function ProductsManager({ products, warehouses, categories, onAd
 
                 {/* ── SPECS ── */}
                 <section>
-                  <p className="text-[11px] font-bold uppercase tracking-widest text-primary mb-3">Technical Specs</p>
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-primary mb-3">Battery Specifications</p>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     {[
+                      ['Manufacturer', 'manufacturer', 'e.g. SAFT, Enersys'],
                       ['Capacity', 'capacity', '100Ah'],
                       ['Voltage', 'voltage', '12V'],
+                      ['No. of Cells', 'cells', 'e.g. 24'],
                       ['Cycle Life', 'cycleLife', '4000+'],
                       ['Chemistry', 'chemistrType', 'LiFePO4'],
                       ['IP Rating', 'ipRating', 'IP67'],
@@ -619,8 +651,8 @@ export default function ProductsManager({ products, warehouses, categories, onAd
 
                 {/* ── HIGHLIGHTS & CERTIFICATIONS ── */}
                 <section>
-                  <p className="text-[11px] font-bold uppercase tracking-widest text-primary mb-3">Highlights & Certifications</p>
-                  <div className="grid grid-cols-2 gap-3">
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-primary mb-3">Highlights, Vehicles & Certifications</p>
+                  <div className="grid grid-cols-3 gap-3">
                     <div>
                       <Label>Highlights (one per line)</Label>
                       <Textarea rows={4} value={form.highlights} onChange={f('highlights')} placeholder={"4000+ Cycle Life\nThermal Stable\nIP67 Rated"} />
@@ -629,6 +661,47 @@ export default function ProductsManager({ products, warehouses, categories, onAd
                       <Label>Certifications (one per line)</Label>
                       <Textarea rows={4} value={form.certifications} onChange={f('certifications')} placeholder={"AS/NZS 4509\nUN38.3\nIEC 62619"} />
                     </div>
+                    <div>
+                      <Label>Compatible Vehicles (one per line)</Label>
+                      <Textarea rows={4} value={form.compatibleVehicles} onChange={f('compatibleVehicles')} placeholder={"Toyota Camry, Aurion\nMazda CX-5, Mazda 6"} />
+                    </div>
+                  </div>
+                </section>
+
+                {/* ── DYNAMIC TECHNICAL SPECS ── */}
+                <section>
+                  <div className="flex justify-between items-end mb-3">
+                    <p className="text-[11px] font-bold uppercase tracking-widest text-primary m-0">Custom Specs (Additional)</p>
+                    <button type="button" onClick={() => setForm(p => ({ ...p, technicalSpecs: [...p.technicalSpecs, { label: '', value: '' }] }))} className="text-xs font-bold text-primary hover:underline">
+                      + Add Spec
+                    </button>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    {form.technicalSpecs.length === 0 ? (
+                      <div className="text-xs text-gray-500 italic py-2">No dynamic technical specs added yet.</div>
+                    ) : (
+                      form.technicalSpecs.map((ts, idx) => (
+                        <div key={idx} className="flex gap-2 items-center">
+                          <Input value={ts.label} onChange={(e) => {
+                            const newSpecs = [...form.technicalSpecs];
+                            newSpecs[idx].label = e.target.value;
+                            setForm(p => ({ ...p, technicalSpecs: newSpecs }));
+                          }} placeholder="Label (e.g. Model, Type, CCA)" />
+                          <Input value={ts.value} onChange={(e) => {
+                            const newSpecs = [...form.technicalSpecs];
+                            newSpecs[idx].value = e.target.value;
+                            setForm(p => ({ ...p, technicalSpecs: newSpecs }));
+                          }} placeholder="Value (e.g. 55D23L, AGM, 500A)" />
+                          <button type="button" onClick={() => {
+                            const newSpecs = [...form.technicalSpecs];
+                            newSpecs.splice(idx, 1);
+                            setForm(p => ({ ...p, technicalSpecs: newSpecs }));
+                          }} className="p-2 text-red-500 hover:bg-red-50 rounded">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </section>
 
@@ -670,10 +743,6 @@ export default function ProductsManager({ products, warehouses, categories, onAd
                     <div>
                       <Label>Display Order</Label>
                       <Input type="number" min="0" value={form.displayOrder} onChange={fNum('displayOrder')} />
-                    </div>
-                    <div>
-                      <Label>WhatsApp Message</Label>
-                      <Input value={form.whatsappMessage} onChange={f('whatsappMessage')} placeholder="Auto-generated if empty" />
                     </div>
                   </div>
                 </section>

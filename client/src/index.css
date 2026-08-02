@@ -15,6 +15,19 @@
   --color-c-1: #F06123;
   --color-c-2: #383A3C;
 
+  --color-background: #ffffff;
+  --color-foreground: #1a1a1a;
+  --color-border: #e5e5e5;
+  --color-input: #f0f0f0;
+  --color-muted: #f0f0f0;
+  --color-muted-foreground: #888888;
+  --color-accent: #F06123;
+  --color-surface: #ffffff;
+  --color-green: #25D366;
+  --color-tag-bg: #fff3ed;
+  --color-tag-text: #F06123;
+  --color-stars: #F06123;
+
   --breakpoint-xs: 475px;
 
   --animate-fade-in: fade-in 0.6s ease-out forwards;
