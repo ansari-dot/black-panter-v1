@@ -1,5 +1,6 @@
 import Order from '../models/Order.js';
 import Cart from '../models/Cart.js';
+import User from '../models/User.js';
 import Notification from '../models/Notification.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import { findOrderByIdOrShortId } from '../utils/findOrder.js';
@@ -7,7 +8,7 @@ import { findOrderByIdOrShortId } from '../utils/findOrder.js';
 
 // @desc    Create new order (Pending Payment)
 // @route   POST /api/orders
-// @access  Private
+// @access  Public / Optional Auth (Supports logged-in and guest checkout)
 export const createOrder = asyncHandler(async (req, res) => {
   const { items, totalAmount, shippingDetails } = req.body;
 
@@ -15,8 +16,33 @@ export const createOrder = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: 'No order items found' });
   }
 
+  // Determine user ID: from session or link/create user by shipping email
+  let userId = req.user?._id || req.user?.id;
+  if (!userId && shippingDetails?.email) {
+    const cleanEmail = shippingDetails.email.toLowerCase().trim();
+    let user = await User.findOne({ email: cleanEmail });
+    if (!user) {
+      user = await User.create({
+        name: shippingDetails.fullName || 'Customer',
+        email: cleanEmail,
+        phone: shippingDetails.phone || '',
+        address: shippingDetails.address || '',
+        city: shippingDetails.city || '',
+        state: shippingDetails.state || '',
+        zipCode: shippingDetails.zipCode || '',
+        country: shippingDetails.country || 'Australia',
+        role: 'user'
+      });
+    }
+    userId = user._id;
+  }
+
+  if (!userId) {
+    return res.status(400).json({ message: 'A valid email address is required for checkout' });
+  }
+
   const order = new Order({
-    user: req.user.id,
+    user: userId,
     items,
     totalAmount,
     shippingDetails
@@ -24,12 +50,12 @@ export const createOrder = asyncHandler(async (req, res) => {
 
   const createdOrder = await order.save();
   
-  await Notification.create({
+  Notification.create({
     type: 'NEW_ORDER',
     title: 'New Product Order',
-    message: `A new order has been placed for ${totalAmount} AUD`,
-    link: `/admin/orders`, // Or wherever orders are viewed
-  });
+    message: `A new order has been placed for $${totalAmount} AUD`,
+    link: `/admin/orders`,
+  }).catch(err => console.error('Notification error:', err.message));
 
   res.status(201).json(createdOrder);
 });

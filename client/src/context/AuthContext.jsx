@@ -24,6 +24,9 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password, otp) => {
     const res = await authApi.login({ email, password, otp });
+    if (res.token) {
+      localStorage.setItem('token', res.token);
+    }
     if (res.user) {
       setUser(res.user);
     }
@@ -37,6 +40,9 @@ export const AuthProvider = ({ children }) => {
 
   const setupAccount = async (email, token, password) => {
     const res = await authApi.setupAccount({ email, token, password });
+    if (res.token) {
+      localStorage.setItem('token', res.token);
+    }
     if (res.user) {
       setUser(res.user);
     }
@@ -44,6 +50,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
+    localStorage.removeItem('token');
     await authApi.logout();
     setUser(null);
   };

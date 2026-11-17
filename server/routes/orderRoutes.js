@@ -14,12 +14,12 @@ import {
   generateShippingLabel
 } from '../controllers/orderController.js';
 import { createCheckoutSession, verifyStripeSession, handleStripeWebhook } from '../controllers/stripeController.js';
-import { protect, adminOnly } from '../middleware/auth.js';
+import { protect, adminOnly, optionalProtect } from '../middleware/auth.js';
 
 const router = express.Router();
 
 router.route('/')
-  .post(protect, createOrder);
+  .post(optionalProtect, createOrder);
 
 router.route('/myorders')
   .get(protect, getMyOrders);
@@ -36,12 +36,12 @@ router.get('/admin/:id/shipping-label', protect, adminOnly, generateShippingLabe
 
 // Stripe Payment Gateway Routes
 router.post('/stripe-webhook', handleStripeWebhook);
-router.get('/verify-session/:sessionId', protect, verifyStripeSession);
+router.get('/verify-session/:sessionId', optionalProtect, verifyStripeSession);
 
 // Customer Tracking Routes
 router.get('/:id/tracking', protect, getCustomerOrderTracking);
 router.route('/track/:id').get(protect, trackOrder);
 router.route('/:id/pay').post(protect, processPayment);
-router.post('/:id/create-checkout-session', protect, createCheckoutSession);
+router.post('/:id/create-checkout-session', optionalProtect, createCheckoutSession);
 
 export default router;

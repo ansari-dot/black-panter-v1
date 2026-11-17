@@ -9,8 +9,9 @@
     "lint": "eslint .",
     "preview": "vite preview"
   },
-
   "dependencies": {
+    "@fontsource/plus-jakarta-sans": "^5.3.0",
+    "@fontsource/poppins": "^5.3.0",
     "@stripe/stripe-js": "^9.14.0",
     "framer-motion": "^12.26.2",
     "lucide-react": "^0.562.0",

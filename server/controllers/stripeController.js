@@ -16,8 +16,8 @@ export const createCheckoutSession = asyncHandler(async (req, res) => {
     return res.status(404).json({ message: 'Order not found' });
   }
 
-  // Ensure the user owns the order
-  if (order.user.toString() !== req.user.id) {
+  // Ensure the user owns the order if logged in
+  if (req.user && order.user && order.user.toString() !== (req.user._id?.toString() || req.user.id)) {
     return res.status(401).json({ message: 'Not authorized for this order' });
   }
 
@@ -124,8 +124,8 @@ export const verifyStripeSession = asyncHandler(async (req, res) => {
     return res.status(404).json({ message: 'Order not found for payment verification' });
   }
 
-  // Ensure user owns order
-  if (order.user.toString() !== req.user.id) {
+  // Ensure user owns order if logged in
+  if (req.user && order.user && order.user.toString() !== (req.user._id?.toString() || req.user.id)) {
     return res.status(401).json({ message: 'Not authorized' });
   }
 

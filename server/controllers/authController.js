@@ -5,11 +5,13 @@ import Wishlist from '../models/Wishlist.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import { sendOtpEmail, sendSetupEmail, sendResetPasswordOtpEmail } from '../utils/emailService.js';
 import Notification from '../models/Notification.js';
+const isProd = process.env.NODE_ENV === 'production';
 const cookieOptions = () => ({
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'lax',
-  maxAge: 2 * 60 * 60 * 1000, // 2 hours
+  secure: isProd,
+  sameSite: isProd ? 'none' : 'lax',
+  domain: isProd ? '.blackpanther-batteries.com' : undefined,
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 });
 
 const signToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '2h' });

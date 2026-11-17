@@ -10,12 +10,26 @@ export const resolveImageUrl = (path = '') => {
 
 // ─── core fetch wrapper ───────────────────────────────────────────────────────
 async function request(endpoint, options = {}) {
+  const token = localStorage.getItem('token');
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+    ...options.headers,
+  };
+
   const res = await fetch(`${BASE_URL}${endpoint}`, {
-    headers: { 'Content-Type': 'application/json', ...options.headers },
+    headers,
     credentials: 'include',
     ...options,
   });
-  const data = await res.json();
+
+  let data;
+  try {
+    data = await res.json();
+  } catch (err) {
+    data = { message: res.statusText || `HTTP ${res.status}` };
+  }
+
   if (!res.ok) throw new Error(data.message || `Request failed: ${res.status}`);
   return data;
 }

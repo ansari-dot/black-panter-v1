@@ -37,20 +37,45 @@ const PORT = process.env.PORT || 3000;
 
 const allowedOrigins = [
     'https://www.blackpanther-batteries.com',
+    'https://blackpanther-batteries.com',
     'https://admin.blackpanther-batteries.com',
+    'http://www.blackpanther-batteries.com',
+    'http://blackpanther-batteries.com',
+    'http://admin.blackpanther-batteries.com',
     'http://localhost:2000',
-    'http://localhost:5173'
+    'http://localhost:5173',
+    'http://localhost:3000'
 ];
 
-app.use(cors({
-    origin: (origin, cb) => {
-        if (!origin || allowedOrigins.includes(origin)) {
-            return cb(null, true);
+const isAllowedOrigin = (origin) => {
+    if (!origin) return true;
+    if (allowedOrigins.includes(origin)) return true;
+    try {
+        const url = new URL(origin);
+        if (url.hostname === 'blackpanther-batteries.com' || url.hostname.endsWith('.blackpanther-batteries.com')) {
+            return true;
         }
-        return cb(new Error('Not allowed by CORS'));
+        if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+            return true;
+        }
+    } catch (e) { }
+    return false;
+};
+
+const corsOptions = {
+    origin: (origin, cb) => {
+        if (isAllowedOrigin(origin)) {
+            return cb(null, origin || true);
+        }
+        return cb(null, false);
     },
     credentials: true,
-}));
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'stripe-signature'],
+    exposedHeaders: ['Set-Cookie']
+};
+
+app.use(cors(corsOptions));
 // Stripe Webhook raw body parser for signature verification
 app.use('/api/orders/stripe-webhook', express.raw({ type: 'application/json' }));
 
