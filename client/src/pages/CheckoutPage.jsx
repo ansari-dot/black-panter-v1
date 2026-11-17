@@ -6,7 +6,6 @@ import aboutHeroImage from '../assets/herosections/about.webp';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { orderApi } from '../utils/api';
-import { FaWhatsapp, FaPhoneAlt, FaExclamationTriangle, FaTimes, FaShoppingBag } from 'react-icons/fa';
 
 export const CheckoutPage = () => {
   const { cartItems, cartTotal } = useCart();
@@ -25,9 +24,7 @@ export const CheckoutPage = () => {
   });
   const [errorMsg, setErrorMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showStripeModal, setShowStripeModal] = useState(false);
   const [createdOrder, setCreatedOrder] = useState(null);
-  const [selectedPayment, setSelectedPayment] = useState('stripe');
 
   React.useEffect(() => {
     if (user) {
@@ -78,26 +75,21 @@ export const CheckoutPage = () => {
       setCreatedOrder(order);
 
       // Create Stripe Checkout session and redirect directly to Stripe Payment Form
-      try {
-        const sessionRes = await orderApi.createCheckoutSession(order._id);
-        if (sessionRes?.url) {
-          window.location.href = sessionRes.url;
-          return;
-        }
-      } catch (stripeErr) {
-        console.error('Direct Stripe redirect error:', stripeErr);
+      const sessionRes = await orderApi.createCheckoutSession(order._id);
+      if (sessionRes?.url) {
+        window.location.href = sessionRes.url;
+        return;
       }
 
-      setIsSubmitting(false);
+      // If no url returned, navigate to pay page
       navigate(`/checkout/pay/${order._id}`);
     } catch (err) {
+      console.error('Checkout Stripe redirect error:', err);
       const data = err?.response?.data || err;
-      setErrorMsg(data?.message || 'Failed to create order. Please try again.');
+      setErrorMsg(data?.message || err?.message || 'Failed to initiate Stripe checkout. Please try again.');
       setIsSubmitting(false);
     }
   };
-
-
 
   // Redirect to cart if empty (handled inside useEffect to prevent React render errors)
   React.useEffect(() => {
@@ -117,17 +109,12 @@ export const CheckoutPage = () => {
     );
   }
 
-
-  const whatsappMessage = createdOrder
-    ? `Hi Black Panther Batteries, I placed order #${createdOrder._id?.substring(createdOrder._id.length - 8).toUpperCase()} for $${cartTotal.toFixed(2)}. I would like to confirm my order details.`
-    : `Hi Black Panther Batteries, I would like to place an order for $${cartTotal.toFixed(2)}.`;
-
   return (
     <PageLayout
       heroContent={
         <div style={{ padding: '60px 0', color: '#fff', textAlign: 'center' }}>
           <h1 className="text-4xl lg:text-5xl font-bold mb-4 font-body">Checkout</h1>
-          <p className="text-lg opacity-80 max-w-2xl mx-auto font-body">Enter your shipping details.</p>
+          <p className="text-lg opacity-80 max-w-2xl mx-auto font-body">Enter your shipping details and proceed to secure card payment.</p>
         </div>
       }
       vectorBackground={aboutHeroImage}
@@ -207,27 +194,22 @@ export const CheckoutPage = () => {
                 <button 
                   type="submit" 
                   disabled={isSubmitting}
-                  className="w-full bg-[#F06123] hover:bg-[#e05214] text-white font-bold py-4 rounded-xl transition-all duration-300 mt-4 shadow-lg shadow-[#F06123]/25 flex items-center justify-center gap-2"
+                  className="w-full bg-[#F06123] hover:bg-[#e05214] text-white font-bold py-4 rounded-xl transition-all duration-300 mt-4 shadow-lg shadow-[#F06123]/25 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
                 >
                   {isSubmitting ? (
                     <>
-                      <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
-                      Redirecting to Payment...
+                      <svg className="w-5 h-5 animate-spin text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
+                      Connecting to Stripe...
                     </>
                   ) : (
-                    <>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                      {selectedPayment === 'stripe' ? 'Pay with Credit / Debit Card' :
-                       selectedPayment === 'whatsapp' ? 'Proceed & Contact via WhatsApp' :
-                       'Proceed to Payment'}
-                    </>
+                    'Continue to Payment'
                   )}
                 </button>
 
               </form>
             </div>
 
-            {/* Right Column: Order Summary */}
+            {/* Right Column: Order Summary & Payment Method */}
             <div>
               <div className="bg-surface rounded-2xl border border-border p-6 sm:p-8 sticky top-32">
                 <h3 className="text-xl font-bold text-foreground mb-6">Order Summary</h3>
@@ -266,19 +248,11 @@ export const CheckoutPage = () => {
                 </h3>
                 
                 {/* Stripe / Card Option */}
-                <button
-                  type="button"
-                  onClick={() => setSelectedPayment('stripe')}
-                  className={`w-full flex items-center gap-3 p-3.5 rounded-xl border-2 mb-3 transition-all cursor-pointer text-left ${
-                    selectedPayment === 'stripe'
-                      ? 'border-[#F06123] bg-[#F06123]/5'
-                      : 'border-border bg-transparent hover:border-[#F06123]/40'
-                  }`}
+                <div
+                  className="w-full flex items-center gap-3 p-3.5 rounded-xl border-2 border-[#F06123] bg-[#F06123]/5 mb-4"
                 >
-                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                    selectedPayment === 'stripe' ? 'border-[#F06123]' : 'border-muted-foreground'
-                  }`}>
-                    {selectedPayment === 'stripe' && <div className="w-2 h-2 rounded-full bg-[#F06123]"></div>}
+                  <div className="w-4 h-4 rounded-full border-2 border-[#F06123] flex items-center justify-center shrink-0">
+                    <div className="w-2 h-2 rounded-full bg-[#F06123]"></div>
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-bold text-foreground">Credit / Debit Card</p>
@@ -287,29 +261,7 @@ export const CheckoutPage = () => {
                   <svg viewBox="0 0 60 25" className="h-5 w-auto shrink-0" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M6.0 10.2c0-.66.54-1.14 1.44-1.14.84 0 1.62.36 2.34.84l.84-1.86C9.6 7.38 8.46 7.02 7.26 7.02c-1.98 0-3.36 1.14-3.36 2.88 0 2.88 3.66 2.4 3.66 3.78 0 .72-.6 1.14-1.5 1.14-1.02 0-1.98-.48-2.7-1.14L2.52 15.6c.84.78 2.04 1.38 3.36 1.38 2.1 0 3.54-1.08 3.54-3 0-2.94-3.42-2.52-3.42-3.78zm8.64-3.12L13.08 7.2H11.1v9.6h2.1v-6.18c.54-.66 1.38-1.02 2.22-1.02.24 0 .48.03.66.06l.24-2.04a3.6 3.6 0 00-.66-.06c-.96 0-1.86.42-2.52 1.02l.06-.06v-.24h-.06zm5.82-.06c-.72 0-1.32.6-1.32 1.32 0 .72.6 1.32 1.32 1.32.72 0 1.32-.6 1.32-1.32 0-.72-.6-1.32-1.32-1.32zm-1.02 9.78h2.1V7.26h-2.1v9.54zm8.94-9.78c-1.14 0-2.16.48-2.88 1.26V7.26h-2.1v13.2h2.1v-4.26c.72.78 1.74 1.26 2.88 1.26 2.34 0 4.02-1.8 4.02-4.74s-1.68-4.74-4.02-4.74zm-.42 7.62c-1.38 0-2.46-1.08-2.46-2.88s1.08-2.88 2.46-2.88 2.46 1.08 2.46 2.88-1.08 2.88-2.46 2.88zm9.36-7.62c-2.58 0-4.32 1.86-4.32 4.8s1.74 4.68 4.5 4.68c1.32 0 2.52-.48 3.36-1.26l-.96-1.44c-.6.54-1.38.84-2.22.84-1.26 0-2.22-.72-2.46-2.04h6.06c.03-.24.06-.54.06-.84 0-2.82-1.56-4.74-4.02-4.74zm-1.98 3.9c.18-1.2.96-2.1 2.04-2.1 1.08 0 1.8.84 1.8 2.1h-3.84zm12.12-3.66l-1.8 5.88-1.86-5.88h-2.16l2.94 9.48-.3.9c-.24.72-.72 1.02-1.38 1.02-.3 0-.6-.06-.84-.18l-.42 1.8c.36.18.9.3 1.44.3 1.62 0 2.76-.84 3.3-2.52l3.36-10.8h-2.28z" fill="#635BFF"/>
                   </svg>
-                </button>
-
-                {/* WhatsApp Option */}
-                <button
-                  type="button"
-                  onClick={() => setSelectedPayment('whatsapp')}
-                  className={`w-full flex items-center gap-3 p-3.5 rounded-xl border-2 mb-4 transition-all cursor-pointer text-left ${
-                    selectedPayment === 'whatsapp'
-                      ? 'border-[#25D366] bg-[#25D366]/5'
-                      : 'border-border bg-transparent hover:border-[#25D366]/40'
-                  }`}
-                >
-                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                    selectedPayment === 'whatsapp' ? 'border-[#25D366]' : 'border-muted-foreground'
-                  }`}>
-                    {selectedPayment === 'whatsapp' && <div className="w-2 h-2 rounded-full bg-[#25D366]"></div>}
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-bold text-foreground">Pay via WhatsApp</p>
-                    <p className="text-xs text-muted-foreground">Send order details & arrange payment manually</p>
-                  </div>
-                  <svg className="w-5 h-5 text-[#25D366] shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                </button>
+                </div>
 
                 {/* Accepted Cards Row */}
                 <div className="mb-4">
@@ -361,70 +313,9 @@ export const CheckoutPage = () => {
               </div>
             </div>
 
-
-
           </div>
         </div>
       </div>
-
-      {/* STRIPE VERIFICATION NOTICE MODAL */}
-      {showStripeModal && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 text-center shadow-2xl relative border border-gray-100">
-            <button 
-              onClick={() => setShowStripeModal(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100 transition-colors"
-            >
-              <FaTimes className="text-lg" />
-            </button>
-
-            <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4 text-[#F06123] shadow-sm">
-              <FaExclamationTriangle className="text-3xl" />
-            </div>
-
-            <h3 className="text-xl font-extrabold text-gray-900 mb-2">
-              Stripe Verification In Progress
-            </h3>
-
-            <p className="text-gray-600 text-sm leading-relaxed mb-6 font-medium">
-              Current Stripe verification is not complete. We are working on that! You can place your order directly via WhatsApp or phone.
-            </p>
-
-            <div className="space-y-3">
-              <a
-                href={`https://wa.me/61402277723?text=${encodeURIComponent(whatsappMessage)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full py-3.5 px-4 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold rounded-xl flex items-center justify-center gap-2.5 transition-all shadow-md shadow-green-500/20 text-sm"
-              >
-                <FaWhatsapp className="text-xl" />
-                Order via WhatsApp (+61 402 277 723)
-              </a>
-
-              <a
-                href="tel:+61402277723"
-                className="w-full py-3 px-4 bg-gray-900 hover:bg-black text-white font-bold rounded-xl flex items-center justify-center gap-2.5 transition-all text-sm"
-              >
-                <FaPhoneAlt className="text-sm" />
-                Call Us: +61 402 277 723
-              </a>
-
-              <button
-                onClick={() => {
-                  setShowStripeModal(false);
-                  if (createdOrder?._id) {
-                    navigate('/orders');
-                  }
-                }}
-                className="w-full py-2.5 text-[#F06123] hover:text-[#e05214] font-bold text-xs transition-colors flex items-center justify-center gap-1.5"
-              >
-                View My Orders
-              </button>
-
-            </div>
-          </div>
-        </div>
-      )}
 
       <Footer />
     </PageLayout>

@@ -25,7 +25,7 @@ export const createCheckoutSession = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: 'Order is already paid' });
   }
 
-  const clientUrl = process.env.CLIENT_URL || req.headers.origin || 'http://localhost:5173';
+  const clientUrl = req.headers.origin || process.env.CLIENT_URL || 'http://localhost:5173';
 
   // Check if live/sandbox Stripe API key is configured
   if (!isStripeConfigured()) {
@@ -43,12 +43,12 @@ export const createCheckoutSession = asyncHandler(async (req, res) => {
     const appUrl = process.env.APP_URL || clientUrl;
 
     const lineItems = order.items.map(item => {
-      // Stripe requires absolute HTTPS URLs for images
+      // Stripe requires publicly accessible HTTPS URLs for product images
       let images = [];
       if (item.imageUrl) {
-        if (item.imageUrl.startsWith('http')) {
+        if (item.imageUrl.startsWith('https://')) {
           images = [item.imageUrl];
-        } else if (item.imageUrl.startsWith('/uploads/') || item.imageUrl.startsWith('uploads/')) {
+        } else if (appUrl.startsWith('https://') && (item.imageUrl.startsWith('/uploads/') || item.imageUrl.startsWith('uploads/'))) {
           images = [`${appUrl}/${item.imageUrl.replace(/^\//, '')}`];
         }
       }

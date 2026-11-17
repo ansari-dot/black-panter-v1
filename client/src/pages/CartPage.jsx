@@ -12,56 +12,14 @@ export const CartPage = () => {
   const { cartItems, removeFromCart, updateQuantity, cartTotal } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [checkoutError, setCheckoutError] = useState('');
 
-  const handleDirectCheckout = async () => {
+  const handleProceedToCheckout = () => {
     if (!user) {
-      navigate('/register?redirect=/cart');
+      navigate('/register?redirect=/checkout');
       return;
     }
-    setIsCheckingOut(true);
-    setCheckoutError('');
-    try {
-      // Build shipping from user profile
-      const shippingDetails = {
-        fullName: user.name || '',
-        email: user.email || '',
-        phone: user.phone || '',
-        address: user.address || '',
-        city: user.city || '',
-        state: user.state || '',
-        zipCode: user.zipCode || '',
-        country: user.country || 'Australia',
-      };
-
-      // Create order
-      const order = await orderApi.createOrder({
-        items: cartItems.map(item => ({
-          productId: item.id || item.slug,
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-          imageUrl: item.imageUrl || item.image,
-          category: item.category,
-        })),
-        totalAmount: cartTotal,
-        shippingDetails,
-      });
-
-      // Create Stripe session and redirect directly
-      const sessionRes = await orderApi.createCheckoutSession(order._id);
-      if (sessionRes?.url) {
-        window.location.href = sessionRes.url;
-        return;
-      }
-      // Fallback to payment page
-      navigate(`/checkout/pay/${order._id}`);
-    } catch (err) {
-      console.error('Checkout error:', err);
-      setCheckoutError(err?.message || 'Checkout failed. Please try again.');
-      setIsCheckingOut(false);
-    }
+    navigate('/checkout');
   };
 
 
@@ -177,21 +135,11 @@ export const CartPage = () => {
                   )}
 
                   <button 
-                    onClick={handleDirectCheckout}
-                    disabled={isCheckingOut}
-                    className="w-full bg-primary text-primary-foreground font-bold py-4 rounded-xl hover:opacity-90 transition-opacity mb-3 flex items-center justify-center gap-2 disabled:opacity-60"
+                    onClick={handleProceedToCheckout}
+                    className="w-full bg-[#F06123] hover:bg-[#e05214] text-white font-bold py-4 rounded-xl transition-all duration-300 mb-3 flex items-center justify-center gap-2 shadow-lg shadow-[#F06123]/25 cursor-pointer"
                   >
-                    {isCheckingOut ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        Redirecting to Stripe...
-                      </>
-                    ) : (
-                      <>
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                        Pay with Stripe
-                      </>
-                    )}
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                    Proceed to Checkout
                   </button>
 
                   <Link to="/product" className="block text-center text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors">

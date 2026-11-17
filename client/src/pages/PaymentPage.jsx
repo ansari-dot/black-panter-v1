@@ -6,9 +6,8 @@ import aboutHeroImage from '../assets/herosections/about.webp';
 import { orderApi, resolveImageUrl } from '../utils/api';
 import { 
   ShieldCheck, CreditCard, Loader2, Lock, Sparkles, ExternalLink, 
-  XCircle, AlertTriangle, RotateCcw, ArrowLeft, Phone, Mail, ShoppingBag
+  XCircle, AlertTriangle, RotateCcw, ArrowLeft, Mail, ShoppingBag
 } from 'lucide-react';
-import { FaWhatsapp } from 'react-icons/fa';
 
 export const PaymentPage = () => {
   const { id } = useParams();
@@ -95,9 +94,7 @@ export const PaymentPage = () => {
   }
 
 
-  const whatsappMessage = order
-    ? `Hi Black Panther Batteries, I placed order #${order._id?.substring(order._id.length - 8).toUpperCase()} for $${order.totalAmount?.toFixed(2)} AUD. I would like to complete my order payment.`
-    : `Hi Black Panther Batteries, I would like to complete my order payment.`;
+
 
   return (
     <PageLayout
@@ -212,32 +209,7 @@ export const PaymentPage = () => {
             </div>
           </div>
 
-          {/* Alternative Contact & Support Options */}
-          <div className="bg-surface rounded-3xl border border-border p-6 shadow-sm space-y-4">
-            <h3 className="text-xs font-extrabold uppercase tracking-wider text-muted-foreground">
-              Alternative Payment & Support Options
-            </h3>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <a
-                href={`https://wa.me/61402277723?text=${encodeURIComponent(whatsappMessage)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="py-3 px-4 bg-[#25D366]/10 hover:bg-[#25D366]/20 border border-[#25D366]/30 text-[#1da851] dark:text-[#25D366] font-bold rounded-xl flex items-center justify-center gap-2 transition-all text-xs"
-              >
-                <FaWhatsapp className="text-base" />
-                Contact via WhatsApp
-              </a>
-
-              <a
-                href="tel:+61402277723"
-                className="py-3 px-4 bg-muted hover:bg-muted/80 text-foreground border border-border font-bold rounded-xl flex items-center justify-center gap-2 transition-all text-xs"
-              >
-                <Phone className="w-3.5 h-3.5 text-[#F06123]" />
-                Sydney Phone (+61 402 277 723)
-              </a>
-            </div>
-          </div>
 
           {/* Return Links */}
           <div className="flex items-center justify-between text-xs text-muted-foreground font-bold px-2">
