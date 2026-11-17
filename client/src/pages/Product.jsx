@@ -60,7 +60,7 @@ export const Product = () => {
           setApiCategories(data.map(c => ({ name: c.name })));
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   // Debounce search query changes to prevent API spamming
@@ -91,7 +91,7 @@ export const Product = () => {
         setTotalPages(res.totalPages || 1);
         setTotalCount(res.total || 0);
       })
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setLoading(false));
   }, [currentPage, selectedCategory, debouncedSearchQuery, priceValue, stockStatus, sortOption]);
 
@@ -115,6 +115,14 @@ export const Product = () => {
     setSearchParams(searchParams);
     setSelectedCategory("All Products");
     setCurrentPage(1);
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    const catalogElement = document.getElementById("products-catalog-section");
+    if (catalogElement) {
+      catalogElement.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   const categories = [
@@ -156,7 +164,7 @@ export const Product = () => {
       {/* ── CONTENT ── */}
       <div id="products-catalog-section" className="max-w-screen-xl mx-auto px-4 sm:px-8 md:px-12 py-8 md:py-16 mt-8 md:mt-16 font-sans">
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-10">
-          
+
           {/* DESKTOP SIDEBAR (Visible on >= lg screens) */}
           <div className="hidden lg:block w-80 shrink-0">
             <ProductSidebar {...sidebarProps} />
@@ -166,11 +174,11 @@ export const Product = () => {
           {mobileFilterOpen && (
             <div className="fixed inset-0 z-50 lg:hidden font-sans">
               {/* Backdrop */}
-              <div 
+              <div
                 className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
                 onClick={() => setMobileFilterOpen(false)}
               />
-              
+
               {/* Drawer Container */}
               <div className="fixed inset-y-0 left-0 w-[88vw] max-w-sm bg-white shadow-2xl z-50 overflow-y-auto p-4 flex flex-col justify-between animate-slide-in-left">
                 <div>
@@ -178,16 +186,16 @@ export const Product = () => {
                     <h3 className="font-extrabold text-slate-900 text-base flex items-center gap-2">
                       <SlidersHorizontal className="w-4 h-4 text-[#F06123]" /> Filter Products
                     </h3>
-                    <button 
+                    <button
                       onClick={() => setMobileFilterOpen(false)}
                       className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:text-slate-900"
                     >
                       <X className="w-4 h-4" />
                     </button>
                   </div>
-                  
-                  <ProductSidebar 
-                    {...sidebarProps} 
+
+                  <ProductSidebar
+                    {...sidebarProps}
                     onCategoryChange={(cat) => {
                       handleCategoryChange(cat);
                       setMobileFilterOpen(false);
@@ -207,8 +215,8 @@ export const Product = () => {
 
           {/* MAIN PRODUCT CATALOG GRID */}
           <div className="flex-1 min-w-0">
-            <ProductsTopBar 
-              totalCount={totalCount} 
+            <ProductsTopBar
+              totalCount={totalCount}
               sortOption={sortOption}
               onSortChange={(val) => {
                 setSortOption(val);
@@ -237,7 +245,7 @@ export const Product = () => {
             {totalPages > 1 && (
               <div className="flex items-center justify-center gap-2 mt-10 font-sans">
                 <div
-                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                   className="h-9 w-9 rounded-lg border border-slate-200 bg-white text-slate-600 flex items-center justify-center cursor-pointer hover:bg-slate-50"
                 >
                   <ChevronLeft />
@@ -245,18 +253,17 @@ export const Product = () => {
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                   <div
                     key={page}
-                    onClick={() => setCurrentPage(page)}
-                    className={`h-9 w-9 rounded-lg border flex items-center justify-center text-sm font-semibold cursor-pointer ${
-                      currentPage === page
+                    onClick={() => handlePageChange(page)}
+                    className={`h-9 w-9 rounded-lg border flex items-center justify-center text-sm font-semibold cursor-pointer ${currentPage === page
                         ? "border-[#F06123] text-white bg-[#F06123]"
                         : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
-                    }`}
+                      }`}
                   >
                     {page}
                   </div>
                 ))}
                 <div
-                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                   className="h-9 w-9 rounded-lg border border-slate-200 bg-white text-slate-600 flex items-center justify-center cursor-pointer hover:bg-slate-50"
                 >
                   <ChevronRightPag />

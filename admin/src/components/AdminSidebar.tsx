@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  LayoutDashboard, Zap, Battery, Mail, Users, Star, Settings,
+  LayoutDashboard, ShoppingBag, Zap, Battery, Mail, Users, Star, Settings,
   GalleryHorizontalEnd, LogOut, FolderKanban, LayoutTemplate, ChevronDown, Archive, Home, Warehouse, FileText, Lock,
 } from 'lucide-react';
 import { TTab } from '../types';
@@ -15,6 +15,7 @@ interface AdminSidebarProps {
 const DASHBOARD_ITEM = { id: 'dashboard' as TTab, label: 'Dashboard', icon: LayoutDashboard };
 
 const NAV_ITEMS: { id: TTab; label: string; icon: React.ElementType }[] = [
+  { id: 'orders', label: 'Orders', icon: ShoppingBag },
   { id: 'services', label: 'Services', icon: Zap },
   { id: 'projects', label: 'Projects', icon: FolderKanban },
   { id: 'inquiries', label: 'Inquiries', icon: Mail },
@@ -23,6 +24,7 @@ const NAV_ITEMS: { id: TTab; label: string; icon: React.ElementType }[] = [
   { id: 'partners', label: 'Partners', icon: GalleryHorizontalEnd },
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
+
 
 export default function AdminSidebar({ currentTab, setCurrentTab, onLogout }: AdminSidebarProps) {
   const [adminName, setAdminName] = useState('Black Panther Batteries');

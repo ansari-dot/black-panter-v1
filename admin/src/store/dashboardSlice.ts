@@ -2,8 +2,9 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { 
   TInquiry, TService, TProduct, TSystemLog, TSystemStatus, TTeamMember, 
   TTestimonial, TEquipmentItem, TPartnerItem, TProject, TWarehouse, 
-  TCategory, TQuotation, TStockMovement 
+  TCategory, TQuotation, TStockMovement, TOrder 
 } from '../types';
+
 import api from '../utils/api';
 
 export interface DashboardState {
@@ -19,6 +20,7 @@ export interface DashboardState {
   warehouses: TWarehouse[];
   categories: TCategory[];
   quotations: TQuotation[];
+  orders: TOrder[];
   logs: TSystemLog[];
   systemStatus: TSystemStatus;
   isLoading: boolean;
@@ -26,6 +28,7 @@ export interface DashboardState {
   errorMsg: string;
   isRefetching: boolean;
 }
+
 
 const initialStatus: TSystemStatus = {
   apiServer: 'Operational',
@@ -47,8 +50,10 @@ const initialState: DashboardState = {
   warehouses: [],
   categories: [],
   quotations: [],
+  orders: [],
   logs: [],
   systemStatus: initialStatus,
+
   isLoading: true,
   isError: false,
   errorMsg: '',
@@ -73,6 +78,7 @@ export const fetchDashboardData = createAsyncThunk(
         categoriesRes,
         inquiriesRes,
         quotationsRes,
+        ordersRes,
         settingsRes,
       ] = await Promise.allSettled([
         api.get<any[]>('/api/products'),
@@ -87,6 +93,7 @@ export const fetchDashboardData = createAsyncThunk(
         api.get<any[]>('/api/categories'),
         api.get<any[]>('/api/inquiries'),
         api.get<any[]>('/api/quotations'),
+        api.get<any[]>('/api/orders/admin/all'),
         api.get<any>('/api/settings'),
       ]);
 
@@ -110,8 +117,10 @@ export const fetchDashboardData = createAsyncThunk(
         categories: normalize(categoriesRes).map((c: any) => ({ ...c, id: c._id || c.id })),
         inquiries: normalize(inquiriesRes).map((i: any) => ({ ...i, id: i._id || i.id })),
         quotations: normalize(quotationsRes).map((q: any) => ({ ...q, id: q._id || q.id })),
+        orders: normalize(ordersRes).map((o: any) => ({ ...o, id: o._id || o.id })),
         settings: settingsRes.status === 'fulfilled' ? settingsRes.value : null,
       };
+
     } catch (err: any) {
       return rejectWithValue(err.message || 'Failed to fetch dashboard data');
     }
@@ -169,6 +178,8 @@ const dashboardSlice = createSlice({
         state.categories = action.payload.categories;
         state.inquiries = action.payload.inquiries;
         state.quotations = action.payload.quotations;
+        state.orders = action.payload.orders || [];
+
         if (action.payload.settings?.systemStatus) {
           state.systemStatus = { ...state.systemStatus, ...action.payload.settings.systemStatus };
         }

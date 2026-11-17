@@ -1,7 +1,7 @@
 import React from "react";
-import { 
-  Search, X, SlidersHorizontal, 
-  Grid, Settings, Shield, Wrench, Factory, 
+import {
+  Search, X, SlidersHorizontal,
+  Grid, Settings, Shield, Wrench, Factory,
   BatteryCharging, Sun, Battery, Phone, HelpCircle, Check
 } from "lucide-react";
 
@@ -39,15 +39,15 @@ export const ProductSidebar = ({
   ];
 
   // Check if any filter is actively applied to show the "Clear all" button
-  const hasActiveFilters = 
-    (selectedCategory && selectedCategory !== "All Products") || 
-    searchQuery !== "" || 
-    priceValue < 500 || 
+  const hasActiveFilters =
+    (selectedCategory && selectedCategory !== "All Products") ||
+    searchQuery !== "" ||
+    priceValue < 500 ||
     stockStatus !== "";
 
   return (
     <aside className="w-full lg:w-80 flex-shrink-0 font-body bg-white rounded-[24px] p-6 border border-[#ede9e4] shadow-[0_8px_30px_rgb(0,0,0,0.02)]">
-      
+
       {/* Sidebar Header */}
       <div className="flex items-center justify-between mb-5 pb-3.5 border-b border-[#f0ece8]">
         <div className="flex items-center gap-2.5">
@@ -102,11 +102,10 @@ export const ProductSidebar = ({
               <div
                 key={i}
                 onClick={() => onCategoryChange?.(cat.name)}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl cursor-pointer transition-all duration-300 text-left group relative overflow-hidden select-none ${
-                  active 
-                    ? "bg-[#1d1f24] text-white shadow-sm shadow-neutral-900/10" 
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl cursor-pointer transition-all duration-300 text-left group relative overflow-hidden select-none ${active
+                    ? "bg-[#1d1f24] text-white shadow-sm shadow-neutral-900/10"
                     : "text-neutral-600 hover:bg-[#fdf8f5] hover:text-[#F06123]"
-                }`}
+                  }`}
               >
                 {active && (
                   <span className="absolute left-0 top-0 bottom-0 w-1 bg-[#F06123]" />
@@ -119,11 +118,10 @@ export const ProductSidebar = ({
                 </span>
                 {cat.count != null && (
                   <span
-                    className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full transition-all duration-200 ${
-                      active 
-                        ? "bg-[#F06123] text-white" 
+                    className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full transition-all duration-200 ${active
+                        ? "bg-[#F06123] text-white"
                         : "bg-neutral-100 text-neutral-555 group-hover:bg-[#F06123]/10 group-hover:text-[#F06123]"
-                    }`}
+                      }`}
                   >
                     {cat.count}
                   </span>
@@ -179,15 +177,13 @@ export const ProductSidebar = ({
               <div
                 key={opt.value}
                 onClick={() => onStockStatusChange?.(opt.value)}
-                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left text-xs font-bold cursor-pointer transition-all duration-200 border ${
-                  isSelected 
-                    ? "bg-[#fdf8f5] text-[#F06123] border-[#fbd4c2] shadow-sm shadow-[#F06123]/5" 
+                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left text-xs font-bold cursor-pointer transition-all duration-200 border ${isSelected
+                    ? "bg-[#fdf8f5] text-[#F06123] border-[#fbd4c2] shadow-sm shadow-[#F06123]/5"
                     : "bg-transparent text-neutral-600 border-transparent hover:bg-neutral-50 hover:text-neutral-850"
-                }`}
+                  }`}
               >
-                <span className={`w-4.5 h-4.5 rounded-lg border flex items-center justify-center transition-all ${
-                  isSelected ? "border-[#F06123] bg-[#F06123] text-white" : "border-neutral-300 bg-white"
-                }`}>
+                <span className={`w-4.5 h-4.5 rounded-lg border flex items-center justify-center transition-all ${isSelected ? "border-[#F06123] bg-[#F06123] text-white" : "border-neutral-300 bg-white"
+                  }`}>
                   {isSelected && <Check className="w-3 h-3 stroke-[3.5]" />}
                 </span>
                 {opt.label}
@@ -202,7 +198,7 @@ export const ProductSidebar = ({
         {/* Ambient glows */}
         <div className="absolute -top-12 -right-12 w-24 h-24 bg-[#F06123]/15 rounded-full blur-xl pointer-events-none" />
         <div className="absolute -bottom-12 -left-12 w-24 h-24 bg-[#FF8803]/8 rounded-full blur-xl pointer-events-none" />
-        
+
         <div className="relative z-10 flex flex-col items-center">
           <div className="w-10 h-10 rounded-2xl bg-neutral-900 flex items-center justify-center mb-3.5 border border-neutral-800/80 shadow-inner">
             <HelpCircle className="w-5 h-5 text-[#F06123]" />

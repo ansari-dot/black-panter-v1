@@ -6,14 +6,14 @@ import { productSchema } from '../validators/schemas.js';
 
 const router = Router();
 
-router.get('/',                  getAll);
-router.get('/slug/:slug',        getBySlug);
-router.get('/:id/related',       getRelated);
-router.get('/:id',               getOne);
-router.post('/',                 protect, adminOnly, validate(productSchema), create);
-router.put('/:id',               protect, adminOnly, validate(productSchema), update);
-router.patch('/:id/stock',       protect, adminOnly, updateStock);
-router.patch('/:id/featured',    protect, adminOnly, updateFeatured);
-router.delete('/:id',            protect, adminOnly, remove);
+router.get('/', getAll);
+router.get('/slug/:slug', getBySlug);
+router.get('/:id/related', getRelated);
+router.get('/:id', getOne);
+router.post('/', protect, adminOnly, validate(productSchema), create);
+router.put('/:id', protect, adminOnly, validate(productSchema), update);
+router.patch('/:id/stock', protect, adminOnly, updateStock);
+router.patch('/:id/featured', protect, adminOnly, updateFeatured);
+router.delete('/:id', protect, adminOnly, remove);
 
 export default router;

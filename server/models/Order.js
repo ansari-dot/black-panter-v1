@@ -23,8 +23,47 @@ const orderSchema = new mongoose.Schema({
   },
   orderStatus: { type: String, enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'], default: 'Pending' },
   paymentStatus: { type: String, enum: ['Pending', 'Paid', 'Failed'], default: 'Pending' },
-  paymentMethod: { type: String, default: 'Credit Card' }
+  paymentMethod: { type: String, default: 'Credit Card' },
+  stripeSessionId: { type: String },
+  paymentResult: {
+    id: { type: String },
+    status: { type: String },
+    update_time: { type: String },
+    email_address: { type: String }
+  },
+  shipping: {
+    courier: { type: String, default: 'AUSTRALIA_POST' },
+    status: { 
+      type: String, 
+      enum: ['PENDING', 'PROCESSING', 'READY_TO_SHIP', 'SHIPMENT_CREATED', 'SHIPPED', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED', 'DELIVERY_FAILED', 'RETURNED', 'CANCELLED'], 
+      default: 'PENDING' 
+    },
+    shipmentId: { type: String, default: null },
+    itemId: { type: String, default: null },
+    trackingNumber: { type: String, default: null },
+    trackingUrl: { type: String, default: null },
+    labelUrl: { type: String, default: null },
+    labelReference: { type: String, default: null },
+    parcelWeightKg: { type: Number, default: 1.5 },
+    parcelDimensions: {
+      lengthCm: { type: Number, default: 25 },
+      widthCm: { type: Number, default: 20 },
+      heightCm: { type: Number, default: 15 }
+    },
+    shipmentCreatedAt: { type: Date, default: null },
+    handedOverAt: { type: Date, default: null },
+    shippedAt: { type: Date, default: null },
+    deliveredAt: { type: Date, default: null },
+    lastTrackingSyncAt: { type: Date, default: null },
+    trackingEvents: [{
+      status: { type: String },
+      description: { type: String },
+      location: { type: String },
+      timestamp: { type: Date }
+    }]
+  }
 }, { timestamps: true });
+
 
 orderSchema.index({ user: 1 });
 orderSchema.index({ createdAt: -1 });

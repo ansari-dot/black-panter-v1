@@ -27,6 +27,7 @@ export const CheckoutPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showStripeModal, setShowStripeModal] = useState(false);
   const [createdOrder, setCreatedOrder] = useState(null);
+  const [selectedPayment, setSelectedPayment] = useState('stripe');
 
   React.useEffect(() => {
     if (user) {
@@ -75,8 +76,20 @@ export const CheckoutPage = () => {
       });
 
       setCreatedOrder(order);
+
+      // Create Stripe Checkout session and redirect directly to Stripe Payment Form
+      try {
+        const sessionRes = await orderApi.createCheckoutSession(order._id);
+        if (sessionRes?.url) {
+          window.location.href = sessionRes.url;
+          return;
+        }
+      } catch (stripeErr) {
+        console.error('Direct Stripe redirect error:', stripeErr);
+      }
+
       setIsSubmitting(false);
-      setShowStripeModal(true);
+      navigate(`/checkout/pay/${order._id}`);
     } catch (err) {
       const data = err?.response?.data || err;
       setErrorMsg(data?.message || 'Failed to create order. Please try again.');
@@ -84,11 +97,26 @@ export const CheckoutPage = () => {
     }
   };
 
-  // If cart is empty and no order created, redirect back to cart
+
+
+  // Redirect to cart if empty (handled inside useEffect to prevent React render errors)
+  React.useEffect(() => {
+    if (cartItems.length === 0 && !createdOrder) {
+      navigate('/cart');
+    }
+  }, [cartItems.length, createdOrder, navigate]);
+
   if (cartItems.length === 0 && !createdOrder) {
-    navigate('/cart');
-    return null;
+    return (
+      <PageLayout vectorBackground={aboutHeroImage}>
+        <div className="min-h-[50vh] flex flex-col items-center justify-center gap-3">
+          <div className="w-10 h-10 border-4 border-[#F06123]/20 border-t-[#F06123] rounded-full animate-spin"></div>
+          <p className="text-xs font-semibold text-muted-foreground">Redirecting to cart...</p>
+        </div>
+      </PageLayout>
+    );
   }
+
 
   const whatsappMessage = createdOrder
     ? `Hi Black Panther Batteries, I placed order #${createdOrder._id?.substring(createdOrder._id.length - 8).toUpperCase()} for $${cartTotal.toFixed(2)}. I would like to confirm my order details.`
@@ -146,29 +174,56 @@ export const CheckoutPage = () => {
                     <input required type="text" name="city" value={shippingDetails.city} onChange={handleChange} className="w-full px-4 py-3 bg-background border border-border rounded-xl text-foreground focus:outline-none focus:border-primary" />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-foreground">State/Province</label>
-                    <input required type="text" name="state" value={shippingDetails.state} onChange={handleChange} className="w-full px-4 py-3 bg-background border border-border rounded-xl text-foreground focus:outline-none focus:border-primary" />
+                    <label className="text-sm font-bold text-foreground">State/Territory</label>
+                    <select required name="state" value={shippingDetails.state} onChange={handleChange} className="w-full px-4 py-3 bg-background border border-border rounded-xl text-foreground focus:outline-none focus:border-primary appearance-none">
+                      <option value="">Select State</option>
+                      <option value="NSW">New South Wales</option>
+                      <option value="VIC">Victoria</option>
+                      <option value="QLD">Queensland</option>
+                      <option value="WA">Western Australia</option>
+                      <option value="SA">South Australia</option>
+                      <option value="TAS">Tasmania</option>
+                      <option value="ACT">Australian Capital Territory</option>
+                      <option value="NT">Northern Territory</option>
+                    </select>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-foreground">ZIP / Postal Code</label>
-                    <input required type="text" name="zipCode" value={shippingDetails.zipCode} onChange={handleChange} className="w-full px-4 py-3 bg-background border border-border rounded-xl text-foreground focus:outline-none focus:border-primary" />
+                    <label className="text-sm font-bold text-foreground">Postcode</label>
+                    <input required type="text" name="zipCode" value={shippingDetails.zipCode} onChange={handleChange} placeholder="e.g. 2000" maxLength={4} className="w-full px-4 py-3 bg-background border border-border rounded-xl text-foreground focus:outline-none focus:border-primary" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-foreground">Country</label>
-                    <input required type="text" name="country" value={shippingDetails.country} onChange={handleChange} className="w-full px-4 py-3 bg-background border border-border rounded-xl text-foreground focus:outline-none focus:border-primary" />
+                    <div className="w-full px-4 py-3 bg-muted border border-border rounded-xl text-foreground flex items-center gap-2 cursor-not-allowed opacity-80">
+                      <span className="text-base">🇦🇺</span>
+                      <span className="font-semibold">Australia</span>
+                    </div>
+                    <input type="hidden" name="country" value="Australia" />
                   </div>
                 </div>
 
                 <button 
                   type="submit" 
                   disabled={isSubmitting}
-                  className="w-full bg-[#F06123] hover:bg-[#e05214] text-white font-bold py-4 rounded-xl transition-all duration-300 mt-4 shadow-lg shadow-[#F06123]/25"
+                  className="w-full bg-[#F06123] hover:bg-[#e05214] text-white font-bold py-4 rounded-xl transition-all duration-300 mt-4 shadow-lg shadow-[#F06123]/25 flex items-center justify-center gap-2"
                 >
-                  {isSubmitting ? 'Processing Order...' : 'Continue to Payment'}
+                  {isSubmitting ? (
+                    <>
+                      <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
+                      Redirecting to Payment...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                      {selectedPayment === 'stripe' ? 'Pay with Credit / Debit Card' :
+                       selectedPayment === 'whatsapp' ? 'Proceed & Contact via WhatsApp' :
+                       'Proceed to Payment'}
+                    </>
+                  )}
                 </button>
+
               </form>
             </div>
 
@@ -198,11 +253,115 @@ export const CheckoutPage = () => {
                 <div className="border-t border-border pt-4">
                   <div className="flex justify-between items-end">
                     <span className="text-base font-bold text-foreground">Estimated Total</span>
-                    <span className="text-2xl font-bold text-[#F06123]">${cartTotal.toFixed(2)}</span>
+                    <span className="text-2xl font-bold text-[#F06123]">${cartTotal.toFixed(2)} AUD</span>
                   </div>
                 </div>
               </div>
+
+              {/* Payment Method Card */}
+              <div className="bg-surface rounded-2xl border border-border p-6 mt-4">
+                <h3 className="text-base font-bold text-foreground mb-4 flex items-center gap-2">
+                  <svg className="w-4 h-4 text-[#F06123]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+                  Payment Method
+                </h3>
+                
+                {/* Stripe / Card Option */}
+                <button
+                  type="button"
+                  onClick={() => setSelectedPayment('stripe')}
+                  className={`w-full flex items-center gap-3 p-3.5 rounded-xl border-2 mb-3 transition-all cursor-pointer text-left ${
+                    selectedPayment === 'stripe'
+                      ? 'border-[#F06123] bg-[#F06123]/5'
+                      : 'border-border bg-transparent hover:border-[#F06123]/40'
+                  }`}
+                >
+                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                    selectedPayment === 'stripe' ? 'border-[#F06123]' : 'border-muted-foreground'
+                  }`}>
+                    {selectedPayment === 'stripe' && <div className="w-2 h-2 rounded-full bg-[#F06123]"></div>}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-foreground">Credit / Debit Card</p>
+                    <p className="text-xs text-muted-foreground">Visa, Mastercard, Amex, Google Pay, Apple Pay</p>
+                  </div>
+                  <svg viewBox="0 0 60 25" className="h-5 w-auto shrink-0" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6.0 10.2c0-.66.54-1.14 1.44-1.14.84 0 1.62.36 2.34.84l.84-1.86C9.6 7.38 8.46 7.02 7.26 7.02c-1.98 0-3.36 1.14-3.36 2.88 0 2.88 3.66 2.4 3.66 3.78 0 .72-.6 1.14-1.5 1.14-1.02 0-1.98-.48-2.7-1.14L2.52 15.6c.84.78 2.04 1.38 3.36 1.38 2.1 0 3.54-1.08 3.54-3 0-2.94-3.42-2.52-3.42-3.78zm8.64-3.12L13.08 7.2H11.1v9.6h2.1v-6.18c.54-.66 1.38-1.02 2.22-1.02.24 0 .48.03.66.06l.24-2.04a3.6 3.6 0 00-.66-.06c-.96 0-1.86.42-2.52 1.02l.06-.06v-.24h-.06zm5.82-.06c-.72 0-1.32.6-1.32 1.32 0 .72.6 1.32 1.32 1.32.72 0 1.32-.6 1.32-1.32 0-.72-.6-1.32-1.32-1.32zm-1.02 9.78h2.1V7.26h-2.1v9.54zm8.94-9.78c-1.14 0-2.16.48-2.88 1.26V7.26h-2.1v13.2h2.1v-4.26c.72.78 1.74 1.26 2.88 1.26 2.34 0 4.02-1.8 4.02-4.74s-1.68-4.74-4.02-4.74zm-.42 7.62c-1.38 0-2.46-1.08-2.46-2.88s1.08-2.88 2.46-2.88 2.46 1.08 2.46 2.88-1.08 2.88-2.46 2.88zm9.36-7.62c-2.58 0-4.32 1.86-4.32 4.8s1.74 4.68 4.5 4.68c1.32 0 2.52-.48 3.36-1.26l-.96-1.44c-.6.54-1.38.84-2.22.84-1.26 0-2.22-.72-2.46-2.04h6.06c.03-.24.06-.54.06-.84 0-2.82-1.56-4.74-4.02-4.74zm-1.98 3.9c.18-1.2.96-2.1 2.04-2.1 1.08 0 1.8.84 1.8 2.1h-3.84zm12.12-3.66l-1.8 5.88-1.86-5.88h-2.16l2.94 9.48-.3.9c-.24.72-.72 1.02-1.38 1.02-.3 0-.6-.06-.84-.18l-.42 1.8c.36.18.9.3 1.44.3 1.62 0 2.76-.84 3.3-2.52l3.36-10.8h-2.28z" fill="#635BFF"/>
+                  </svg>
+                </button>
+
+                {/* WhatsApp Option */}
+                <button
+                  type="button"
+                  onClick={() => setSelectedPayment('whatsapp')}
+                  className={`w-full flex items-center gap-3 p-3.5 rounded-xl border-2 mb-4 transition-all cursor-pointer text-left ${
+                    selectedPayment === 'whatsapp'
+                      ? 'border-[#25D366] bg-[#25D366]/5'
+                      : 'border-border bg-transparent hover:border-[#25D366]/40'
+                  }`}
+                >
+                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                    selectedPayment === 'whatsapp' ? 'border-[#25D366]' : 'border-muted-foreground'
+                  }`}>
+                    {selectedPayment === 'whatsapp' && <div className="w-2 h-2 rounded-full bg-[#25D366]"></div>}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-foreground">Pay via WhatsApp</p>
+                    <p className="text-xs text-muted-foreground">Send order details & arrange payment manually</p>
+                  </div>
+                  <svg className="w-5 h-5 text-[#25D366] shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                </button>
+
+                {/* Accepted Cards Row */}
+                <div className="mb-4">
+                  <p className="text-xs text-muted-foreground mb-2 font-medium">Accepted Cards</p>
+                  <div className="flex items-center gap-2">
+                    {/* Visa */}
+                    <div className="h-8 px-2 bg-white border border-border rounded-md flex items-center justify-center shadow-sm">
+                      <svg viewBox="0 0 750 471" className="h-4 w-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="750" height="471" rx="40" fill="white"/>
+                        <path d="M278 333L311 138H364L331 333H278Z" fill="#1A1F71"/>
+                        <path d="M488 142C478 138 461 134 441 134C389 134 352 160 352 198C352 227 379 243 399 253C419 263 426 270 426 279C426 292 411 298 396 298C375 298 364 295 347 288L340 285L333 334C345 339 368 344 392 344C447 344 483 318 483 278C483 256 469 239 441 225C421 215 409 208 409 198C409 187 421 176 446 176C466 176 481 180 492 185L497 188L488 142Z" fill="#1A1F71"/>
+                        <path d="M606 138H564C553 138 545 141 540 152L462 333H517L528 304H594L601 333H650L606 138ZM542 265L563 206L576 265H542Z" fill="#1A1F71"/>
+                        <path d="M232 138L181 274L176 248C166 218 140 186 111 169L157 333H213L295 138H232Z" fill="#1A1F71"/>
+                        <path d="M141 138H54L53 143C120 160 163 199 176 248L163 153C160 142 152 138 141 138Z" fill="#F9A51A"/>
+                      </svg>
+                    </div>
+                    {/* Mastercard */}
+                    <div className="h-8 px-2 bg-white border border-border rounded-md flex items-center justify-center shadow-sm">
+                      <svg viewBox="0 0 131.39 86.9" className="h-4 w-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="131.39" height="86.9" rx="8" fill="white"/>
+                        <circle cx="49.59" cy="43.45" r="30" fill="#EB001B"/>
+                        <circle cx="81.8" cy="43.45" r="30" fill="#F79E1B"/>
+                        <path d="M65.7 19.2a30 30 0 010 48.5 30 30 0 010-48.5z" fill="#FF5F00"/>
+                      </svg>
+                    </div>
+                    {/* Amex */}
+                    <div className="h-8 px-2 bg-[#016FD0] border border-[#016FD0] rounded-md flex items-center justify-center shadow-sm">
+                      <span className="text-white font-bold text-xs tracking-tight">AMEX</span>
+                    </div>
+                    {/* GPay */}
+                    <div className="h-8 px-2 bg-white border border-border rounded-md flex items-center justify-center shadow-sm">
+                      <span className="text-xs font-bold" style={{color:'#4285F4'}}>G</span>
+                      <span className="text-xs font-bold" style={{color:'#EA4335'}}>P</span>
+                      <span className="text-xs font-bold" style={{color:'#FBBC05'}}>a</span>
+                      <span className="text-xs font-bold" style={{color:'#34A853'}}>y</span>
+                    </div>
+                    {/* Apple Pay */}
+                    <div className="h-8 px-2 bg-black border border-black rounded-md flex items-center justify-center shadow-sm">
+                      <span className="text-white text-xs font-semibold tracking-tight"> Pay</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Security note */}
+                <div className="flex items-start gap-2 p-3 bg-green-50 border border-green-100 rounded-xl">
+                  <svg className="w-4 h-4 text-green-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                  <p className="text-xs text-green-700 font-medium">Your payment is protected by 256-bit SSL encryption. We never store your card details.</p>
+                </div>
+              </div>
             </div>
+
+
 
           </div>
         </div>
@@ -259,8 +418,9 @@ export const CheckoutPage = () => {
                 }}
                 className="w-full py-2.5 text-[#F06123] hover:text-[#e05214] font-bold text-xs transition-colors flex items-center justify-center gap-1.5"
               >
-                <FaShoppingBag className="text-xs" /> View My Orders
+                View My Orders
               </button>
+
             </div>
           </div>
         </div>
@@ -270,3 +430,5 @@ export const CheckoutPage = () => {
     </PageLayout>
   );
 };
+
+export default CheckoutPage;

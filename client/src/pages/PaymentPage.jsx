@@ -1,22 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { PageLayout } from '../components/PageLayout';
 import Footer from '../components/Footer';
 import aboutHeroImage from '../assets/herosections/about.webp';
-import { orderApi } from '../utils/api';
-import { useCart } from '../context/CartContext';
-import { CheckCircle2, ShieldCheck, CreditCard, Loader2 } from 'lucide-react';
-import { FaWhatsapp, FaPhoneAlt, FaExclamationTriangle, FaTimes, FaShoppingBag } from 'react-icons/fa';
+import { orderApi, resolveImageUrl } from '../utils/api';
+import { 
+  ShieldCheck, CreditCard, Loader2, Lock, Sparkles, ExternalLink, 
+  XCircle, AlertTriangle, RotateCcw, ArrowLeft, Phone, Mail, ShoppingBag
+} from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
 
 export const PaymentPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { fetchCart } = useCart();
-  
+  const [searchParams] = useSearchParams();
+  const isCanceledParam = searchParams.get('canceled') === 'true';
+
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [processingStripe, setProcessingStripe] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  const [showStripeModal, setShowStripeModal] = useState(false);
+  const [autoRedirecting, setAutoRedirecting] = useState(true);
+
 
   useEffect(() => {
     const loadOrder = async () => {
@@ -25,153 +30,227 @@ export const PaymentPage = () => {
         const currentOrder = orders.find(o => o._id === id);
         if (currentOrder) {
           setOrder(currentOrder);
+          if (currentOrder.paymentStatus === 'Paid') {
+            navigate(`/order-success?order_id=${currentOrder._id}`);
+            return;
+          }
+          // Auto-redirect to Stripe unless payment was canceled by user
+          if (!isCanceledParam) {
+            try {
+              const response = await orderApi.createCheckoutSession(currentOrder._id);
+              if (response.url) {
+                window.location.href = response.url;
+                return; // don't setLoading(false), page will redirect
+              }
+            } catch (stripeErr) {
+              setErrorMsg(stripeErr.message || 'Failed to connect to Stripe. Please try again.');
+            }
+          }
         } else {
-          setErrorMsg('Order not found.');
+          setErrorMsg('Order details could not be found.');
         }
       } catch (err) {
-        setErrorMsg('Failed to load order details.');
+        setErrorMsg('Failed to load order details. Please try refreshing.');
       } finally {
         setLoading(false);
+        setAutoRedirecting(false);
       }
     };
     loadOrder();
-  }, [id]);
+  }, [id, navigate, isCanceledParam]);
 
-  const handlePayment = () => {
-    setShowStripeModal(true);
+  const handleStripePayment = async () => {
+    if (!order) return;
+    setProcessingStripe(true);
+    setErrorMsg('');
+
+    try {
+      const response = await orderApi.createCheckoutSession(order._id);
+      if (response.url) {
+        window.location.href = response.url;
+      } else {
+        throw new Error('Could not generate Stripe Checkout session URL.');
+      }
+    } catch (err) {
+      console.error('Stripe error:', err);
+      setErrorMsg(err.message || 'Failed to initiate Stripe payment checkout. Please try again.');
+      setProcessingStripe(false);
+    }
   };
 
-  if (loading) {
+  if (loading || autoRedirecting) {
     return (
       <PageLayout vectorBackground={aboutHeroImage}>
-        <div className="min-h-[60vh] flex items-center justify-center">
-          <Loader2 className="w-10 h-10 animate-spin text-primary" />
+        <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
+          <div className="w-16 h-16 rounded-2xl bg-[#F06123]/10 flex items-center justify-center">
+            <Loader2 className="w-8 h-8 animate-spin text-[#F06123]" />
+          </div>
+          <div className="text-center">
+            <p className="text-sm font-bold text-foreground">Redirecting to Secure Payment...</p>
+            <p className="text-xs text-muted-foreground mt-1">Please wait, connecting to Stripe</p>
+          </div>
         </div>
       </PageLayout>
     );
   }
 
+
   const whatsappMessage = order
-    ? `Hi Black Panther Batteries, I placed order #${order._id?.substring(order._id.length - 8).toUpperCase()} for $${order.totalAmount?.toFixed(2)}. I would like to complete my payment via WhatsApp.`
+    ? `Hi Black Panther Batteries, I placed order #${order._id?.substring(order._id.length - 8).toUpperCase()} for $${order.totalAmount?.toFixed(2)} AUD. I would like to complete my order payment.`
     : `Hi Black Panther Batteries, I would like to complete my order payment.`;
 
   return (
     <PageLayout
       heroContent={
         <div style={{ padding: '60px 0', color: '#fff', textAlign: 'center' }}>
-          <h1 className="text-4xl lg:text-5xl font-bold mb-4 font-body">Secure Payment</h1>
-          <p className="text-lg opacity-80 max-w-2xl mx-auto font-body font-normal">Complete your order.</p>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 text-white border border-white/20 text-xs font-bold uppercase tracking-wider mb-4">
+            <ShieldCheck className="w-4 h-4 text-[#F06123]" /> 256-bit Encrypted Checkout
+          </div>
+          <h1 className="text-4xl lg:text-5xl font-extrabold mb-3 font-body">
+            {isCanceledParam ? 'Payment Cancelled' : 'Complete Secure Payment'}
+          </h1>
+          <p className="text-base opacity-90 max-w-xl mx-auto font-body font-normal">
+            {isCanceledParam 
+              ? 'Your payment session was cancelled. You can retry paying securely via Stripe below.' 
+              : 'Review your order details and proceed to Stripe Payment Gateway.'}
+          </p>
         </div>
       }
       vectorBackground={aboutHeroImage}
     >
-      <div className="bg-background min-h-screen font-body py-16 px-4 relative">
-        <div className="max-w-xl mx-auto">
+      <div className="bg-background min-h-screen font-body py-16 px-4">
+        <div className="max-w-xl mx-auto space-y-6">
           
-          <div className="bg-surface rounded-3xl border border-border p-8 shadow-sm">
-            <div className="flex items-center justify-between mb-8 pb-6 border-b border-border">
-              <div>
-                <h2 className="text-2xl font-bold text-foreground">Order Total</h2>
-                <p className="text-muted-foreground mt-1 font-medium">Order #{id.substring(id.length - 8).toUpperCase()}</p>
+          {/* Canceled Banner Notice if user canceled Stripe checkout */}
+          {isCanceledParam && (
+            <div className="bg-amber-500/10 border border-amber-500/30 rounded-3xl p-6 text-amber-900 dark:text-amber-200 flex items-start gap-4 shadow-sm animate-fade-in">
+              <div className="w-10 h-10 rounded-2xl bg-amber-500/20 flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
               </div>
-              <div className="text-3xl font-bold text-[#F06123]">
-                ${order?.totalAmount?.toFixed(2) || '0.00'}
+              <div className="space-y-1 text-xs">
+                <h3 className="font-extrabold text-sm text-foreground">Stripe Payment Was Not Completed</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Your order details for <strong className="text-foreground">#{order?._id?.slice(-8).toUpperCase()}</strong> have been saved safely. You can retry paying via Stripe or choose an alternative payment option.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Main Card */}
+          <div className="bg-surface rounded-3xl border border-border p-6 sm:p-8 shadow-sm space-y-6">
+            
+            {/* Header / Amount */}
+            <div className="flex items-center justify-between pb-6 border-b border-border">
+              <div>
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-muted-foreground block mb-0.5">Order Reference</span>
+                <h2 className="text-xl font-extrabold text-foreground font-mono">
+                  #{order?._id?.substring(order._id.length - 8).toUpperCase()}
+                </h2>
+              </div>
+              <div className="text-right">
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-muted-foreground block mb-0.5">Total Amount</span>
+                <div className="text-2xl font-extrabold text-[#F06123]">
+                  ${order?.totalAmount?.toFixed(2) || '0.00'} <span className="text-xs font-semibold text-muted-foreground">AUD</span>
+                </div>
               </div>
             </div>
 
+            {/* Error Banner */}
             {errorMsg && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl text-sm font-medium">
-                {errorMsg}
+              <div className="p-4 bg-red-50 border border-red-200 text-red-600 rounded-2xl text-xs font-medium flex items-center gap-2">
+                <XCircle className="w-4 h-4 shrink-0 text-red-500" />
+                <span>{errorMsg}</span>
               </div>
             )}
 
-            <div className="space-y-6 mb-8">
-              <div className="bg-orange-50/50 p-5 rounded-2xl border border-orange-200/60 flex items-start gap-4">
-                <div className="w-10 h-10 rounded-full bg-[#F06123]/10 flex items-center justify-center shrink-0">
-                  <CreditCard className="w-5 h-5 text-[#F06123]" />
+            {/* Items Summary */}
+            {order?.items && order.items.length > 0 && (
+              <div className="bg-background/50 rounded-2xl p-4 border border-border space-y-2 text-xs">
+                <div className="font-bold text-foreground mb-2 flex items-center justify-between">
+                  <span>Purchased Items ({order.items.length})</span>
+                  <span className="text-[#F06123] font-semibold text-[11px]">Australia Shipping Included</span>
                 </div>
-                <div>
-                  <h3 className="font-bold text-gray-900">Card Payment Verification</h3>
-                  <p className="text-xs text-gray-600 mt-1 leading-relaxed font-medium">
-                    Stripe online card processing is currently undergoing verification. You can place your order directly via WhatsApp or Phone now.
-                  </p>
+                <div className="divide-y divide-border">
+                  {order.items.map((item, idx) => (
+                    <div key={idx} className="py-2 first:pt-0 flex items-center justify-between text-muted-foreground">
+                      <span className="truncate max-w-[240px] font-medium text-foreground">{item.quantity}x {item.name}</span>
+                      <span className="font-bold text-[#F06123]">${(item.price * item.quantity).toFixed(2)} AUD</span>
+                    </div>
+                  ))}
                 </div>
               </div>
-            </div>
+            )}
 
+            {/* Primary Action Button: Pay / Retry with Stripe */}
             <button
-              onClick={handlePayment}
-              disabled={!order}
-              className="w-full bg-[#F06123] hover:bg-[#e05214] text-white font-bold py-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-[#F06123]/25"
+              onClick={handleStripePayment}
+              disabled={!order || processingStripe}
+              className="w-full bg-gradient-to-r from-[#F06123] to-[#FF8803] hover:shadow-lg hover:shadow-[#F06123]/25 active:scale-[0.99] text-white font-extrabold py-4 rounded-2xl transition-all duration-200 flex items-center justify-center gap-2 text-sm disabled:opacity-60 cursor-pointer"
             >
-              <ShieldCheck className="w-5 h-5" />
-              Pay Now / Complete Order
+              {processingStripe ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Connecting to Stripe Hosted Checkout...</span>
+                </>
+              ) : isCanceledParam ? (
+                <>
+                  <RotateCcw className="w-4 h-4" />
+                  <span>Retry Stripe Payment (${order?.totalAmount?.toFixed(2)} AUD)</span>
+                </>
+              ) : (
+                <>
+                  <CreditCard className="w-5 h-5" />
+                  <span>Pay ${order?.totalAmount?.toFixed(2)} AUD with Stripe</span>
+                  <ExternalLink className="w-4 h-4 opacity-80 ml-1" />
+                </>
+              )}
             </button>
             
-            <div className="text-center mt-6 flex justify-center items-center gap-2 text-xs text-muted-foreground font-medium">
-              <ShieldCheck className="w-4 h-4 text-emerald-500" />
-              <span>Payments & Order details processed securely.</span>
+            <div className="text-center flex justify-center items-center gap-2 text-[11px] text-muted-foreground font-medium pt-1">
+              <Lock className="w-3.5 h-3.5 text-emerald-500" />
+              <span>Secure SSL encrypted card payment powered by Stripe</span>
             </div>
           </div>
 
-        </div>
-      </div>
-
-      {/* STRIPE VERIFICATION NOTICE MODAL */}
-      {showStripeModal && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 text-center shadow-2xl relative border border-gray-100">
-            <button 
-              onClick={() => setShowStripeModal(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100 transition-colors"
-            >
-              <FaTimes className="text-lg" />
-            </button>
-
-            <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4 text-[#F06123] shadow-sm">
-              <FaExclamationTriangle className="text-3xl" />
-            </div>
-
-            <h3 className="text-xl font-extrabold text-gray-900 mb-2">
-              Stripe Verification In Progress
+          {/* Alternative Contact & Support Options */}
+          <div className="bg-surface rounded-3xl border border-border p-6 shadow-sm space-y-4">
+            <h3 className="text-xs font-extrabold uppercase tracking-wider text-muted-foreground">
+              Alternative Payment & Support Options
             </h3>
 
-            <p className="text-gray-600 text-sm leading-relaxed mb-6 font-medium">
-              Current Stripe verification is not complete. We are working on that! You can place your order directly via WhatsApp or phone.
-            </p>
-
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <a
                 href={`https://wa.me/61402277723?text=${encodeURIComponent(whatsappMessage)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-3.5 px-4 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold rounded-xl flex items-center justify-center gap-2.5 transition-all shadow-md shadow-green-500/20 text-sm"
+                className="py-3 px-4 bg-[#25D366]/10 hover:bg-[#25D366]/20 border border-[#25D366]/30 text-[#1da851] dark:text-[#25D366] font-bold rounded-xl flex items-center justify-center gap-2 transition-all text-xs"
               >
-                <FaWhatsapp className="text-xl" />
-                Order via WhatsApp (+61 402 277 723)
+                <FaWhatsapp className="text-base" />
+                Contact via WhatsApp
               </a>
 
               <a
                 href="tel:+61402277723"
-                className="w-full py-3 px-4 bg-gray-900 hover:bg-black text-white font-bold rounded-xl flex items-center justify-center gap-2.5 transition-all text-sm"
+                className="py-3 px-4 bg-muted hover:bg-muted/80 text-foreground border border-border font-bold rounded-xl flex items-center justify-center gap-2 transition-all text-xs"
               >
-                <FaPhoneAlt className="text-sm" />
-                Call Us: +61 402 277 723
+                <Phone className="w-3.5 h-3.5 text-[#F06123]" />
+                Sydney Phone (+61 402 277 723)
               </a>
-
-              <button
-                onClick={() => {
-                  setShowStripeModal(false);
-                  navigate('/orders');
-                }}
-                className="w-full py-2.5 text-[#F06123] hover:text-[#e05214] font-bold text-xs transition-colors flex items-center justify-center gap-1.5"
-              >
-                <FaShoppingBag className="text-xs" /> View My Orders
-              </button>
             </div>
           </div>
+
+          {/* Return Links */}
+          <div className="flex items-center justify-between text-xs text-muted-foreground font-bold px-2">
+            <Link to="/cart" className="flex items-center gap-1.5 hover:text-[#F06123] transition-colors">
+              <ArrowLeft className="w-3.5 h-3.5" /> Return to Shopping Cart
+            </Link>
+            <Link to="/orders" className="flex items-center gap-1.5 hover:text-[#F06123] transition-colors">
+              <ShoppingBag className="w-3.5 h-3.5" /> My Orders
+            </Link>
+          </div>
+
         </div>
-      )}
+      </div>
 
       <Footer />
     </PageLayout>

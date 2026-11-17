@@ -51,9 +51,13 @@ app.use(cors({
     },
     credentials: true,
 }));
+// Stripe Webhook raw body parser for signature verification
+app.use('/api/orders/stripe-webhook', express.raw({ type: 'application/json' }));
+
 app.use(express.json());
 app.use(cookieParser());
 app.use('/uploads', express.static('uploads'));
+
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);

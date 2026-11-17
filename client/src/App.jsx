@@ -22,12 +22,16 @@ const Register = lazy(() => import("./pages/Register").then(module => ({ default
 const SetPassword = lazy(() => import("./pages/SetPassword").then(module => ({ default: module.SetPassword })));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword").then(module => ({ default: module.ForgotPassword })));
 const CheckoutPage = lazy(() => import("./pages/CheckoutPage").then(module => ({ default: module.CheckoutPage })));
+
+
 const PaymentPage = lazy(() => import("./pages/PaymentPage").then(module => ({ default: module.PaymentPage })));
 const Settings = lazy(() => import("./pages/Settings").then(module => ({ default: module.Settings })));
 const Orders = lazy(() => import("./pages/Orders").then(module => ({ default: module.Orders })));
 const TrackOrder = lazy(() => import("./pages/TrackOrder").then(module => ({ default: module.TrackOrder })));
 const Wishlist = lazy(() => import("./pages/Wishlist").then(module => ({ default: module.Wishlist })));
 const Quotations = lazy(() => import("./pages/Quotations").then(module => ({ default: module.Quotations })));
+const OrderSuccessPage = lazy(() => import("./pages/OrderSuccessPage").then(module => ({ default: module.OrderSuccessPage })));
+
 
 // Loading component
 const LoadingSpinner = () => (
@@ -68,7 +72,9 @@ function App() {
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/checkout/pay/:id" element={<PaymentPage />} />
+                <Route path="/order-success" element={<OrderSuccessPage />} />
                 <Route path="/settings" element={<Settings />} />
+
                 <Route path="/orders" element={<Orders />} />
                 <Route path="/track" element={<TrackOrder />} />
                 <Route path="/wishlist" element={<Wishlist />} />

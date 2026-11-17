@@ -63,9 +63,9 @@ export const Wishlist = () => {
   const cardStyle = { boxShadow: '0 2px 10px rgba(0,0,0,0.03), 0 4px 16px rgba(0,0,0,0.02)', border: '1px solid rgba(0,0,0,0.05)' };
 
   return (
-    <UserPortalLayout 
-      currentTab="wishlist" 
-      title="My Wishlist" 
+    <UserPortalLayout
+      currentTab="wishlist"
+      title="My Wishlist"
       subtitle="View, manage, and shop items saved to your personal collection"
       icon={FaHeart}
     >
@@ -86,8 +86,8 @@ export const Wishlist = () => {
           <p className="text-gray-500 text-xs mb-6 max-w-sm mx-auto leading-relaxed">
             Explore our industrial battery collection and save your favorite products here for quick access anytime!
           </p>
-          <Link 
-            to="/product" 
+          <Link
+            to="/product"
             className="inline-flex items-center gap-2 px-6 py-3 text-white font-bold rounded-xl transition-all shadow-md hover:shadow-lg text-xs"
             style={{ background: 'linear-gradient(135deg, #F06123, #FF8803)', boxShadow: '0 4px 14px rgba(240,97,35,0.25)' }}
           >
@@ -101,7 +101,7 @@ export const Wishlist = () => {
             <p className="text-xs font-semibold text-gray-600">
               Total Saved Items: <span className="text-[#F06123] font-bold ml-1">{wishlistItems.length}</span>
             </p>
-            <button 
+            <button
               onClick={handleClearAll}
               className="text-xs font-bold text-red-500 hover:text-red-700 transition-colors flex items-center gap-1.5"
             >
@@ -120,16 +120,16 @@ export const Wishlist = () => {
               const itemCategory = item.category || 'Battery';
 
               return (
-                <div 
-                  key={itemId} 
+                <div
+                  key={itemId}
                   className="bg-white rounded-2xl overflow-hidden flex flex-col group hover:-translate-y-1 transition-all duration-300 relative"
                   style={cardStyle}
                 >
                   {/* Image Header */}
                   <Link to={`/product/${item.slug || itemId}`} className="relative h-44 bg-[#fbfaf8] overflow-hidden block">
-                    <img 
-                      src={resolveImageUrl(itemImg)} 
-                      alt={itemTitle} 
+                    <img
+                      src={resolveImageUrl(itemImg)}
+                      alt={itemTitle}
                       className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500"
                     />
                     <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-xs text-[#F06123] text-[9.5px] font-extrabold px-2.5 py-0.5 rounded-full border border-orange-100 uppercase tracking-wider shadow-2xs">
@@ -160,14 +160,14 @@ export const Wishlist = () => {
 
                     {/* Action Buttons */}
                     <div className="flex items-center gap-2 pt-3 border-t border-gray-100">
-                      <button 
+                      <button
                         onClick={() => handleAddToCart(item)}
                         className="flex-1 py-2.5 px-3 text-white font-bold rounded-xl transition-all duration-300 flex justify-center items-center gap-1.5 text-xs shadow-md hover:shadow-lg"
                         style={{ background: 'linear-gradient(135deg, #F06123, #FF8803)', boxShadow: '0 2px 8px rgba(240,97,35,0.2)' }}
                       >
                         <FaShoppingCart className="text-[11px]" /> Add to Cart
                       </button>
-                      <button 
+                      <button
                         onClick={() => handleRemove(itemId)}
                         className="w-9 h-9 bg-red-50 hover:bg-red-100 text-red-500 rounded-xl flex justify-center items-center transition-colors shrink-0"
                         title="Remove from Wishlist"

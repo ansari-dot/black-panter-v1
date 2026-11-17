@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 const portalRoutes = ['/settings', '/orders', '/track', '/wishlist', '/quotations', '/quotes'];
 
 export function ScrollToTop() {
-  const { pathname, search } = useLocation();
+  const { pathname } = useLocation();
   const prevPathname = useRef(pathname);
 
   useEffect(() => {
@@ -21,7 +21,7 @@ export function ScrollToTop() {
     }
 
     prevPathname.current = pathname;
-  }, [pathname, search]);
+  }, [pathname]);
 
   return null;
 }

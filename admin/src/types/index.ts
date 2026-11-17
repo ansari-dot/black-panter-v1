@@ -204,7 +204,74 @@ export interface TProject {
   featuredOnHome?: boolean;
 }
 
-export type TTab = 'dashboard' | 'services' | 'products' | 'inquiries' | 'team' | 'testimonials' | 'settings' | 'partners' | 'projects' | 'homePage' | 'inventory' | 'warehouses' | 'categories' | 'homepageProducts' | 'homepageServices' | 'homepageProjects' | 'quotations' | 'createQuotation' | 'quotationTemplates';
+export type TTab = 'dashboard' | 'orders' | 'services' | 'products' | 'inquiries' | 'team' | 'testimonials' | 'settings' | 'partners' | 'projects' | 'homePage' | 'inventory' | 'warehouses' | 'categories' | 'homepageProducts' | 'homepageServices' | 'homepageProjects' | 'quotations' | 'createQuotation' | 'quotationTemplates';
+
+export interface TOrderItem {
+  productId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  imageUrl?: string;
+  category?: string;
+}
+
+export interface TOrderShippingDetails {
+  fullName: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+}
+
+export interface TOrder {
+  _id: string;
+  user?: {
+    _id: string;
+    name: string;
+    email: string;
+    phone?: string;
+  } | string;
+  items: TOrderItem[];
+  totalAmount: number;
+  shippingDetails: TOrderShippingDetails;
+  orderStatus: 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
+  paymentStatus: 'Pending' | 'Paid' | 'Failed';
+  paymentMethod: string;
+  stripeSessionId?: string;
+  paymentResult?: {
+    id?: string;
+    status?: string;
+    update_time?: string;
+    email_address?: string;
+  };
+  shipping?: {
+    courier?: string;
+    status?: 'PENDING' | 'PROCESSING' | 'READY_TO_SHIP' | 'SHIPMENT_CREATED' | 'SHIPPED' | 'IN_TRANSIT' | 'OUT_FOR_DELIVERY' | 'DELIVERED' | 'DELIVERY_FAILED' | 'RETURNED' | 'CANCELLED';
+    shipmentId?: string;
+    itemId?: string;
+    trackingNumber?: string;
+    trackingUrl?: string;
+    labelUrl?: string;
+    labelReference?: string;
+    parcelWeightKg?: number;
+    parcelDimensions?: {
+      lengthCm?: number;
+      widthCm?: number;
+      heightCm?: number;
+    };
+    shipmentCreatedAt?: string;
+    handedOverAt?: string;
+    shippedAt?: string;
+    deliveredAt?: string;
+  };
+  createdAt: string;
+
+  updatedAt: string;
+}
+
 
 export interface TWarehouse {
   _id: string;

@@ -25,13 +25,13 @@ export const productsApi = {
   /** GET /api/products?status=Active&page=1&limit=12&category=...&featuredOnHome=true&search=...&maxPrice=...&stockStatus=...&sort=... */
   getAll: ({ page = 1, limit = 12, status, category, featuredOnHome, search, maxPrice, stockStatus, sort } = {}) => {
     const params = new URLSearchParams({ page, limit });
-    if (status)          params.set('status', status);
-    if (category)        params.set('category', category);
-    if (featuredOnHome)  params.set('featuredOnHome', 'true');
-    if (search)          params.set('search', search);
-    if (maxPrice)        params.set('maxPrice', maxPrice);
-    if (stockStatus)     params.set('stockStatus', stockStatus);
-    if (sort)            params.set('sort', sort);
+    if (status) params.set('status', status);
+    if (category) params.set('category', category);
+    if (featuredOnHome) params.set('featuredOnHome', 'true');
+    if (search) params.set('search', search);
+    if (maxPrice) params.set('maxPrice', maxPrice);
+    if (stockStatus) params.set('stockStatus', stockStatus);
+    if (sort) params.set('sort', sort);
     return request(`/api/products?${params}`);
   },
 
@@ -95,9 +95,19 @@ export const authApi = {
 export const orderApi = {
   createOrder: (body) => request('/api/orders', { method: 'POST', body: JSON.stringify(body) }),
   processPayment: (id) => request(`/api/orders/${id}/pay`, { method: 'POST' }),
+  createCheckoutSession: (id) => request(`/api/orders/${id}/create-checkout-session`, { method: 'POST' }),
+  verifyStripeSession: (sessionId, orderId, sandbox) => {
+    const params = new URLSearchParams();
+    if (orderId) params.set('order_id', orderId);
+    if (sandbox) params.set('sandbox', 'true');
+    const queryStr = params.toString() ? `?${params.toString()}` : '';
+    return request(`/api/orders/verify-session/${sessionId}${queryStr}`);
+  },
   getMyOrders: () => request('/api/orders/myorders'),
   trackOrder: (id) => request(`/api/orders/track/${id}`),
+  getAusPostTracking: (id) => request(`/api/orders/${id}/tracking`),
 };
+
 
 // ─── Quotations ───────────────────────────────────────────────────────────────
 export const quotationApi = {

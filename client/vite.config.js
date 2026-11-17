@@ -4,16 +4,13 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    dedupe: ['react', 'react-dom', 'react-router-dom'],
+  },
   build: {
+
     chunkSizeWarningLimit: 600,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-          'vendor-ui': ['lucide-react'],
-        },
-      },
-    },
+
     // Optimize assets
     assetsInlineLimit: 4096, // Inline assets smaller than 4KB
     cssCodeSplit: true,
@@ -27,10 +24,15 @@ export default defineConfig({
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-router-dom'],
   },
-  // Server configuration for better caching
+  // Server configuration
   server: {
+    hmr: {
+      overlay: false,
+    },
     headers: {
-      'Cache-Control': 'public, max-age=31536000',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
     },
   },
 })
+
+

@@ -221,3 +221,97 @@ export const sendInquiryReplyEmail = async ({ to, recipientName, inquirySubject,
 
   return sendQuotationEmail({ to, subject, html, text });
 };
+
+export const sendShipmentNotificationEmail = async ({ to, order, trackingNumber, trackingUrl }) => {
+  const orderIdStr = order._id.toString().slice(-8).toUpperCase();
+  const trackLink = trackingUrl || `${process.env.APP_URL || 'http://localhost:5173'}/track?id=${order._id}`;
+  const subject = `🚚 Your Order #${orderIdStr} Has Been Shipped via Australia Post!`;
+  const text = `Hi ${order.shippingDetails?.fullName || 'Customer'},\n\nGreat news! Your order #${orderIdStr} has been handed over to Australia Post and is on its way to you.\n\nTracking Number: ${trackingNumber}\nTrack Order: ${trackLink}\n\nThank you for shopping with Black Panther Batteries!`;
+
+  const html = `
+    <div style="font-family: 'Plus Jakarta Sans', Arial, sans-serif; max-width: 580px; margin: 0 auto; padding: 32px 24px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px;">
+      <div style="text-align: center; margin-bottom: 24px; border-bottom: 2px solid #F06123; padding-bottom: 16px;">
+        <h2 style="color: #0f172a; font-size: 22px; font-weight: 800; margin: 0 0 4px 0;">Black Panther Batteries</h2>
+        <p style="color: #64748b; font-size: 13px; margin: 0;">Australia Post Shipment Notification</p>
+      </div>
+
+      <p style="color: #334155; font-size: 14px; line-height: 1.6; margin: 0 0 16px 0;">
+        Hi <strong>${order.shippingDetails?.fullName || 'Customer'}</strong>,<br/><br/>
+        Great news! Your order <span style="font-family: monospace; font-weight: 700; color: #ea580c;">#${orderIdStr}</span> has been packed and handed over to <strong>Australia Post</strong> for delivery.
+      </p>
+
+      <div style="background-color: #fff7ed; border: 1px solid #ffedd5; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 24px;">
+        <p style="color: #9a3412; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin: 0 0 6px 0;">Australia Post Tracking Number</p>
+        <div style="font-family: monospace; font-size: 24px; font-weight: 900; color: #ea580c; margin: 0 0 12px 0;">${trackingNumber}</div>
+        <a href="${trackLink}" style="display: inline-block; background-color: #ea580c; color: #ffffff; font-weight: 700; font-size: 14px; text-decoration: none; padding: 12px 24px; border-radius: 8px;">
+          Track Shipment Progress →
+        </a>
+      </div>
+
+      <div style="background-color: #f8fafc; border-radius: 12px; padding: 16px; margin-bottom: 24px; font-size: 13px; color: #475569;">
+        <h4 style="margin: 0 0 8px 0; color: #0f172a; font-size: 13px; font-weight: 700;">Delivery Destination:</h4>
+        <p style="margin: 0; line-height: 1.5;">
+          ${order.shippingDetails?.address}<br/>
+          ${order.shippingDetails?.city}, ${order.shippingDetails?.state} ${order.shippingDetails?.zipCode}<br/>
+          <strong>Australia</strong>
+        </p>
+      </div>
+
+      <div style="border-top: 1px solid #f1f5f9; padding-top: 16px; text-align: center;">
+        <p style="color: #94a3b8; font-size: 12px; margin: 0;">© ${new Date().getFullYear()} Black Panther Batteries. All rights reserved.</p>
+      </div>
+    </div>
+  `;
+
+  return sendQuotationEmail({ to, subject, html, text });
+};
+
+export const sendOrderConfirmationEmail = async ({ to, order }) => {
+  const orderIdStr = order._id.toString().slice(-8).toUpperCase();
+  const subject = `🎉 Payment Confirmed! Order #${orderIdStr}`;
+  const text = `Hi ${order.shippingDetails?.fullName
+    || 'Customer'},\n\nThank you for your purchase! We have received your payment of $${order.totalAmount?.toFixed(2)} AUD for Order #${orderIdStr}.\n\nOur warehouse team is currently preparing and packing your item. Your Australia Post tracking number will be sent in a separate shipment email as soon as your parcel is dispatched.\n\nThank you for shopping with Black Panther Batteries!`;
+
+  const itemsListHtml = (order.items || []).map(item => `
+    <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px border #f1f5f9; font-size: 13px;">
+      <span><strong>${item.quantity}x</strong> ${item.name}</span>
+      <span style="font-weight: 700; color: #ea580c;">$${(item.price * item.quantity).toFixed(2)} AUD</span>
+    </div>
+  `).join('');
+
+  const html = `
+    <div style="font-family: 'Plus Jakarta Sans', Arial, sans-serif; max-width: 580px; margin: 0 auto; padding: 32px 24px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px;">
+      <div style="text-align: center; margin-bottom: 24px; border-bottom: 2px solid #F06123; padding-bottom: 16px;">
+        <h2 style="color: #0f172a; font-size: 22px; font-weight: 800; margin: 0 0 4px 0;">Black Panther Batteries</h2>
+        <p style="color: #64748b; font-size: 13px; margin: 0;">Order Payment Confirmation</p>
+      </div>
+
+      <p style="color: #334155; font-size: 14px; line-height: 1.6; margin: 0 0 16px 0;">
+        Hi <strong>${order.shippingDetails?.fullName || 'Customer'}</strong>,<br/><br/>
+        Thank you for your purchase! We have received your payment for order <span style="font-family: monospace; font-weight: 700; color: #ea580c;">#${orderIdStr}</span>.
+      </p>
+
+      <div style="background-color: #f8fafc; border-radius: 12px; padding: 16px; margin-bottom: 24px;">
+        <h4 style="margin: 0 0 12px 0; color: #0f172a; font-size: 14px; font-weight: 700;">Order Summary</h4>
+        ${itemsListHtml}
+        <div style="display: flex; justify-content: space-between; margin-top: 12px; pt: 12px; border-top: 2px solid #e2e8f0; font-size: 15px; font-weight: 800; color: #0f172a;">
+          <span>Total Paid:</span>
+          <span style="color: #ea580c;">$${order.totalAmount?.toFixed(2)} AUD</span>
+        </div>
+      </div>
+
+      <div style="background-color: #fff7ed; border: 1px solid #ffedd5; border-radius: 12px; padding: 16px; margin-bottom: 24px; font-size: 13px; color: #9a3412;">
+        <strong>📌 What's Next?</strong><br/>
+        Our warehouse team is packing your physical parcel. As soon as we hand over your package to <strong>Australia Post</strong>, you will receive a <strong>Shipment Email</strong> containing your official tracking number.
+      </div>
+
+      <div style="border-top: 1px solid #f1f5f9; padding-top: 16px; text-align: center;">
+        <p style="color: #94a3b8; font-size: 12px; margin: 0;">© ${new Date().getFullYear()} Black Panther Batteries. All rights reserved.</p>
+      </div>
+    </div>
+  `;
+
+  return sendQuotationEmail({ to, subject, html, text });
+};
+
+

@@ -76,7 +76,7 @@ export const create = asyncHandler(async (req, res) => {
   if (Array.isArray(body.warehouseStocks)) {
     const totalStock = body.warehouseStocks.reduce((sum, ws) => sum + (Number(ws.stock) || 0), 0);
     body.currentStock = totalStock;
-    
+
     let newStockStatus = 'In Stock';
     if (totalStock === 0) newStockStatus = 'Out of Stock';
     else if (totalStock < (body.minStock || 10)) newStockStatus = 'Low Stock';
@@ -96,7 +96,7 @@ export const update = asyncHandler(async (req, res) => {
   if (Array.isArray(body.warehouseStocks)) {
     const totalStock = body.warehouseStocks.reduce((sum, ws) => sum + (Number(ws.stock) || 0), 0);
     body.currentStock = totalStock;
-    
+
     let newStockStatus = 'In Stock';
     if (totalStock === 0) newStockStatus = 'Out of Stock';
     else if (totalStock < (body.minStock || 10)) newStockStatus = 'Low Stock';

@@ -32,7 +32,9 @@ import CategoriesPage from './pages/CategoriesPage';
 import CreateQuotationPage from './pages/CreateQuotationPage';
 import QuotationTemplatesPage from './pages/QuotationTemplatesPage';
 import QuotationsPage from './pages/QuotationsPage';
+import OrdersPage from './pages/OrdersPage';
 import { TInquiry, TQuotation } from './types';
+
 
 
 // Simple fallback and trigger icons
@@ -123,7 +125,16 @@ export default function App() {
     addQuotation,
     updateQuotation,
     deleteQuotation,
+    // Orders & Australia Post Shipping
+    orders,
+    updateOrderStatus,
+    deleteOrder,
+    markReadyToShip,
+    createAusPostShipment,
+    markHandedOver,
   } = useDashboardData();
+
+
 
   // Helper values for metric items
   const newInquiriesCount = inquiries.filter((i) => i.status === 'New').length;
@@ -329,6 +340,20 @@ export default function App() {
               onOpenQuickAdd={handleOpenQuickAdd}
             />
           )}
+
+          {currentTab === 'orders' && (
+            <OrdersPage
+              orders={orders}
+              onUpdateStatus={updateOrderStatus}
+              onDeleteOrder={deleteOrder}
+              onMarkReadyToShip={markReadyToShip}
+              onCreateShipment={createAusPostShipment}
+              onMarkHandedOver={markHandedOver}
+              onRefresh={refetch}
+            />
+          )}
+
+
 
           {currentTab === 'services' && (
             <ServicesPage

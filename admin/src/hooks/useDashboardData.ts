@@ -448,6 +448,39 @@ export function useDashboardData() {
     dispatch(fetchDashboardData());
   }, [dispatch, addSystemLog]);
 
+  // ORDER ACTIONS
+  const updateOrderStatus = useCallback(async (id: string, statusData: { orderStatus?: string; paymentStatus?: string }) => {
+    await api.put(`/api/orders/admin/${id}/status`, statusData);
+    addSystemLog('info', `Order ${id} status updated`, 'Order Manager');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
+
+  const deleteOrder = useCallback(async (id: string) => {
+    await api.delete(`/api/orders/admin/${id}`);
+    addSystemLog('warning', `Order ${id} deleted`, 'Order Manager');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
+
+  const markReadyToShip = useCallback(async (id: string, parcelData?: { parcelWeightKg?: number; lengthCm?: number; widthCm?: number; heightCm?: number }) => {
+    await api.post(`/api/orders/admin/${id}/ready-to-ship`, parcelData || {});
+    addSystemLog('info', `Order ${id} marked Ready to Ship`, 'Shipping Manager');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
+
+  const createAusPostShipment = useCallback(async (id: string, parcelData?: { parcelWeightKg?: number; lengthCm?: number; widthCm?: number; heightCm?: number }) => {
+    const res = await api.post<any>(`/api/orders/admin/${id}/create-shipment`, parcelData || {});
+    addSystemLog('success', `Australia Post Shipment Created for order ${id}`, 'Australia Post Manager');
+    dispatch(fetchDashboardData());
+    return res;
+  }, [dispatch, addSystemLog]);
+
+  const markHandedOver = useCallback(async (id: string) => {
+    await api.post(`/api/orders/admin/${id}/mark-handed-over`);
+    addSystemLog('success', `Order ${id} marked Handed Over to Australia Post`, 'Shipping Manager');
+    dispatch(fetchDashboardData());
+  }, [dispatch, addSystemLog]);
+
+
   return {
     inquiries: state.inquiries,
     services: state.services,
@@ -463,6 +496,7 @@ export function useDashboardData() {
     partners: state.partners,
     projects: state.projects,
     quotations: state.quotations,
+    orders: state.orders || [],
     isLoading: state.isLoading,
     isError: state.isError,
     errorMsg: state.errorMsg,
@@ -520,5 +554,13 @@ export function useDashboardData() {
     addQuotation,
     updateQuotation,
     deleteQuotation,
+    // Orders & Australia Post Shipping
+    updateOrderStatus,
+    deleteOrder,
+    markReadyToShip,
+    createAusPostShipment,
+    markHandedOver,
   };
 }
+
+

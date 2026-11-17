@@ -9,10 +9,10 @@ const cookieOptions = () => ({
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
   sameSite: 'lax',
-  maxAge: 7 * 24 * 60 * 60 * 1000,
+  maxAge: 2 * 60 * 60 * 1000, // 2 hours
 });
 
-const signToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+const signToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '2h' });
 
 // Helper to validate strong password
 export const isStrongPassword = (password) => {

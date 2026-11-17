@@ -28,8 +28,9 @@ interface HeaderProps {
   onNavigate?: (tab: TTab) => void;
 }
 
-const LABELS: Record<TTab, string> = {
+const LABELS: Record<string, string> = {
   dashboard:           'Dashboard',
+  orders:              'Orders',
   homePage:            'Home Page',
   services:            'Services',
   products:            'Products',
@@ -42,10 +43,17 @@ const LABELS: Record<TTab, string> = {
   quotations:          'Quotations',
   createQuotation:     'Quotations',
   quotationTemplates:  'Quotations',
+  inventory:           'Inventory',
+  warehouses:          'Warehouses',
+  categories:          'Categories',
+  homepageProducts:    'Homepage Products',
+  homepageServices:    'Homepage Services',
+  homepageProjects:    'Homepage Projects',
 };
 
-const SECTIONS: Record<TTab, string> = {
+const SECTIONS: Record<string, string> = {
   dashboard:           'Overview',
+  orders:              'Product Orders',
   homePage:            'Home Page',
   services:            'Services',
   products:            'Products',
@@ -58,7 +66,15 @@ const SECTIONS: Record<TTab, string> = {
   quotations:          'All Quotations',
   createQuotation:     'Create New Quotation',
   quotationTemplates:  'Templates',
+  inventory:           'Inventory Management',
+  warehouses:          'Warehouses',
+  categories:          'Categories',
+  homepageProducts:    'Featured Products',
+  homepageServices:    'Featured Services',
+  homepageProjects:    'Featured Projects',
 };
+
+
 
 export default function Header({ currentTab, isRefetching, onRefresh, user, onNavigate }: HeaderProps) {
   const initials = user?.name
